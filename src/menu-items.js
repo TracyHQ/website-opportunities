@@ -87,14 +87,23 @@ function singular(word) {
   return word
 }
 
-/** A printed price as a number to compare (`74`, `74.00`, `AED 74` equal), or null when it holds no number. */
-function priceNumber(price) {
-  const digits = String(price ?? '')
-    .replace(/[^\d.,]/g, '')
-    .replace(/,(\d{1,2})$/, '.$1')
-    .replace(/,/g, '')
+/**
+ * A printed price as a number to compare (`74`, `74.00`, `AED 74` equal; `65.000` and `65,000` are 65000, `12,50` is
+ * 12.5), or null when it holds no number. The printed number, not yet scaled (`amountOf`).
+ */
+export function priceNumber(price) {
+  const printed = String(price ?? '').replace(/[^\d.,]/g, '')
+  const digits = /^\d{1,3}(?:[.,]\d{3})+$/.test(printed)
+    ? printed.replace(/[.,]/g, '')
+    : printed.replace(/,(\d{1,2})$/, '.$1').replace(/,/g, '')
   const n = Number(digits)
   return digits && Number.isFinite(n) ? n : null
+}
+
+/** What an item's price is worth: the printed number times its `priceScale` (a menu printing thousands); null without one. */
+const amountOf = (item) => {
+  const n = priceNumber(item?.price)
+  return n === null ? null : n * (item?.priceScale ?? 1)
 }
 
 const postedAt = (item) => {
@@ -108,40 +117,49 @@ const postedAt = (item) => {
  * leave one row with no price and `priceConflict`.
  */
 function settleReadings(list) {
-  const priced = list.filter((i) => priceNumber(i.price) !== null)
+  const priced = list.filter((i) => amountOf(i) !== null)
   if (priced.length === 0) return [list[0]]
-  if (new Set(priced.map((i) => priceNumber(i.price))).size === 1) {
+  if (new Set(priced.map(amountOf)).size === 1) {
     // Same price on every reading that has one: the newest of them speaks, else the first.
     return [[...priced].sort((a, b) => (postedAt(b) ?? -1) - (postedAt(a) ?? -1))[0]]
   }
   if (priced.every((i) => i.source?.url) && new Set(priced.map((i) => i.source.url)).size === 1)
-    return priced.filter(
-      (i, n) => priced.findIndex((x) => priceNumber(x.price) === priceNumber(i.price)) === n
-    )
+    return priced.filter((i, n) => priced.findIndex((x) => amountOf(x) === amountOf(i)) === n)
   const dates = priced.map(postedAt)
   if (dates.every((t) => t !== null)) {
     const newest = Math.max(...dates)
     const holders = priced.filter((i) => postedAt(i) === newest)
-    if (holders.length === 1 || new Set(holders.map((i) => priceNumber(i.price))).size === 1)
+    if (holders.length === 1 || new Set(holders.map(amountOf)).size === 1)
       return [withOtherPrices(holders[0], priced)]
   }
   // Dates unknown or equal and the sources disagree: no price, flagged, every printed price kept beside it.
   return [
     withOtherPrices(
-      { ...priced[0], price: null, currency: null, priceConflict: true, priceNote: PRICES_DIFFER },
+      {
+        ...priced[0],
+        price: null,
+        currency: null,
+        priceScale: undefined,
+        priceConflict: true,
+        priceNote: PRICES_DIFFER
+      },
       priced
     )
   ]
 }
 
-/** The other prices photos printed for a dish, each with the photo it came from (`otherPrices`); only photo readings. */
+/** The other prices photos printed for a dish, each with the photo it came from (`otherPrices`) and its scale; only photo readings. */
 function withOtherPrices(item, priced) {
-  const kept = priceNumber(item.price)
+  const kept = amountOf(item)
   const others = []
   for (const i of priced) {
-    const n = priceNumber(i.price)
-    if (i.source?.kind !== 'photo' || n === kept || others.some((o) => priceNumber(o.price) === n)) continue
-    others.push({ price: i.price, mediaId: i.source.mediaId ?? i.source.region ?? null })
+    const n = amountOf(i)
+    if (i.source?.kind !== 'photo' || n === kept || others.some((o) => amountOf(o) === n)) continue
+    others.push({
+      price: i.price,
+      mediaId: i.source.mediaId ?? i.source.region ?? null,
+      ...(i.priceScale ? { priceScale: i.priceScale } : {})
+    })
   }
   return others.length ? { ...item, otherPrices: others } : item
 }
@@ -185,6 +203,9 @@ export function mergeMenuItems(items, { searched = new Set() } = {}) {
   return out.sort((a, b) => sections.get(dishKey(a.section)) - sections.get(dishKey(b.section)))
 }
 
+/** What a menu's stated `priceScale` reads as in the agent's summary. */
+const SCALE_WORDS = { 1000: 'thousands', 10000: 'ten-thousands', 1000000: 'millions' }
+
 const SEASONAL =
   /\b(?:seasonal|season|summer|winter|spring|autumn|fall|christmas|xmas|easter|ramadan|iftar|eid|valentine|new year|tet|halloween|thanksgiving|festive|limited)\b/i
 const YEAR_MS = 365 * 24 * 3600 * 1000
@@ -208,20 +229,29 @@ export function menuSummary(items, { at = null, searched = new Set(), empty = nu
       ? `${sections.slice(0, SECTIONS_NAMED).join(', ')} and ${sections.length - SECTIONS_NAMED} more`
       : sections.join(', ')
   const lines = [`${plural(list.length, 'dish')} in ${plural(sections.length, 'section')}: ${shown}.`]
+  // Per currency and printed scale: the numbers as printed, and what a number in thousands means.
   const byCurrency = new Map()
   for (const item of list) {
     const n = priceNumber(item.price)
     if (n === null) continue
     const c = item.currency ?? 'no currency'
-    byCurrency.set(c, [...(byCurrency.get(c) ?? []), n])
+    const scale = item.priceScale ?? 1
+    const key = `${c}\n${scale}`
+    const group = byCurrency.get(key) ?? { c, scale, ns: [] }
+    group.ns.push(n)
+    byCurrency.set(key, group)
   }
   if (byCurrency.size)
     lines.push(
-      `Prices: ${[...byCurrency]
-        .map(([c, ns]) => {
+      `Prices: ${[...byCurrency.values()]
+        .map(({ c, scale, ns }) => {
           const lo = Math.min(...ns)
           const hi = Math.max(...ns)
-          return `${c} ${lo === hi ? lo : `${lo}–${hi}`} (${plural(ns.length, 'dish')})`
+          const printed =
+            scale > 1
+              ? `, printed in ${SCALE_WORDS[scale] ?? `units of ${scale}`} (${lo} means ${(lo * scale).toLocaleString('en-US')})`
+              : ''
+          return `${c} ${lo === hi ? lo : `${lo}–${hi}`}${printed} (${plural(ns.length, 'dish')})`
         })
         .join('; ')}.`
     )

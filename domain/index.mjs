@@ -65,6 +65,12 @@ export {
 export { markChains, CHAIN_BRANDS } from './chains.mjs'
 export { scoreOpportunity } from './opportunity-score.mjs'
 export { withSiteSocials } from './site-socials.mjs'
+export {
+  buildDemoRequest,
+  DEMO_REQUEST_LIMITS,
+  DEMO_REQUEST_SCHEMA,
+  validateDemoRequest
+} from './demo-request.mjs'
 export { siteLabelFor, nextSiteLabel } from './site-label.mjs'
 export { detectStack, STACK_PACK_NAMES } from './site-stack.mjs'
 export {

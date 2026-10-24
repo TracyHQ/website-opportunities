@@ -305,7 +305,8 @@ export function createPlaceRunner(h) {
                     ...where,
                     key: keys.scrapecreators,
                     fetch: h.apiFetch
-                  })
+                  }),
+                { actualCents: scSearchCents }
               )
           : undefined,
         jina: keys.jina
@@ -441,13 +442,16 @@ export function createPlaceRunner(h) {
     return { result: first ?? { status: 'skipped', reason: 'credential_missing' }, fetchedAt: null }
   }
 
+  /** A ScrapeCreators search it did not charge ("no results") settles at 0; else at the reservation. */
+  const scSearchCents = (links) => (links?.charged === false ? 0 : null)
+
   // The operator's menu-links order (/ops/wo): the default (website only) leaves the crawl's menus as they are.
   async function menuLinksFor(ctx, profile, google) {
     const { domain, keys, settings } = ctx
     const order = resolveProviderOrder(settings, 'menu-links').order
     if (order.length === 1 && order[0] === 'website') return
-    const paid = (provider, operation, run) => (q) =>
-      charge(ctx, provider, operation, ceilingCents(provider, operation), () => run(q))
+    const paid = (provider, operation, run, options) => (q) =>
+      charge(ctx, provider, operation, ceilingCents(provider, operation), () => run(q), options)
     const found = await domain.findMenuLinks(domain.searchPlaceOf(google ?? {}, { name: profile.name }), {
       order,
       websiteMenus: profile.menus ?? [],
@@ -458,8 +462,11 @@ export function createPlaceRunner(h) {
             )
           : undefined,
         'scrapecreators-google': keys.scrapecreators
-          ? paid('scrapecreators', 'google-search', (q) =>
-              domain.scrapeCreatorsGoogleSearch(q, { key: keys.scrapecreators, fetch: h.apiFetch })
+          ? paid(
+              'scrapecreators',
+              'google-search',
+              (q) => domain.scrapeCreatorsGoogleSearch(q, { key: keys.scrapecreators, fetch: h.apiFetch }),
+              { actualCents: scSearchCents }
             )
           : undefined
       },

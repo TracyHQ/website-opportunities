@@ -108,8 +108,11 @@ test('capabilities: Google on, no demo templates, no vision', opts, async () => 
   for (const cms of Object.values(body.templates)) assert.deepEqual(cms.templates, [])
 })
 
-test('settings name the manual builder the server runs with', opts, async () => {
-  assert.deepEqual(await call('GET', `${BASE}/settings`), { status: 200, body: { builder: 'manual' } })
+test('settings name the Tracy builder the server runs with, and the Tracy it connects to', opts, async () => {
+  assert.deepEqual(await call('GET', `${BASE}/settings`), {
+    status: 200,
+    body: { builder: 'tracy', tracyUrl: 'https://cowork.tracy.ai' }
+  })
 })
 
 test('the browser page is served at / without any build step', opts, async () => {
@@ -200,7 +203,7 @@ test(
     const me = await call('GET', `${BASE}/operator/me`)
     assert.deepEqual(me, {
       status: 200,
-      body: { operator: true, email: 'operator@localhost', hub: false, keysWritable: false }
+      body: { operator: true, email: 'operator@localhost', hub: false, tracy: true, keysWritable: false }
     })
     const { status, body } = await call('GET', `${BASE}/operator/settings`)
     assert.equal(status, 200)

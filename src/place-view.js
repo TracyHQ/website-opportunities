@@ -162,6 +162,10 @@ function fileName(url) {
   }
 }
 
+/** What the menu says a printed price means (`priceScale`): 1 full, 1000 / 10000 / 1000000 shortened; null unknown. */
+const SCALES = new Set([1, 1000, 10_000, 1_000_000])
+const scaleOf = (priced) => (SCALES.has(priced?.priceScale) ? priced.priceScale : null)
+
 /**
  * The Menu of a place (the `menu` data contract): the merged dishes of its
  * snapshot profile with where each came from, and what its two research parts (`menu-file`, `menu-photos`) did last.
@@ -193,8 +197,10 @@ export function menuViewOf({ file = null, photos = null, profile = {}, menuPhoto
         mediaId: photo ? (i.source?.mediaId ?? i.source?.region ?? null) : null
       },
       verified: false,
+      // The price is the printed number, never multiplied; the scale says what the menu says it means.
+      priceScale: scaleOf(i),
       otherPrices: Array.isArray(i.otherPrices)
-        ? i.otherPrices.map((o) => ({ price: o.price, mediaId: o.mediaId ?? null }))
+        ? i.otherPrices.map((o) => ({ price: o.price, mediaId: o.mediaId ?? null, priceScale: scaleOf(o) }))
         : []
     }
   })

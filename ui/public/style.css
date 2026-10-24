@@ -720,3 +720,33 @@ dialog ul {
     transition: none;
   }
 }
+
+/* Tracy tab: the code the operator checks in Tracy. */
+.tracy-code-box {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--space);
+  margin: var(--space) 0;
+}
+
+.tracy-code {
+  font-size: 1.75rem;
+  letter-spacing: 0.12em;
+  margin: 4px 0 8px;
+}
+
+.notice.warn {
+  background: var(--warn-bg);
+  color: var(--warn-text);
+}
+
+.notice.warn a {
+  color: inherit;
+}
+
+/* Place profile: the Tracy part of the Build card, above the brief. */
+.tracy-build {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: var(--space);
+  margin-bottom: var(--space);
+}

@@ -154,11 +154,12 @@ test('manual: without a file store the doors say so instead of losing the brief'
   assert.equal((await r.json()).code, 'STORE_UNAVAILABLE')
 })
 
-test('tracy: planned only, it refuses to start', () => {
-  assert.throws(
-    () => createTracyBuilder({}),
-    (e) => e.code === 'BUILDER_PLANNED'
-  )
+test('tracy: a real builder that needs a database and a Tracy connection (end to end: plugins-builder-tracy)', () => {
+  assert.throws(() => createTracyBuilder({}), /needs pool and connection/)
+  const builder = createTracyBuilder({ pool: fakePool(), connection: { tracyUrl: 'https://tracy.example' } })
+  assert.equal(builder.id, 'tracy')
+  for (const m of BUILDER_METHODS) assert.equal(typeof builder[m], 'function')
+  assert.equal(typeof builder.demoJourneySql, 'function')
 })
 
 test('defineBuilder: every member the router calls must be there', () => {

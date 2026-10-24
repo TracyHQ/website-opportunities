@@ -1,8 +1,9 @@
 # Website Opportunities, standalone
 
 Run the open Website Opportunities layer on its own: find local businesses around a place (any kind, or one kind
-such as food and drink, beauty or home services), see which ones need a website, and research them. One operator, one Postgres database, your own provider keys. No demo
-builder: the build features stay off (`GET /api/website-opportunities/settings` answers `{}`).
+such as food and drink, beauty or home services), see which ones need a website, and research them. One operator, one Postgres database, your own provider keys. Demos are
+built by Tracy once the operator connects this server to a Tracy account (Operator page, Tracy tab); the brief
+export of the manual builder stays beside it.
 
 This folder holds the server (`server.js`), the one-operator host adapter (`host.js`), its settings
 (`config.js`), the operator principal (`operator-principal.js`), the object store on disk (`disk-objects.js`) and
@@ -67,6 +68,8 @@ machine and name it (`localhost`, `127.0.0.1` or `[::1]` in the `Host` header).
 | `SERPAPI_API_KEY`, `FIRECRAWL_API_KEY`, `JINA_API_KEY`, `LITESCRAPE_API_KEY` | none | Optional research providers |
 | `RAPIDAPI_KEY`, `SCRAPECREATORS_API_KEY` | none | Social page statistics |
 | `DEEPSEEK_API_KEY` | none | Model used by research steps that need one |
+| `TRACY_URL` | `https://cowork.tracy.ai` | The Tracy that "Build it with Tracy" connects to (OAuth device flow) and builds in |
+| `TRACY_API_URL` | `TRACY_URL` | Where that Tracy's `/v1` API answers, when it is another address |
 
 A key left unset turns its source off; `GET /api/website-opportunities/capabilities` shows what is on.
 
@@ -79,8 +82,10 @@ A key left unset turns its source off; `GET /api/website-opportunities/capabilit
 - **Files on disk.** Photos and logos are stored under `DATA_DIR`, at the same content-addressed keys a hosted
   install uses.
 - **Provider keys are read-only.** The Operator page (`#/operator`: Settings, Spend, Queue, and Hub where the hub is
-  served) shows where each key comes from and tests it, but keys are set in the environment: this server seals none.
+  served, Tracy) shows where each key comes from and tests it, but keys are set in the environment: this server seals none.
   Settings, spend caps and provider order are saved from the page. Its doors are `/api/website-opportunities/operator/*`.
+- **The Tracy connection is a file.** Its tokens are kept in `DATA_DIR/tracy-connection.json`, mode 0600, in plain
+  text (this server seals nothing): restricted permissions, not encryption. A host with `sealSecret` seals it.
 - **A plain web page.** `ui/public/` is served as it is, with no build step; a `UI_DIR` with no `index.html` leaves
   `/` answering with the API's address.
 

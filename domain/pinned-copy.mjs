@@ -100,9 +100,10 @@ function heroCtaOf(brief) {
 
 /**
  * The brief's collected menu items as dishes, verified ones first, one per name and section: its price as collected, or
- * each size's price (`Small 8.50 · Large 12.00`), empty when none was collected. A dish with no price is still a dish.
+ * each size's price (`Small 8.50 · Large 12.00`), a shortened price as its full amount (`shownPrice`), empty when none was
+ * collected. A dish with no price is still a dish.
  */
-function menuDishes(brief) {
+function menuDishes(brief, lang) {
   const byName = new Map()
   const items = (brief.sitemap ?? []).flatMap((page) =>
     (page.sections ?? []).flatMap((s) => s?.menuItems ?? [])
@@ -114,13 +115,30 @@ function menuDishes(brief) {
     if (!nonEmpty(i?.name) || !nonEmpty(i.source?.url)) continue
     const key = `${i.section ?? ''}\n${i.name.trim().toLowerCase()}`
     if (!byName.has(key)) byName.set(key, { name: i.name.trim(), prices: [], source: `menu:${i.source.url}` })
-    if (nonEmpty(i.price))
-      byName.get(key).prices.push(nonEmpty(i.size) ? `${i.size.trim()} ${i.price.trim()}` : i.price.trim())
+    const price = nonEmpty(i.price) ? shownPrice(i.price.trim(), i.priceScale, lang) : null
+    if (price) byName.get(key).prices.push(nonEmpty(i.size) ? `${i.size.trim()} ${price}` : price)
   }
   return [...byName.values()].map((d) => ({
     value: { name: d.name, description: '', price: d.prices.join(' · ') },
     source: d.source
   }))
+}
+
+/**
+ * A price as the site shows it: one the menu prints shortened (`priceScale` above 1: "110" for 110,000) as the full amount
+ * in the site's language; any other exactly as printed.
+ */
+function shownPrice(price, scale, lang) {
+  const printed = price.replace(/\s/g, '')
+  const amount = Number(
+    /^\d{1,3}(?:[.,]\d{3})+$/.test(printed) ? printed.replace(/[.,]/g, '') : printed.replace(',', '.')
+  )
+  if (!(scale > 1) || !Number.isFinite(amount)) return price
+  try {
+    return new Intl.NumberFormat(lang || 'en').format(amount * scale)
+  } catch {
+    return new Intl.NumberFormat('en').format(amount * scale)
+  }
 }
 
 /** Only the restaurant's own words, in the site's language. */
@@ -173,7 +191,7 @@ export function pinnedCopy(brief, { lang = 'en', cards = CARDS, dishes = DISHES 
     .map((id) => current.find((i) => i.id === id))
     .filter((i) => i && shortName(String(i.title ?? '').trim()) && String(i.title ?? '').trim())
   // Dishes collected off the menus, links and photos (`menuItems`) come before any post.
-  const fromMenu = menuDishes(brief)
+  const fromMenu = menuDishes(brief, lang)
   out.dishes = [
     ...fromMenu,
     ...[...held, ...current.filter((i) => !held.includes(i) && namesDish(i))].map((i) => ({

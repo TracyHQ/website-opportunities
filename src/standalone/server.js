@@ -1,7 +1,7 @@
 /**
  * The standalone Website Opportunities server (ADR 0036 decision 2): the same open router the full product
- * mounts, with the one-operator host (`./host.js`), photos and logos on disk (`./disk-objects.js`) and the manual
- * builder (`../plugins/builders/manual.js`). The browser page in `ui/public/` is served beside the API (`./ui.js`).
+ * mounts, with the one-operator host (`./host.js`), photos and logos on disk (`./disk-objects.js`) and the Tracy
+ * builder (`../plugins/builders/tracy.js`), which keeps the manual builder's doors beside its own. The browser page in `ui/public/` is served beside the API (`./ui.js`).
  *
  *   node src/standalone/server.js      (settings: `./config.js`, how to run: `../../README.md`)
  *
@@ -28,7 +28,12 @@ import { createHubClient } from '../hub/client.js'
 import { createHubLink } from '../hub/local-cache.js'
 import { createHubService } from '../hub/serve.js'
 import createManualBuilder from '../plugins/builders/manual.js'
+import createTracyBuilder from '../plugins/builders/tracy.js'
+import { tracyOperatorRoutes } from '../ops/tracy-routes.js'
+import { createTracyConnection } from '../tracy-connection.js'
+import { createTokenFile } from '../tracy-token-file.js'
 import { readWoRuntime } from '../wo-settings.js'
+import { join } from 'node:path'
 import { readStandaloneConfig } from './config.js'
 import { createDiskObjects } from './disk-objects.js'
 import { createStandaloneHost } from './host.js'
@@ -40,7 +45,7 @@ const RESEARCH_TICK_MS = 5_000
 const QUEUE_TICK_MS = 3_000
 const HUB_CLIENT_TICK_MS = 60_000
 
-/** No Tracy here: the template list the doors read is empty, every other internal call is absent. */
+/** No in-process Tracy here (the Tracy builder calls Tracy's public API): the template list is empty, every other internal call is absent. */
 async function request(path) {
   const { pathname } = new URL(path, 'http://standalone.invalid')
   if (pathname === '/api/templates') return Response.json({ templates: [] })
@@ -58,6 +63,7 @@ async function request(path) {
  *   `fetchImpl` replaces every outbound call (tests); without it crawls go through the pinned fetch that refuses
  *   private addresses, and provider APIs through `fetch`.
  *   `hubFetch` reaches the hub of `config.hubUrl` (default `fetch`: the operator chose that address, LAN included).
+ *   `tracyFetch` reaches `config.tracyUrl` (default `fetch`, for the same reason); `tracyTimeoutMs` bounds each call.
  */
 export function createStandaloneApp({
   config,
@@ -65,6 +71,8 @@ export function createStandaloneApp({
   objects,
   fetchImpl,
   hubFetch,
+  tracyFetch,
+  tracyTimeoutMs,
   resolve,
   loadDomain,
   now,
@@ -149,6 +157,31 @@ export function createStandaloneApp({
     ...timing
   })
 
+  // The Tracy account this server builds demos in; its tokens live in one file next to the photos (`../tracy-token-file.js`).
+  const sealing =
+    typeof host.sealSecret === 'function' && config.sessionSecret
+      ? {
+          seal: (plain) => host.sealSecret(plain, config.sessionSecret),
+          open: (cipher) => host.openSecret(cipher, config.sessionSecret)
+        }
+      : {}
+  const tracyConnection = createTracyConnection({
+    tracyUrl: config.tracyUrl,
+    apiUrl: config.tracyApiUrl,
+    store: createTokenFile({ path: join(config.dataDir, 'tracy-connection.json'), ...sealing }),
+    fetchImpl: tracyFetch ?? fetch,
+    ...(tracyTimeoutMs ? { timeoutMs: tracyTimeoutMs } : {}),
+    ...timing,
+    log
+  })
+  const builder = createTracyBuilder({
+    pool,
+    connection: tracyConnection,
+    manual: createManualBuilder({ pool, objects: store }),
+    ...timing,
+    log
+  })
+
   const app = new Hono()
   app.get('/healthz', (c) => host.json(c, { ok: true }))
   if (hubService) app.route('/', hubService.routes)
@@ -160,7 +193,7 @@ export function createStandaloneApp({
       host,
       request,
       ensureAccount: (db) => ensureOperatorPrincipal(db),
-      builder: createManualBuilder({ pool, objects: store }),
+      builder,
       loadDomain: domain,
       objects: store,
       siteChecks,
@@ -173,8 +206,18 @@ export function createStandaloneApp({
   // The operator page's doors; `hub` turns on its Hub tab where the hub admin doors are mounted too.
   app.route(
     '/',
-    operatorRoutes({ config, pool, host, fetchImpl: apiFetch, hub: config.hubServe === true, log, ...timing })
+    operatorRoutes({
+      config,
+      pool,
+      host,
+      fetchImpl: apiFetch,
+      hub: config.hubServe === true,
+      tracy: true,
+      log,
+      ...timing
+    })
   )
+  app.route('/', tracyOperatorRoutes({ host, connection: tracyConnection, log }))
   if (config.hubServe === true) app.route('/', hubAdminRoutes({ pool, host, log, ...timing }))
   // Without a page (UI_DIR pointing nowhere), `/` points at the API.
   if (!serveUi(app, config.uiDir))
@@ -185,6 +228,9 @@ export function createStandaloneApp({
       { ms: RESEARCH_TICK_MS, name: 'research', run: () => executor.tick() },
       { ms: QUEUE_TICK_MS, name: 'site checks', run: () => siteChecks.tick() },
       { ms: QUEUE_TICK_MS, name: 'social stats', run: () => socialStats.tick() },
+      // Follows demos sent to Tracy; also finishes a Connect when no page is open to poll it.
+      { ms: QUEUE_TICK_MS, name: 'tracy', run: () => builder.tick() },
+      { ms: QUEUE_TICK_MS, name: 'tracy connect', run: () => tracyConnection.poll().catch(() => null) },
       ...(hubService ? hubService.ticks : []),
       ...(hubLink ? [{ ms: HUB_CLIENT_TICK_MS, name: 'hub', run: () => hubLink.tick() }] : [])
     ]

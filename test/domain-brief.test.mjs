@@ -678,6 +678,28 @@ const MENU_ITEMS = [
   }
 ]
 
+// Barb Wire Saigon (stand, 24/10/2026): a menu printing thousands keeps "110"; the brief says what it means.
+test('a menu item printed in thousands keeps its printed price and says the amount in the brief', () => {
+  const items = [
+    {
+      name: 'Mojito',
+      price: '110',
+      currency: 'VND',
+      priceScale: 1000,
+      section: null,
+      source: { url: 'https://maps.test/m.jpg', sha256: null, kind: 'photo' },
+      collectedAt: RESOLVED_AT,
+      verified: false,
+      provenance: 'read from photo'
+    }
+  ]
+  const b = buildBrief({ ...FULL, profile: { ...FULL.profile, menuItems: items } })
+  assert.equal(validateBrief(b).ok, true, JSON.stringify(validateBrief(b).errors))
+  const menu = b.sitemap.find((p) => p.slug === 'menu').sections.find((s) => s.kind === 'menu')
+  assert.deepEqual([menu.menuItems[0].price, menu.menuItems[0].priceScale], ['110', 1000])
+  assert.match(renderBriefMarkdown(b), /"Mojito": "110", printed in thousands \(110,000\)/)
+})
+
 test('every sourced menu item reaches the menu page with its provenance; the verified flag still says which were checked', () => {
   const b = buildBrief({ ...FULL, profile: { ...FULL.profile, menuItems: MENU_ITEMS } })
   assert.equal(validateBrief(b).ok, true, JSON.stringify(validateBrief(b).errors))

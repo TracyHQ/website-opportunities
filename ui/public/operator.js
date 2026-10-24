@@ -1,5 +1,5 @@
-// The operator page, #/operator/<tab>: Settings (keys, caps, provider order), Spend, Queue and, where the server
-// serves the hub, Hub. Shown only to whoever the server names the operator (`/operator/me`). Every server value is
+// The operator page, #/operator/<tab>: Settings (keys, caps, provider order), Spend, Queue, Tracy (connect this
+// server to a Tracy account) and, where the server serves the hub, Hub. Shown only to whoever the server names the operator (`/operator/me`). Every server value is
 // rendered as text.
 import { ApiError, api, readToken } from './api.js'
 import { h } from './dom.js'
@@ -16,6 +16,7 @@ import {
   usageView
 } from './operator-view-models.js'
 import { t, tCount } from './strings.js'
+import { tracyConnectView } from './tracy-view-models.js'
 
 const OP = '/operator'
 const CAP_FIELDS = [
@@ -116,7 +117,9 @@ export async function operatorView({ token, tab, show, current, toast, showError
     body,
     rerender: () => operatorView({ token, tab: active, show, current, toast, showError })
   }
-  const render = { settings: settingsTab, spend: spendTab, queue: queueTab, hub: hubTab }[active]
+  const render = { settings: settingsTab, spend: spendTab, queue: queueTab, hub: hubTab, tracy: tracyTab }[
+    active
+  ]
   await render(ctx).catch((error) => showError(error, token))
 }
 
@@ -682,5 +685,68 @@ function removalCard(ctx, kind, post) {
           ]
         : action(t('op.hub.revokeMedia'), run('revoke'), { toast: ctx.toast })
     )
+  )
+}
+
+// ── Tracy ──────────────────────────────────────────────────────────────────────────────────
+const TRACY_POLL_MS = 2500
+
+async function tracyTab(ctx) {
+  const redraw = (status) => {
+    if (!ctx.current(ctx.token)) return
+    ctx.body.replaceChildren(tracyCard(ctx, status, redraw))
+    clearTimeout(tracyTab.timer)
+    // While a code waits, each read asks Tracy once; the server keeps the pace Tracy set.
+    if (status.state === 'pending')
+      tracyTab.timer = setTimeout(
+        () => ctx.current(ctx.token) && api(`${OP}/tracy`).then(redraw, (e) => ctx.toast(errorText(e))),
+        TRACY_POLL_MS
+      )
+  }
+  redraw(await api(`${OP}/tracy`))
+}
+
+function tracyCard(ctx, status, redraw) {
+  const view = tracyConnectView(status)
+  const post = (path) => api(`${OP}/tracy/${path}`, { method: 'POST', body: {} }).then(redraw)
+  const buttons = view.actions.map((name) =>
+    name === 'disconnect'
+      ? action(
+          t('tracy.disconnect'),
+          async () => {
+            if (window.confirm(t('tracy.disconnect.confirm'))) await post('disconnect')
+          },
+          { toast: ctx.toast }
+        )
+      : action(t(`tracy.${name}`), () => post('connect'), {
+          toast: ctx.toast,
+          primary: true,
+          busy: t('common.loading')
+        })
+  )
+  return card(
+    t('tracy.title'),
+    h('p', { class: 'muted' }, t('tracy.lead')),
+    h('p', { class: 'hint' }, t('tracy.where', { url: status.tracyUrl ?? '' })),
+    h('p', { 'aria-live': 'polite' }, chip(view.status, view.tone)),
+    view.problem ? h('p', { class: 'notice bad', role: 'alert' }, view.problem) : null,
+    view.code
+      ? h(
+          'div',
+          { class: 'tracy-code-box' },
+          h('p', { class: 'hint' }, t('tracy.codeLabel')),
+          h('p', { class: 'tracy-code mono' }, view.code),
+          h('p', { class: 'muted' }, t('tracy.codeHelp')),
+          view.link
+            ? h(
+                'a',
+                { class: 'button primary', href: view.link, target: '_blank', rel: 'noopener noreferrer' },
+                t('tracy.open')
+              )
+            : null
+        )
+      : null,
+    h('div', { class: 'row' }, buttons),
+    h('p', { class: 'hint' }, t('tracy.storage'))
   )
 }

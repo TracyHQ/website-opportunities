@@ -4,7 +4,8 @@ import {
   findSocialPages,
   matchSocialPage,
   searchPlaceOf,
-  scrapeCreatorsGoogleSearch
+  scrapeCreatorsGoogleSearch,
+  socialQueries
 } from '../domain/social-search.mjs'
 
 const PLACE = {
@@ -302,7 +303,7 @@ test('scrapeCreatorsGoogleSearch: errors carry contract codes', async () => {
   )
   assert.equal(await at(401), 'CREDENTIAL_INVALID')
   assert.equal(await at(402), 'QUOTA')
-  assert.equal(await at(429), 'QUOTA')
+  assert.equal(await at(429), 'RATE_LIMITED')
   assert.equal(await at(500), 'PROVIDER_ERROR')
 })
 
@@ -484,7 +485,7 @@ test('find: a search that got no answer is asked once more before the network is
   }
 })
 
-test('find: a second silence fails the network; an answered refusal is never asked twice', async () => {
+test('find: a second silence fails that query, every query silent fails the network; a refusal is never asked twice', async () => {
   const calls = { timeout: 0, quota: 0 }
   const out = await findSocialPages(OISHII, {
     order: ['scrapecreators'],
@@ -497,9 +498,9 @@ test('find: a second silence fails the network; an answered refusal is never ask
     },
     pageFacts: async () => null
   })
-  assert.equal(calls.timeout, 2)
+  assert.equal(calls.timeout, 2 * socialQueries(OISHII, 'instagram').length)
   assert.deepEqual(out.searched.instagram, { status: 'failed', queries: 0, reason: 'timeout' })
-  for (const code of ['QUOTA', 'CREDENTIAL_INVALID', 'PROVIDER_ERROR']) {
+  for (const code of ['QUOTA', 'CREDENTIAL_INVALID']) {
     calls.quota = 0
     await findSocialPages(OISHII, {
       order: ['scrapecreators'],
@@ -530,6 +531,119 @@ test('scrapeCreatorsGoogleSearch: a request that got no HTTP answer says so', as
     fetch: async () => new Response('{}', { status: 500 })
   }).catch((x) => x)
   assert.equal(http.noAnswer, undefined)
+})
+
+// Barb Wire Saigon / Bebop (stand, 24/10/2026, reproduced live): ScrapeCreators answers "no results" with HTTP 404
+// `{error: 'not_found', credits_charged: 0}`; read as a provider error it ended the network before its other queries.
+test('scrapeCreatorsGoogleSearch: a 404 "no results" is an empty answer, marked not charged', async () => {
+  const body = {
+    success: false,
+    credits_charged: 0,
+    error: 'not_found',
+    errorStatus: 404,
+    message: 'No Google search results found. You were not charged for this request.'
+  }
+  const links = await scrapeCreatorsGoogleSearch('q', {
+    key: 'k',
+    fetch: async () => new Response(JSON.stringify(body), { status: 404 })
+  })
+  assert.deepEqual([...links], [])
+  assert.equal(links.charged, false)
+})
+
+test('scrapeCreatorsGoogleSearch: 5xx, a rate limit and an unreadable body are transient; no credit and a bad key are not', async () => {
+  const at = (status, body = '{}') =>
+    scrapeCreatorsGoogleSearch('q', { key: 'k', fetch: async () => new Response(body, { status }) }).catch(
+      (e) => e
+    )
+  for (const [status, body, code] of [
+    [500, '{}', 'PROVIDER_ERROR'],
+    [503, 'oops', 'PROVIDER_ERROR'],
+    [200, '<html>', 'PROVIDER_ERROR'],
+    [429, '{}', 'RATE_LIMITED']
+  ]) {
+    const e = await at(status, body)
+    assert.equal(e.code, code, `${status}`)
+    assert.equal(e.transient, true, `${status}`)
+  }
+  for (const [status, code] of [
+    [401, 'CREDENTIAL_INVALID'],
+    [402, 'QUOTA']
+  ]) {
+    const e = await at(status)
+    assert.equal(e.code, code)
+    assert.equal(e.transient, undefined)
+  }
+})
+
+test('find: a query every provider failed on twice falls through to the next query', async () => {
+  const seen = []
+  const out = await findSocialPages(PLACE, {
+    order: ['scrapecreators'],
+    networks: ['facebook'],
+    searchers: {
+      scrapecreators: async (q) => {
+        seen.push(q)
+        if (seen.length <= 2) throw Object.assign(new Error('x'), { code: 'PROVIDER_ERROR', transient: true })
+        return [{ url: FB }]
+      }
+    },
+    pageFacts: async () => ({
+      name: 'Sansation Café',
+      address: 'Shop 12, The Walk, Jumeirah Beach Residence',
+      city: 'Dubai',
+      phone: '+971 4 123 4567'
+    })
+  })
+  assert.equal(seen[0], seen[1], 'the failed query is asked once more')
+  assert.notEqual(seen[2], seen[0], 'then the next query')
+  assert.equal(out.searched.facebook.status, 'confirmed')
+  assert.equal(out.searched.facebook.queries, 1)
+})
+
+test('find: a rate limit is asked once more after a pause', async () => {
+  const waits = []
+  let calls = 0
+  const out = await findSocialPages(PLACE, {
+    order: ['scrapecreators'],
+    networks: ['facebook'],
+    wait: async (ms) => {
+      waits.push(ms)
+    },
+    searchers: {
+      scrapecreators: async () => {
+        calls += 1
+        if (calls === 1) throw Object.assign(new Error('x'), { code: 'RATE_LIMITED', transient: true })
+        return []
+      }
+    },
+    pageFacts: async () => null
+  })
+  assert.equal(waits.length, 1)
+  assert.ok(waits[0] > 0)
+  assert.equal(out.tried[0].status, 'not_found')
+})
+
+test('find: a permanent refusal (no credit, bad key) stops the network with its reason', async () => {
+  for (const [code, reason] of [
+    ['QUOTA', 'quota'],
+    ['CREDENTIAL_INVALID', 'credential_invalid']
+  ]) {
+    let calls = 0
+    const out = await findSocialPages(PLACE, {
+      order: ['scrapecreators'],
+      networks: ['facebook'],
+      searchers: {
+        scrapecreators: async () => {
+          calls += 1
+          throw Object.assign(new Error('x'), { code })
+        }
+      },
+      pageFacts: async () => null
+    })
+    assert.equal(calls, 1, code)
+    assert.deepEqual(out.searched.facebook, { status: 'failed', queries: 0, reason })
+  }
 })
 
 // Oishii Sushi Bar (dev, place f0e9664d…, 24/10/2026): Google Place Details as fetched, the city in Arabic.
@@ -625,4 +739,56 @@ test('scrapeCreatorsGoogleSearch: a country becomes the region parameter', async
     }
   })
   assert.equal(call.searchParams.get('region'), 'AE')
+})
+
+// Oishii Sushi Bar (dev, Research again job 7036a8f9, 24/10/2026, replayed live): the city comes in another script, so
+// the name query has no city; the phone query, asked as from the place's country, has no Google result, and
+// ScrapeCreators says so with HTTP 404. Read as a provider error that ended the network after one query, so the
+// `site:` query never ran. Any place whose phone search finds nothing must still reach its next query.
+test('find: a phone search with no result (ScrapeCreators 404) still lets the site: query find the page', async () => {
+  const place = searchPlaceOf(
+    {
+      name: 'Oishii Sushi Bar',
+      addressComponents: [
+        { longText: 'دبي', types: ['locality'] },
+        { longText: 'AE', shortText: 'AE', types: ['country'] }
+      ]
+    },
+    { phone: '056 666 4608' }
+  )
+  const asked = []
+  const PAGE = 'https://www.facebook.com/oishiisushibardubai'
+  const sc = (query, where) =>
+    scrapeCreatorsGoogleSearch(query, {
+      key: 'k',
+      ...where,
+      fetch: async (url) => {
+        const q = new URL(url).searchParams.get('query')
+        asked.push([q, new URL(url).searchParams.get('region')])
+        if (q.includes('site:'))
+          return Response.json({ success: true, results: [{ title: 'Oishii Sushi Bar | Dubai', url: PAGE }] })
+        if (q.includes('"'))
+          return Response.json({ success: false, credits_charged: 0, error: 'not_found' }, { status: 404 })
+        return Response.json({ success: true, results: [] })
+      }
+    })
+  const out = await findSocialPages(place, {
+    order: ['scrapecreators'],
+    networks: ['facebook'],
+    searchers: { scrapecreators: sc },
+    pageFacts: async () => ({
+      name: 'Oishii Sushi Bar | Dubai',
+      address: 'Emirates Accommodation Sarab 1B, Al Barari, Dubai',
+      phone: '0566664608'
+    })
+  })
+  assert.deepEqual(asked, [
+    ['Oishii Sushi Bar facebook', 'AE'],
+    ['"056 666 4608" facebook', 'AE'],
+    ['oishii site:facebook.com', 'AE']
+  ])
+  assert.equal(out.searched.facebook.queries, 3)
+  // Found, with the branch phone as proof; the city Google gave in another script leaves it for a person to confirm.
+  const found = out.pending.find((p) => p.url === PAGE)
+  assert.deepEqual([found?.evidence.proofs, found?.evidence.reasons], [['phone'], ['locality_unknown']])
 })

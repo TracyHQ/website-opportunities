@@ -42,8 +42,9 @@ The tool does the finding and the homework; the selling stays yours. A typical r
        one website: ChatGPT, Claude, Claude Code, Codex, Cursor, or any app that speaks MCP.
 
      The AI fills the template with the business's real content; every change is listed and
-     can be undone, and the owner can keep editing the site after you sell it. Today you paste the brief into
-     the chat yourself; **Build it with Tracy**, which sends it in one step, is planned.
+     can be undone, and the owner can keep editing the site after you sell it. Or skip the pasting: once this
+     server is connected to your Tracy account, **Build it with Tracy** on the place sends it in one step
+     (see [Build demos with Tracy](#build-demos-with-tracy)).
    - **With anything else.** The `manual` builder gives the same brief as Markdown and JSON for the tool you
      build with (an AI site builder, your own template, a developer). Put the demo's address in the outreach
      preview (**Link to the demo you built**); the API also keeps it per business
@@ -75,6 +76,27 @@ Then open <http://localhost:8080> and paste the operator token from `.env` (`gre
 taken? Set `HOST_PORT` in `.env`. The same token calls the JSON API. Settings and the API in short:
 [`src/standalone/README.md`](src/standalone/README.md).
 
+### Build demos with Tracy
+
+Connect once, then one button per place:
+
+1. Open **Operator**, tab **Tracy**, and press **Connect Tracy**. The page shows a code and a link.
+2. Open the link in any browser, sign in to [Tracy](https://tracy.ai) (or sign up), check that Tracy shows the
+   same code, and allow it. The tab then reads **Connected as** your email.
+3. On a place, press **Build it with Tracy**. The card follows the build and shows the demo's link, a link to
+   edit it in Tracy, and the date the demo is kept until.
+
+Tracy limits how many demo sites an account keeps live at once; at the limit the card says how many you have and
+asks you to delete one in Tracy. **Disconnect** on the same tab revokes the connection in Tracy; demos already
+built stay in your Tracy account. The connection is kept on the server, never in the browser: in the standalone
+server it is a file in `DATA_DIR` (`tracy-connection.json`) in **plain text, readable only by the server's own
+user** (mode 0600), not encrypted. Protect that folder like the database. A demo that misuses a business's name
+or content can be reported to Tracy, which takes the site down through its own process.
+
+`TRACY_URL` (default `https://cowork.tracy.ai`) names the Tracy to connect to, so you can point the server at a
+test deployment; `TRACY_API_URL` (default `https://api.tracy.ai` when `TRACY_URL` is not set) names its API when
+that answers on another address.
+
 ### Bring your own keys
 
 Website Opportunities does not ship with any API keys. You use your own, and you pay the provider
@@ -101,7 +123,7 @@ The project has three open layers and one interface to the outside:
 
 ```
   find  ──▶  assess  ──▶  reach  ──▶  builder (interface)
-  sources     site checks     outreach        ├─ manual   (default)
+  sources     site checks     outreach        ├─ manual   (brief export)
   place store scoring         templates       ├─ tracy    (one adapter among others)
                                                └─ yours
 ```
@@ -114,13 +136,13 @@ The project has three open layers and one interface to the outside:
   automatically: the app drafts, you send.
 - **pipeline**: your own list of opportunities, research jobs and a cost ledger that records what
   each paid provider call cost you.
-- **builder** (planned): a small contract for long-running work. A builder receives an immutable
+- **builder**: a small contract for long-running work. A builder receives an immutable
   brief and an idempotency key, exposes `submit`, `status` and `cancel`, and returns a receipt. A
   timeout must never create a second build or a second charge.
   - `manual` (default): writes the brief to a file you download and lets you mark the business as
     "built elsewhere", with the link.
-  - `tracy` (planned): sends the brief to [Tracy](https://tracy.ai), which builds and hosts a demo
-    site. It is one adapter among others, not a requirement.
+  - `tracy`: sends the place to [Tracy](https://tracy.ai), which builds and hosts a demo site in your
+    Tracy account. It is one adapter among others, not a requirement: without a connection nothing is sent.
   - Anyone can write an adapter for another site builder or for their own agency workflow. See
     [CONTRIBUTING.md](CONTRIBUTING.md).
 

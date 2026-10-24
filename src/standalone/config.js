@@ -8,6 +8,9 @@ import { fileURLToPath } from 'node:url'
 
 // The page served when `UI_DIR` is unset: the package's browser UI, served as it is (no build step).
 const PACKAGE_UI = fileURLToPath(new URL('../../ui/public/', import.meta.url))
+const DEFAULT_TRACY_URL = 'https://cowork.tracy.ai'
+// Tracy answers /v1 on its own API host; another TRACY_URL names its API with TRACY_API_URL, or answers /v1 itself.
+const DEFAULT_TRACY_API_URL = 'https://api.tracy.ai'
 const LOOPBACK_BIND = new Set(['127.0.0.1', '::1', 'localhost'])
 
 const opt = (env, name) => {
@@ -40,6 +43,13 @@ export function readStandaloneConfig(env) {
     throw new Error('HUB_URL and HUB_TOKEN go together: set both or neither')
   const hubContribute = flag(env, 'HUB_CONTRIBUTE', false)
   if (hubContribute && !hubUrl) throw new Error('HUB_CONTRIBUTE=1 needs HUB_URL and HUB_TOKEN')
+  const tracyUrl = opt(env, 'TRACY_URL') ?? DEFAULT_TRACY_URL
+  const tracyApiUrl = opt(env, 'TRACY_API_URL') ?? (opt(env, 'TRACY_URL') ? undefined : DEFAULT_TRACY_API_URL)
+  for (const [name, value] of [
+    ['TRACY_URL', tracyUrl],
+    ['TRACY_API_URL', tracyApiUrl]
+  ])
+    if (value && !/^https?:\/\//i.test(value)) throw new Error(`${name} must be an http(s) address`)
   if (!operatorToken && !LOOPBACK_BIND.has(bind))
     throw new Error(`BIND_ADDRESS=${bind} needs OPERATOR_TOKEN: without one only localhost may connect`)
   return {
@@ -75,6 +85,9 @@ export function readStandaloneConfig(env) {
     hubUrl: hubUrl ? hubUrl.replace(/\/+$/, '') : null,
     hubToken,
     // Offer what local research read from Google to that hub; off by default.
-    hubContribute
+    hubContribute,
+    // The Tracy the `tracy` builder connects to (device flow, `/oauth/*`) and its API (`/v1`), when that is elsewhere.
+    tracyUrl: tracyUrl.replace(/\/+$/, ''),
+    tracyApiUrl: tracyApiUrl ? tracyApiUrl.replace(/\/+$/, '') : null
   }
 }

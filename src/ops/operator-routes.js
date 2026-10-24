@@ -1,7 +1,7 @@
 /**
  * The operator doors of a Website Opportunities deployment, under `/api/website-opportunities/operator`:
  *
- *   GET  /me                       → {operator, email, hub, keysWritable}: whether to show the operator page
+ *   GET  /me                       → {operator, email, hub, tracy?, keysWritable}: whether to show the operator page
  *   GET  /settings                 → settings, provider key facts (never a key), provider order with states
  *   PUT  /settings                 {settings} → keys left out keep their saved value
  *   PUT  /keys/:provider           {apiKey} → sealed through the host; '' clears it (409 KEYS_READ_ONLY without a seal)
@@ -61,8 +61,9 @@ const REFUSALS = Object.freeze({
 
 /**
  * @param {{ pool: import('pg').Pool | null, config: any, host: import('../host.js').WoHost,
- *   fetchImpl?: typeof fetch, hub?: boolean, now?: () => number, log?: {log: Function} }} deps
+ *   fetchImpl?: typeof fetch, hub?: boolean, tracy?: boolean, now?: () => number, log?: {log: Function} }} deps
  *   `hub`: the hub admin doors are mounted beside these, so the page shows a Hub tab.
+ *   `tracy`: the Tracy connection doors (`./tracy-routes.js`) are mounted beside these, so the page shows a Tracy tab.
  */
 export function operatorRoutes({
   pool,
@@ -70,6 +71,7 @@ export function operatorRoutes({
   host: given,
   fetchImpl = fetch,
   hub = false,
+  tracy = false,
   now = Date.now,
   log = console
 }) {
@@ -119,6 +121,8 @@ export function operatorRoutes({
       operator: true,
       email: who,
       hub: Boolean(hub),
+      // Only where the Tracy tab exists, so a host without it answers as before.
+      ...(tracy ? { tracy: true } : {}),
       keysWritable: keysWritable(config, host)
     })
   })

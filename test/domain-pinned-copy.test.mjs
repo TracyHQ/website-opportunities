@@ -234,6 +234,44 @@ test('a caption read as the title is told apart whatever its case: a shouted fir
   )
 })
 
+// Decided 24/10/2026: a price the menu prints shortened is written as the amount it means, in the site's language.
+test('a shortened dish price is written as its full amount in the site language; a full or unknown one as printed', () => {
+  const shot = { url: 'https://maps.test/menu.jpg', sha256: null, kind: 'photo' }
+  const it = (name, price, priceScale, size) => ({
+    name,
+    price,
+    size,
+    currency: null,
+    priceScale,
+    section: 'S',
+    source: shot,
+    collectedAt: 'x',
+    verified: false
+  })
+  const b = brief({ items: [story] })
+  b.sitemap.push({
+    slug: 'menu',
+    sections: [
+      {
+        kind: 'menu',
+        menuItems: [
+          it('Rum', '110', 1000, '50ML'),
+          it('Rum', '1485', 1000, '750ML'),
+          it('Bibimbap', '1.2', 10000),
+          it('Latte', '4.50', 1),
+          it('Mojito', '120', null)
+        ]
+      }
+    ]
+  })
+  const prices = (lang) =>
+    pinnedCopy(b, { lang, dishes: 6 })
+      .dishes.map((d) => d.value.price)
+      .slice(0, 4)
+  assert.deepEqual(prices('en'), ['50ML 110,000 · 750ML 1,485,000', '12,000', '4.50', '120'])
+  assert.deepEqual(prices('vi')[0], '50ML 110.000 · 750ML 1.485.000')
+})
+
 test('collected menu items are the first dishes, verified ones first, each with its price as collected; one with no price is still a dish', () => {
   const src = { url: 'https://hill.test/menu.pdf', sha256: 'b'.repeat(64), kind: 'pdf', page: 1 }
   const shot = { url: 'https://maps.test/menu.jpg', sha256: null, kind: 'photo' }

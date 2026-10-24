@@ -113,9 +113,9 @@ export function queueRowView(job) {
   }
 }
 
-/** The operator page's tabs; Hub only where the server serves the hub. */
+/** The operator page's tabs; Hub only where the server serves the hub, Tracy where it can connect to Tracy. */
 export function operatorTabs(me) {
-  return ['settings', 'spend', 'queue', ...(me?.hub ? ['hub'] : [])]
+  return ['settings', 'spend', 'queue', ...(me?.hub ? ['hub'] : []), ...(me?.tracy ? ['tracy'] : [])]
 }
 
 /** A hub account's quota use against its limits, per category this server counts. */

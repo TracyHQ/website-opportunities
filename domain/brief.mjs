@@ -64,6 +64,9 @@ function normaliseTemplate(t, cms) {
 }
 
 const MENU_ITEMS_MAX = 120
+/** The scales a menu states for shortened prices (`priceScale`): thousands, ten-thousands, millions. */
+const SHORTENED = [1000, 10000, 1000000]
+const SCALE_WORDS = { 1000: 'thousands', 10000: 'ten-thousands', 1000000: 'millions' }
 const MENU_SOURCE_KINDS = ['pdf', 'page', 'photo']
 
 /** `profile.menuItems` as the brief carries them: each with a name, a sourced url and the fields of the contract. */
@@ -83,6 +86,7 @@ function menuItemsOf(list) {
       name: i.name.trim(),
       price: nonEmpty(i.price) ? i.price.trim() : null,
       currency: nonEmpty(i.currency) ? i.currency : null,
+      ...(SHORTENED.includes(i.priceScale) && nonEmpty(i.price) ? { priceScale: i.priceScale } : {}),
       ...(nonEmpty(i.size) ? { size: i.size } : {}),
       section: nonEmpty(i.section) ? i.section : null,
       source: i.source,
@@ -892,7 +896,18 @@ function menuItemLine(i) {
     : i.verified === false
       ? ` (unverified${i.provenance ? `, ${i.provenance}` : ''}: may be out of date)`
       : ''
-  return `${q(i.name)}${i.size ? ` (${q(i.size).slice(1, -1)})` : ''}: ${i.price ? q(i.price) : 'no price'} — ${where}${note}`
+  return `${q(i.name)}${i.size ? ` (${q(i.size).slice(1, -1)})` : ''}: ${i.price ? `${q(i.price)}${thousands(i)}` : 'no price'} — ${where}${note}`
+}
+
+/** `, printed in thousands (110,000)` for a price the menu prints shortened (`priceScale`); '' otherwise. */
+function thousands(i) {
+  if (!SHORTENED.includes(i.priceScale)) return ''
+  const printed = String(i.price).replace(/[^\d.,]/g, '')
+  const n = Number(
+    /^\d{1,3}(?:[.,]\d{3})+$/.test(printed) ? printed.replace(/[.,]/g, '') : printed.replace(',', '.')
+  )
+  const words = `printed in ${SCALE_WORDS[i.priceScale]}`
+  return Number.isFinite(n) ? `, ${words} (${(n * i.priceScale).toLocaleString('en-US')})` : `, ${words}`
 }
 const words = (k) => k.replace(/([A-Z])/g, ' $1').toLowerCase()
 

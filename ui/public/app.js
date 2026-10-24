@@ -18,8 +18,8 @@ import {
   sourceRow,
   websitesToCheck
 } from './view-models.js'
+import { tracyBuildView } from './tracy-view-models.js'
 
-const TRACY_URL = 'https://tracy.ai/'
 const POLL_MS = 4000
 const RADII_KM = [1, 2, 5, 10, 25]
 const main = document.getElementById('main')
@@ -561,10 +561,13 @@ function listCard(row) {
 const photoUrls = new Map()
 
 async function placeView(id, token) {
-  const [detail, listed] = await Promise.all([
+  const [detail, listed, connection] = await Promise.all([
     api(`/${encodeURIComponent(id)}`),
-    api(`?ids=${encodeURIComponent(id)}`).catch(() => null)
+    api(`?ids=${encodeURIComponent(id)}`).catch(() => null),
+    // A server without the Tracy builder answers 404: the Build card then shows the brief only.
+    api('/tracy/connection').catch(() => null)
   ])
+  const tracy = connection ? tracyBuildView({ connection, demo: detail.demo ?? null }) : null
   const row = listed?.opportunities?.[0] ?? null
   const opp = detail.opportunity ?? {}
   const c = opp.candidate ?? {}
@@ -597,12 +600,12 @@ async function placeView(id, token) {
     photosSection(detail.media ?? [], opp.name ?? c.name ?? ''),
     socialSection(profile?.socialStats ?? row?.social ?? null),
     outreachSection(opp, row, profile),
-    buildSection(opp, profile, detail)
+    buildSection(opp, profile, detail, tracy && { id, token, connection, view: tracy })
   ]
   if (!show(token, ...sections)) return
   if (!placeView.lastId || placeView.lastId !== id) focusHeading()
   placeView.lastId = id
-  if (job.moving)
+  if (job.moving || tracy?.polling)
     pollTimer = setTimeout(
       () => current(token) && placeView(id, token).catch((e) => showError(e, token)),
       POLL_MS
@@ -894,7 +897,7 @@ function outreachSection(opp, row, profile) {
   )
 }
 
-function buildSection(opp, profile, detail) {
+function buildSection(opp, profile, detail, tracy) {
   const brief = briefText({
     opportunity: opp,
     profile,
@@ -916,6 +919,7 @@ function buildSection(opp, profile, detail) {
   }
   return section(
     t('place.build'),
+    tracy ? tracyBuildNodes(tracy) : null,
     h('p', { class: 'muted' }, t('build.lead')),
     h('label', { for: 'brief' }, t('build.brief')),
     h('textarea', { id: 'brief', readonly: true, rows: '12', class: 'mono' }, brief),
@@ -923,20 +927,76 @@ function buildSection(opp, profile, detail) {
       'div',
       { class: 'row' },
       h('button', { type: 'button', on: { click: () => copy(brief) } }, t('build.copy')),
-      h('button', { type: 'button', on: { click: download } }, t('build.download')),
-      h(
-        'a',
+      h('button', { type: 'button', on: { click: download } }, t('build.download'))
+    )
+  )
+}
+
+/** "Build it with Tracy": one button, then the demo's state, link and expiry (`tracyBuildView`). */
+function tracyBuildNodes({ id, token, connection, view }) {
+  const base = `/${encodeURIComponent(id)}/tracy/demo`
+  const again = () => current(token) && placeView(id, token).catch((e) => showError(e, token))
+  const send = async (button, path, busy) => {
+    button.disabled = true
+    button.textContent = busy
+    try {
+      await api(path, { method: 'POST', body: {} })
+    } catch (error) {
+      // A refusal Tracy gave (limit, budget) is kept on the demo and shown on the redraw.
+      if (!(error instanceof ApiError && error.body?.demo))
+        toast(error instanceof ApiError ? error.message : t('common.offline'))
+    }
+    again()
+  }
+  const primary = view.primary
+    ? view.primary.kind === 'connect'
+      ? h('a', { class: 'button primary', href: view.primary.href }, view.primary.label)
+      : h(
+          'button',
+          {
+            type: 'button',
+            class: 'primary',
+            on: { click: (e) => send(e.currentTarget, base, t('tracy.build.sending')) }
+          },
+          view.primary.label
+        )
+    : null
+  const cancel = view.cancellable
+    ? h(
+        'button',
         {
-          class: 'button primary',
-          href: TRACY_URL,
-          target: '_blank',
-          rel: 'noopener noreferrer',
-          'aria-describedby': 'tracy-note'
+          type: 'button',
+          on: { click: (e) => send(e.currentTarget, `${base}/cancel`, t('common.loading')) }
         },
-        t('build.tracy')
+        t('tracy.cancel')
       )
-    ),
-    h('p', { id: 'tracy-note', class: 'hint' }, t('build.tracyNote'))
+    : null
+  return h(
+    'div',
+    { class: 'tracy-build' },
+    h('p', { class: 'muted' }, t('tracy.build.lead')),
+    view.status
+      ? h('p', { 'aria-live': 'polite' }, h('span', { class: `chip tone-${view.tone}` }, view.status))
+      : null,
+    view.link || view.editLink
+      ? h(
+          'div',
+          { class: 'row' },
+          view.link ? externalLink(view.link, t('tracy.demo.open')) : null,
+          view.editLink ? externalLink(view.editLink, t('tracy.demo.edit')) : null
+        )
+      : null,
+    view.expiry ? h('p', { class: 'hint' }, view.expiry) : null,
+    view.notice
+      ? h(
+          'div',
+          { class: 'notice warn', role: 'status' },
+          h('p', {}, view.notice),
+          view.noticeLink ? externalLink(view.noticeLink, t('tracy.openTracy')) : null
+        )
+      : null,
+    h('div', { class: 'row' }, primary, cancel),
+    connection.state === 'connected' ? null : h('p', { class: 'hint' }, t('tracy.notConnectedHint'))
   )
 }
 

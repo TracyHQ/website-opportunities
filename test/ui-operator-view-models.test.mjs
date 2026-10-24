@@ -138,6 +138,7 @@ test('queue rows: retry for a stopped job, cancel for a waiting one', () => {
 test('the Hub tab exists only where the server serves the hub', () => {
   assert.deepEqual(operatorTabs({ hub: false }), ['settings', 'spend', 'queue'])
   assert.deepEqual(operatorTabs({ hub: true }), ['settings', 'spend', 'queue', 'hub'])
+  assert.deepEqual(operatorTabs({ hub: true, tracy: true }), ['settings', 'spend', 'queue', 'hub', 'tracy'])
 })
 
 test('quota use reads against the limits, with no limit said in words', () => {

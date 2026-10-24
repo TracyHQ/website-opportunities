@@ -13,6 +13,7 @@ const MAX_QUERIES_PER_NETWORK = 3
 const SC_TIMEOUT_MS = 20_000
 // A search with no answer is asked once more (measured 24/10/2026: the same query answered 2 s later).
 const SEARCH_ATTEMPTS = 2
+const RATE_LIMIT_PAUSE_MS = 2_000
 
 // Words many restaurant names share; a name match needs one word beyond them.
 const GENERIC = new Set([
@@ -293,17 +294,25 @@ const REASON_OF_CODE = {
   CREDENTIAL_MISSING: 'credential_missing',
   CREDENTIAL_INVALID: 'credential_invalid',
   QUOTA: 'quota',
-  TIMEOUT: 'timeout'
+  TIMEOUT: 'timeout',
+  RATE_LIMITED: 'rate_limited'
 }
 
-/** A search that got no answer at all (timed out, or no HTTP response): worth asking once more. */
-const unanswered = (error) => error?.code === 'TIMEOUT' || error?.noAnswer === true
+/** Refusals that say every later search fails the same way (no key, a bad key, no credit): the network stops. */
+const PERMANENT = new Set(['credential_missing', 'credential_invalid', 'quota'])
+
+/** A failure worth asking once more: no answer, a timeout, a 5xx, a rate limit or an unreadable body. */
+const transient = (error) =>
+  error?.code === 'TIMEOUT' || error?.noAnswer === true || error?.transient === true
+
+const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 /**
- * One provider turn as contract §3 shapes it. A thrown {code} becomes `skipped` with its reason; a call that got no
- * answer is asked once more first (each call is its own priced search: the caller's `search` reserves it).
+ * One provider turn as contract §3 shapes it. A thrown {code} becomes `skipped` with its reason; a transient failure is
+ * asked once more first, after a pause when rate limited (each call is its own priced search: the caller's `search`
+ * reserves it).
  */
-async function searchWith(provider, search, query, rethrow, where) {
+async function searchWith(provider, search, query, rethrow, where, wait) {
   if (typeof search !== 'function')
     return { provider, status: 'skipped', reason: 'credential_missing', data: null }
   for (let attempt = 1; ; attempt++) {
@@ -315,7 +324,10 @@ async function searchWith(provider, search, query, rethrow, where) {
         : { provider, status: 'not_found', data: { links: [] } }
     } catch (error) {
       if (rethrow(error)) throw error
-      if (attempt < SEARCH_ATTEMPTS && unanswered(error)) continue
+      if (attempt < SEARCH_ATTEMPTS && transient(error)) {
+        if (error?.code === 'RATE_LIMITED') await wait(RATE_LIMIT_PAUSE_MS)
+        continue
+      }
       return {
         provider,
         status: 'skipped',
@@ -350,15 +362,19 @@ export function socialQueries(place, network) {
  *   ISO 3166-1 alpha-2 code; a thrown {code} falls to the next;
  * deps.pageFacts: (network, url) => Promise<{name, address?, city?, phone?, website?, links?, bio?} | null>;
  * deps.networks: which networks to look for (default facebook, instagram);
- * deps.rethrow: (error) => true for an error that must stop the search (the caller's budget running out).
- * Each network runs `socialQueries` in turn until one finds a confirmed page; a query no provider answered ends
- * that network as `failed`. Returns {tried, confirmed, pending, rejected, searched: {[network]: {status, queries,
+ * deps.rethrow: (error) => true for an error that must stop the search (the caller's budget running out);
+ * deps.wait: (ms) => Promise, the pause before asking a rate-limited provider again.
+ * Each network runs `socialQueries` in turn until one finds a confirmed page. A query no provider answered moves on to
+ * the next query, unless every provider refused for good (`PERMANENT`), which ends the network; a network with no
+ * page found and a failed query is `failed` with the last reason, never `not_found`. Returns {tried, confirmed, pending,
+ * rejected, searched: {[network]: {status, queries,
  * reason?}}} — `status` confirmed | pending | not_found | failed; only `confirmed` may become a place's source.
  */
 export async function findSocialPages(place, deps = {}) {
   const order = Array.isArray(deps.order) ? deps.order : []
   const searchers = deps.searchers ?? {}
   const rethrow = typeof deps.rethrow === 'function' ? deps.rethrow : () => false
+  const wait = typeof deps.wait === 'function' ? deps.wait : pause
   const networks = (deps.networks ?? SEARCH_NETWORKS).filter((n) => !text(place?.socials?.[n]))
   const out = { tried: [], confirmed: [], pending: [], rejected: [], searched: {} }
   if (!text(place?.name) || !order.length) return out
@@ -371,9 +387,9 @@ export async function findSocialPages(place, deps = {}) {
     for (const query of socialQueries(place, network)) {
       let answer = null
       let answered = false
-      let reason = null
+      const reasons = []
       for (const provider of order) {
-        const turn = await searchWith(provider, searchers[provider], query, rethrow, where)
+        const turn = await searchWith(provider, searchers[provider], query, rethrow, where, wait)
         out.tried.push({
           provider: turn.provider,
           status: turn.status,
@@ -381,7 +397,7 @@ export async function findSocialPages(place, deps = {}) {
           network,
           query
         })
-        reason = turn.reason ?? reason
+        if (turn.reason) reasons.push(turn.reason)
         if (turn.status === 'complete') answer = turn
         if (turn.status === 'complete' || turn.status === 'not_found') {
           answered = true
@@ -389,8 +405,10 @@ export async function findSocialPages(place, deps = {}) {
         }
       }
       if (!answered) {
-        failure = reason ?? 'provider_error'
-        break
+        failure = reasons.at(-1) ?? 'provider_error'
+        // Every provider refused for good: the next query would be refused too. A transient failure tries the next query.
+        if (reasons.every((r) => PERMANENT.has(r))) break
+        continue
       }
       queries++
       if (!answer) continue
@@ -456,7 +474,8 @@ const scError = (code, message) => Object.assign(new Error(message), { code })
 
 /**
  * ScrapeCreators Google search (`/v1/google/search?query=&region=`, 1 credit): `{title, url, description}` links.
- * Throws {code: CREDENTIAL_MISSING|CREDENTIAL_INVALID|QUOTA|TIMEOUT|PROVIDER_ERROR}.
+ * Its 404 "no results" is an empty list with `charged: false`. Throws {code: CREDENTIAL_MISSING|CREDENTIAL_INVALID|
+ * QUOTA|RATE_LIMITED|TIMEOUT|PROVIDER_ERROR}; `transient: true` (or `noAnswer`) marks a failure worth asking once more.
  */
 export async function scrapeCreatorsGoogleSearch(
   query,
@@ -482,8 +501,13 @@ export async function scrapeCreatorsGoogleSearch(
   const body = await res.json().catch(() => undefined)
   if (res.status === 401 || res.status === 403)
     throw scError('CREDENTIAL_INVALID', `scrapecreators: HTTP ${res.status}`)
-  if (res.status === 402 || res.status === 429) throw scError('QUOTA', `scrapecreators: HTTP ${res.status}`)
-  if (!res.ok || !body) throw scError('PROVIDER_ERROR', `scrapecreators: HTTP ${res.status}`)
+  if (res.status === 402) throw scError('QUOTA', `scrapecreators: HTTP ${res.status}`)
+  if (res.status === 429)
+    throw Object.assign(scError('RATE_LIMITED', 'scrapecreators: HTTP 429'), { transient: true })
+  // Its "no results" answer, not charged (measured 24/10/2026: `{error: 'not_found', credits_charged: 0}`).
+  if (res.status === 404 && body?.error === 'not_found') return Object.assign([], { charged: false })
+  if (!res.ok || !body || typeof body !== 'object')
+    throw Object.assign(scError('PROVIDER_ERROR', `scrapecreators: HTTP ${res.status}`), { transient: true })
   const list = [body.results, body.data, body.links, body.organic_results].find(Array.isArray) ?? []
   return list
     .filter((r) => typeof r?.url === 'string' && /^https?:\/\//i.test(r.url))

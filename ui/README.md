@@ -11,8 +11,9 @@ step. It covers:
   social page numbers.
 - **Outreach preview**: the contact channels found for the place and a draft message. Nothing is sent
   from the app: each channel opens a draft in your own mail or chat app.
-- **Build demo**: with the `manual` builder the app shows the site brief to copy or download, and a
-  link to build it with [Tracy](https://tracy.ai) if you prefer.
+- **Build demo**: **Build it with Tracy** sends the place to [Tracy](https://tracy.ai) once the operator has
+  connected the server (Operator, Tracy tab), then follows the build to the demo's link and expiry; the site brief
+  stays below it to copy or download for any other tool.
 
 ## Why no build step
 

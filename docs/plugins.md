@@ -222,9 +222,19 @@ file name.
   `PUT /:id/manual/built` (`{ "url", "note"? }`), `DELETE /:id/manual/built`. It calls no other
   service. Outreach drafts are made only for demos that passed a quality check, so a demo recorded
   here does not get one yet. Test: `test/plugins-builders.test.mjs`.
-- **`tracy`** (`src/plugins/builders/tracy.js`, **planned**): records how the adapter will call
-  Tracy's public API; it makes no network call and refuses to start. It needs a door that creates a
-  demo site from a brief, which Tracy's API does not have yet.
+- **`tracy`** (`src/plugins/builders/tracy.js`, the standalone server's builder): "Build it with
+  Tracy" sends one place to [Tracy](https://tracy.ai), which builds and hosts a demo site in the
+  operator's Tracy account. The operator connects the server to that account once, on the Operator
+  page's Tracy tab (OAuth device flow, `src/tracy-connection.js`); the tokens stay on the server.
+  The body sent is the public contract `website-opportunities/demo-request/v1`
+  (`src/plugins/builders/tracy-request.js`): business facts and public https photo links, nothing
+  internal. Each request is a row of `wo_tracy_demo`, written with its exact body and idempotency
+  key before it is sent, so a retry after a timeout reaches the same demo; a tick follows every demo
+  not finished yet, as often as Tracy's `Retry-After` allows. Doors: `GET /tracy/connection`,
+  `POST /:id/tracy/demo` (`{ "cms"?, "template"? }`), `POST /:id/tracy/demo/cancel`. It keeps the
+  manual builder's doors beside its own, so the brief can still go to any other tool. A ready demo
+  moves the row to Outreach with a draft that carries its link. Tested against a fake Tracy
+  (`test/tracy-fake.mjs`): the connection, the request body and the builder end to end.
 
 The brief both builders hand over is made by `makeSiteBrief` (`src/brief-research.js`) from the same
 research read, so a brief does not depend on which builder made it.

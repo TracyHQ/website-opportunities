@@ -28,6 +28,10 @@
           "type": ["string", "null"],
           "description": "The currency printed beside the price; null when none is printed."
         },
+        "priceScale": {
+          "enum": [1000, 10000, 1000000],
+          "description": "The menu prints its prices shortened: with 1000, \"110\" means 110,000. The price stays the printed number."
+        },
         "size": { "type": "string" },
         "section": { "type": ["string", "null"] },
         "source": {
