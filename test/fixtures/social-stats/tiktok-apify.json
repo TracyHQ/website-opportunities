@@ -1,0 +1,74 @@
+[
+  {
+    "input": "@katzsdeli",
+    "username": "katzsdeli",
+    "userId": "6778309316313023494",
+    "profileUrl": "https://www.tiktok.com/@katzsdeli",
+    "followerCount": 164,
+    "videoCount": 35,
+    "isPrivate": false,
+    "note": "the profile screen could not be fetched \u2014 counts came from the account lookup, so bio and verified are missing",
+    "recentVideos": [
+      {
+        "videoId": "7022810488866131205",
+        "createdAt": "2021-10-25T01:31:27.000Z",
+        "isPinned": true
+      },
+      {
+        "videoId": "7026209238397619502",
+        "createdAt": "2021-11-03T05:20:23.000Z",
+        "isPinned": true
+      },
+      {
+        "videoId": "7656630763760258317",
+        "createdAt": "2026-06-29T01:58:22.000Z",
+        "isPinned": false
+      },
+      {
+        "videoId": "7615825006097911054",
+        "createdAt": "2026-03-11T02:50:48.000Z",
+        "isPinned": false
+      },
+      {
+        "videoId": "7615820766881451278",
+        "createdAt": "2026-03-11T02:34:24.000Z",
+        "isPinned": false
+      },
+      {
+        "videoId": "7611354561516817678",
+        "createdAt": "2026-02-27T01:43:33.000Z",
+        "isPinned": false
+      },
+      {
+        "videoId": "7608800278262844685",
+        "createdAt": "2026-02-20T04:31:35.000Z",
+        "isPinned": false
+      },
+      {
+        "videoId": "7608791893899496718",
+        "createdAt": "2026-02-20T03:58:56.000Z",
+        "isPinned": false
+      },
+      {
+        "videoId": "7535716323372830007",
+        "createdAt": "2025-08-07T05:48:16.000Z",
+        "isPinned": false
+      },
+      {
+        "videoId": "7441784072516488491",
+        "createdAt": "2024-11-27T02:42:59.000Z",
+        "isPinned": false
+      }
+    ]
+  },
+  {
+    "input": "@gordonramsay",
+    "username": "gordonramsay",
+    "note": "account not found \u2014 nothing charged"
+  },
+  {
+    "input": "@wosocialnonexistent20261020",
+    "username": "wosocialnonexistent20261020",
+    "note": "account not found \u2014 nothing charged"
+  }
+]
