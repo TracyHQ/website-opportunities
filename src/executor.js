@@ -21,13 +21,12 @@ import { apifyDaySpent } from './apify-budget.js'
 import { requireHost } from './host.js'
 import { BudgetExceededError, createChargeable } from './cost-ledger.js'
 import { checkPageSpeed } from './pagespeed.js'
+import { revokedHubCopy } from './hub/local-cache.js'
 import { createPlaceRunner } from './place-executor.js'
 import { claimPlaceJob } from './place-jobs.js'
 import { refsOfCandidate, refsOfUrls, SOCIAL_SOURCES, SOURCES } from './sources.js'
 
-const { hoursDisagree } = await import(
-  pathToFileURL(path.join(WO_DOMAIN_DIR, 'opening-hours.mjs')).href
-)
+const { hoursDisagree } = await import(pathToFileURL(path.join(WO_DOMAIN_DIR, 'opening-hours.mjs')).href)
 import {
   checkpoint,
   claimJob,
@@ -442,15 +441,26 @@ export function createExecutor({
     }
   }
 
-  /** Place Details facts of a Google Places candidate: the stored ones while fresh, else one call; null on any failure. */
+  /**
+   * Place Details facts of a Google Places candidate: the stored ones while fresh (and, when they came from a hub, not
+   * revoked since), else a shared hub's fresh copy, else one paid call; null on any failure.
+   */
   async function placeFacts(domain, opp, keys) {
-    if (opp.provider !== GOOGLE_PLACES_SOURCE || !opp.provider_id || !keys.google) return null
+    if (opp.provider !== GOOGLE_PLACES_SOURCE || !opp.provider_id || !(keys.google || hub)) return null
     const held = (await profileOf(pool, opp.id))?.profile?.googlePlace
     // Facts older than 30 days are fetched again, so a brief reads current hours and reviews. Keeping Google
     // content is not limited here: a 19/10/2026 decision keeps it all and leaves takedowns to the legal team;
     // the place store's revoke columns are their way.
-    if (held?.placeId === opp.provider_id && now() - Date.parse(held.fetchedAt) < PLACE_FACTS_MAX_AGE_MS)
+    if (
+      held?.placeId === opp.provider_id &&
+      now() - Date.parse(held.fetchedAt) < PLACE_FACTS_MAX_AGE_MS &&
+      !(await revokedHubCopy(pool, held))
+    )
       return held
+    // The same hub read the shared path makes (`place-executor.js`), before Google is paid.
+    const fromHub = hub ? await hub.placeFacts({ namespace: 'google', externalId: opp.provider_id }) : null
+    if (fromHub) return fromHub.facts
+    if (!keys.google) return null
     try {
       const raw = await domain.fetchPlaceDetails(opp.provider_id, { ...domainDeps, googleKey: keys.google })
       return domain.placeFactsFromDetails(raw, { now: () => new Date(now()) })
@@ -840,9 +850,7 @@ export function mergeProfile(opp, rows, publicProfiles = []) {
     if (hours.length) hoursBySource[source] = hours
   }
   const hoursLists = Object.values(hoursBySource)
-  const hoursConflict = hoursLists.some((a, i) =>
-    hoursLists.slice(i + 1).some((b) => hoursDisagree(a, b))
-  )
+  const hoursConflict = hoursLists.some((a, i) => hoursLists.slice(i + 1).some((b) => hoursDisagree(a, b)))
   const firstText = (field) => {
     for (const source of SOURCES) {
       const value = rows.find((r) => r.source === source)?.collected?.profile?.[field]

@@ -62,7 +62,10 @@ test('clientIp ignores X-Forwarded-For unless TRUST_PROXY is set', async () => {
   // The proxy appends the address it saw: the last entry is the one it vouches for.
   assert.equal((await seen(proxied, { headers, remoteAddress: '198.51.100.2' })).body.ip, '192.0.2.4')
   const garbage = { ...headers, 'x-forwarded-for': 'not-an-ip' }
-  assert.equal((await seen(proxied, { headers: garbage, remoteAddress: '198.51.100.2' })).body.ip, '198.51.100.2')
+  assert.equal(
+    (await seen(proxied, { headers: garbage, remoteAddress: '198.51.100.2' })).body.ip,
+    '198.51.100.2'
+  )
 })
 
 test('rate limit counts per bucket and window, and gives one back', async () => {
@@ -102,7 +105,10 @@ test('every switch is on and no vision model is assigned', async () => {
 
 test('the operator signs outreach with OPERATOR_NAME, or not at all', async () => {
   assert.equal(await createStandaloneHost({ config: {} }).displayNameOf(null, 'any'), '')
-  assert.equal(await createStandaloneHost({ config: { operatorName: 'Mai' } }).displayNameOf(null, 'any'), 'Mai')
+  assert.equal(
+    await createStandaloneHost({ config: { operatorName: 'Mai' } }).displayNameOf(null, 'any'),
+    'Mai'
+  )
 })
 
 test('the one operator is also the operator of the operator doors, keys are read-only', async () => {
@@ -112,11 +118,16 @@ test('the one operator is also the operator of the operator doors, keys are read
     const who = await host.requireOperator(c, { write: true })
     return who instanceof Response ? who : host.json(c, { who })
   })
-  const ok = await app.fetch(new Request('http://localhost/op', { headers: { authorization: `Bearer ${TOKEN}` } }), {
-    incoming: { socket: { remoteAddress: '203.0.113.9' } }
-  })
+  const ok = await app.fetch(
+    new Request('http://localhost/op', { headers: { authorization: `Bearer ${TOKEN}` } }),
+    {
+      incoming: { socket: { remoteAddress: '203.0.113.9' } }
+    }
+  )
   assert.deepEqual(await ok.json(), { who: 'me@example.com' })
-  const refused = await app.fetch(new Request('http://localhost/op'), { incoming: { socket: { remoteAddress: '127.0.0.1' } } })
+  const refused = await app.fetch(new Request('http://localhost/op'), {
+    incoming: { socket: { remoteAddress: '127.0.0.1' } }
+  })
   assert.equal(refused.status, 401)
   assert.equal(host.sealSecret, undefined)
 })
@@ -127,6 +138,11 @@ test('rateCountsOf reads what the in-memory limiter counted in that window', asy
   const now = Date.parse('2026-10-23T12:00:00Z')
   for (let i = 0; i < 3; i++) await host.overLimitOrClosed(null, 'wo:social-budget:yt-api', 100, now, DAY)
   const start = new Date(Math.floor(now / DAY) * DAY)
-  const counts = await host.rateCountsOf(null, ['wo:social-budget:yt-api', 'wo:social-budget:other'], start, DAY)
+  const counts = await host.rateCountsOf(
+    null,
+    ['wo:social-budget:yt-api', 'wo:social-budget:other'],
+    start,
+    DAY
+  )
   assert.deepEqual([...counts], [['wo:social-budget:yt-api', 3]])
 })

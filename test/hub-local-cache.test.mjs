@@ -29,7 +29,11 @@ after(async () => db?.close())
 
 test('an expired cursor re-checks the cache before the feed is read on', opts, async () => {
   const pool = db.pool
-  for (const [id, name] of [[GONE, 'Gone'], [UNCHECKED, 'Unchecked'], [KEPT, 'Kept']]) {
+  for (const [id, name] of [
+    [GONE, 'Gone'],
+    [UNCHECKED, 'Unchecked'],
+    [KEPT, 'Kept']
+  ]) {
     await pool.query(
       `insert into wo_hub_client_place (hub_place_id, revision, etag, dto) values ($1, 1, '"e"', $2::jsonb)`,
       [id, JSON.stringify(dto(id, name))]
@@ -43,7 +47,10 @@ test('an expired cursor re-checks the cache before the feed is read on', opts, a
     [KEPT]: { status: 'not_modified' }
   }
   const hub = {
-    feed: async (_name, cursor) => (cursor === 'old' ? { status: 'cursor_expired' } : { status: 'ok', events: [], cursor: 'head', more: false }),
+    feed: async (_name, cursor) =>
+      cursor === 'old'
+        ? { status: 'cursor_expired' }
+        : { status: 'ok', events: [], cursor: 'head', more: false },
     place: async (id) => answers[id],
     lookup: async () => ({ status: 'not_found' }),
     contribute: async () => assert.fail('nothing is queued')
@@ -52,7 +59,10 @@ test('an expired cursor re-checks the cache before the feed is read on', opts, a
   const tally = await link.tick()
   assert.equal(tally.revalidated, 2, 'both feeds had expired')
   const rows = Object.fromEntries(
-    (await pool.query('select hub_place_id, dto, revoked_at from wo_hub_client_place')).rows.map((r) => [r.hub_place_id, r])
+    (await pool.query('select hub_place_id, dto, revoked_at from wo_hub_client_place')).rows.map((r) => [
+      r.hub_place_id,
+      r
+    ])
   )
   assert.equal(rows[GONE].dto, null)
   assert.ok(rows[GONE].revoked_at, 'the hub no longer serves it: revoked here')
@@ -85,3 +95,38 @@ test('hub facts carry only fields the hub chose and did not block for briefs', o
   assert.equal(facts.via, 'hub')
   assert.equal(facts.placeId, 'ChIJ-x')
 })
+
+test(
+  'a contribution offers the location Google gave this server, never one the hub gave it',
+  opts,
+  async () => {
+    const pool = db.pool
+    const link = createHubLink({ pool, client: {}, contribute: true, now: () => NOW, log: { warn() {} } })
+    const sourceOf = async (collected, provenance) => {
+      const place = (
+        await pool.query('insert into wo_place (display_name) values ($1) returning id', ['Cafe'])
+      ).rows[0].id
+      const snapshot = (
+        await pool.query('insert into wo_place_snapshot (place_id) values ($1) returning id', [place])
+      ).rows[0].id
+      await pool.query(
+        `insert into wo_place_snapshot_source (snapshot_id, source, status, collected, coverage, collected_at, attempted_at)
+       values ($1, 'google-places', 'complete', $2::jsonb, $3::jsonb, now(), now())`,
+        [snapshot, JSON.stringify(collected), JSON.stringify(provenance ? { provenance } : {})]
+      )
+      return { place, snapshot }
+    }
+    const point = { latitude: 52.37, longitude: 4.89 }
+    const own = await sourceOf({ placeId: 'ChIJ-own', name: 'Cafe', location: point }, null)
+    assert.equal(await link.offer(own.place, own.snapshot), true)
+    const body = (await pool.query('select body from wo_hub_client_outbox where place_id = $1', [own.place]))
+      .rows[0].body
+    const location = body.observations.find((o) => o.field === 'location')
+    assert.deepEqual(location.value, point)
+    assert.deepEqual(location.source, { family: 'google_maps', objectId: 'ChIJ-own' })
+    const fromHub = await sourceOf({ placeId: 'ChIJ-hub', name: 'Cafe', location: point, via: 'hub' }, 'hub')
+    assert.equal(await link.offer(fromHub.place, fromHub.snapshot), false)
+    const hubTagged = await sourceOf({ placeId: 'ChIJ-hub2', name: 'Cafe', location: point }, 'hub')
+    assert.equal(await link.offer(hubTagged.place, hubTagged.snapshot), false)
+  }
+)

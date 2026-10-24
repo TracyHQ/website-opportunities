@@ -60,7 +60,12 @@ test('a blocked account authenticates as nobody', opts, async () => {
 
 test('status names the account and the active token prefix, never the token', opts, async () => {
   const p = await principal()
-  assert.deepEqual(await tokens.status(p), { accountId: null, state: null, tokenPrefix: null, tokenCreatedAt: null })
+  assert.deepEqual(await tokens.status(p), {
+    accountId: null,
+    state: null,
+    tokenPrefix: null,
+    tokenCreatedAt: null
+  })
   const { prefix, accountId } = await tokens.issue(p)
   const status = await tokens.status(p)
   assert.equal(status.accountId, accountId)

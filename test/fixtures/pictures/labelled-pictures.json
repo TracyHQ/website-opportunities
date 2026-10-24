@@ -1,1438 +1,1438 @@
 {
- "about": "Passion (facebook) and The Hill Station (website, facebook, instagram), stand wo 18/10/2026; labelled by hand from contact sheets",
- "pictures": [
-  {
-   "id": "passion-00",
-   "width": 720,
-   "height": 540,
-   "source": "facebook",
-   "sourceUrl": "https://scontent-atl3-2.xx.fbcdn.net/v/t1.6435-9/64729002_2290369154365921_2993833913186516992_n.jpg",
-   "postedAt": "2019-06-21T10:40:11+00:00",
-   "caption": "We are ready",
-   "alt": null,
-   "dhash": "d820ecd0e9e0f838",
-   "features": {
-    "top2Share": 0.4985,
-    "edgeDensity": 0.2183,
-    "centreLuminance": 0.5402
-   },
-   "human": {
-    "subject": "poster",
-    "textPresence": "present"
-   },
-   "visionRecorded": {
-    "subject": "poster",
-    "textPresence": "present",
-    "quality": "good",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": false,
-    "oneLine": "Reopening announcement sign for Passion Restaurant & Bar"
-   }
-  },
-  {
-   "id": "passion-01",
-   "width": 590,
-   "height": 590,
-   "source": "facebook",
-   "sourceUrl": "https://scontent-lga3-2.xx.fbcdn.net/v/t39.30808-6/706901455_1350694020455901_2415393409404465931_n.jpg",
-   "postedAt": "2026-05-24T04:00:00+00:00",
-   "caption": "✨ It’s been a while since our last post… but Passion Restaurant & Bar is still here every day, welcoming lovely guests from around the world 💛\n\nSome things never change in Hoi An ✨\n🏮 Lantern lights\n🍤 Delicious local food\n🍷 Cozy dinners\n😊 And slow, meaningful evenings with pe",
-   "alt": null,
-   "dhash": "3979d9d9de71434e",
-   "features": {
-    "top2Share": 0.323,
-    "edgeDensity": 0.1889,
-    "centreLuminance": 0.5898
-   },
-   "human": {
-    "subject": "food",
-    "textPresence": "absent"
-   },
-   "visionRecorded": {
-    "subject": "food",
-    "textPresence": "absent",
-    "quality": "good",
-    "heroWorthy": true,
-    "isCollage": false,
-    "hasTextOverlay": false,
-    "oneLine": "Plate of crispy topped appetizers with tomato garnish"
-   }
-  },
-  {
-   "id": "passion-02",
-   "width": 443,
-   "height": 590,
-   "source": "facebook",
-   "sourceUrl": "https://scontent-atl3-1.xx.fbcdn.net/v/t1.6435-9/119032006_3278643775538449_7574511165824873049_n.jpg",
-   "postedAt": "2020-09-10T07:03:03+00:00",
-   "caption": "Nhớ nhiều lắm những vị khách thân thương ... ❤️❤️không biết bây giờ họ có khỏe không .",
-   "alt": null,
-   "dhash": "5f753636363634a0",
-   "features": {
-    "top2Share": 0.3862,
-    "edgeDensity": 0.2224,
-    "centreLuminance": 0.4597
-   },
-   "human": {
-    "subject": "people",
-    "textPresence": "absent"
-   },
-   "visionRecorded": {
-    "subject": "people",
-    "textPresence": "absent",
-    "quality": "good",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": false,
-    "oneLine": "Two young girls posing in front of bamboo bar"
-   }
-  },
-  {
-   "id": "passion-03",
-   "width": 590,
-   "height": 590,
-   "source": "facebook",
-   "sourceUrl": "https://scontent-lga3-3.xx.fbcdn.net/v/t39.30808-6/548293907_1154171983441440_2199398433514776313_n.jpg",
-   "postedAt": "2025-09-18T11:00:30+00:00",
-   "caption": "🤔 Hard to decide what to eat tonight?\n👉 Easy! Just come to Passion!\n\nGood vibes, tasty bites, and refreshing drinks are waiting for you 🍹✨\nBring your friends, your date, or simply yourself – it’s always a good time here.\n______________________________________________\n𝐏𝐀𝐒𝐒\ud835",
-   "alt": null,
-   "dhash": "feabe193ce939a0c",
-   "features": {
-    "top2Share": 0.2788,
-    "edgeDensity": 0.18,
-    "centreLuminance": 0.6853
-   },
-   "human": {
-    "subject": "food",
-    "textPresence": "present"
-   },
-   "visionRecorded": {
-    "subject": "food",
-    "textPresence": "present",
-    "quality": "good",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": true,
-    "oneLine": "Chopsticks dipping a fresh spring roll in sauce"
-   }
-  },
-  {
-   "id": "passion-04",
-   "width": 590,
-   "height": 590,
-   "source": "facebook",
-   "sourceUrl": "https://scontent.fagc3-2.fna.fbcdn.net/v/t39.30808-6/527400969_1116720237186615_357897184383559183_n.jpg",
-   "postedAt": "2025-08-02T10:29:30+00:00",
-   "caption": "We’re still here – and still serving your favorite Vietnamese dishes!\n\nIt’s been a while since our last post, but Passion Restaurant & Bar is open daily, cooking up the freshest Vietnamese seafood dishes with love and local flavors ❤️\n\n🍤 Come try local favorites like Grilled Sca",
-   "alt": null,
-   "dhash": "71ca4c78b369491f",
-   "features": {
-    "top2Share": 0.218,
-    "edgeDensity": 0.3835,
-    "centreLuminance": 0.6623
-   },
-   "human": {
-    "subject": "poster",
-    "textPresence": "present"
-   },
-   "visionRecorded": {
-    "subject": "food",
-    "textPresence": "present",
-    "quality": "good",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": true,
-    "oneLine": "Grilled scallops plated with lime and salt"
-   }
-  },
-  {
-   "id": "passion-05",
-   "width": 590,
-   "height": 590,
-   "source": "facebook",
-   "sourceUrl": "https://scontent-dfw5-1.xx.fbcdn.net/v/t39.30808-6/706818751_1350713857120584_8121374232297948496_n.jpg",
-   "postedAt": "2026-05-26T04:00:23+00:00",
-   "caption": "Thank you for your continued support of Passion. ❤️\n\nPassion is dedicated to serving delicious local dishes, fresh seafood, and providing a warm and welcoming dining experience, making every guest feel right at home in Hoi An.\n\nFrom romantic dinners for couples and family gatheri",
-   "alt": null,
-   "dhash": "d48fa36775512330",
-   "features": {
-    "top2Share": 0.27,
-    "edgeDensity": 0.3317,
-    "centreLuminance": 0.3262
-   },
-   "human": {
-    "subject": "interior",
-    "textPresence": "absent"
-   },
-   "visionRecorded": {
-    "subject": "interior",
-    "textPresence": "present",
-    "quality": "good",
-    "heroWorthy": true,
-    "isCollage": false,
-    "hasTextOverlay": false,
-    "oneLine": "Busy dining room with cocktails in foreground"
-   }
-  },
-  {
-   "id": "passion-06",
-   "width": 590,
-   "height": 443,
-   "source": "facebook",
-   "sourceUrl": "https://scontent-atl3-1.xx.fbcdn.net/v/t39.30808-6/514344020_23916732214636303_2306287857930895296_n.jpg",
-   "postedAt": "2017-06-28T04:16:38+00:00",
-   "caption": "Passion restaurant & bar rất vui vì sự hài lòng của khách ...Thanks khách nhìu",
-   "alt": null,
-   "dhash": "6475e0e86b4f5ede",
-   "features": {
-    "top2Share": 0.3025,
-    "edgeDensity": 0.3379,
-    "centreLuminance": 0.2825
-   },
-   "human": {
-    "subject": "interior",
-    "textPresence": "absent"
-   },
-   "visionRecorded": {
-    "subject": "people",
-    "textPresence": "absent",
-    "quality": "good",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": false,
-    "oneLine": "Guests smiling and dining in bamboo interior"
-   }
-  },
-  {
-   "id": "passion-07",
-   "width": 590,
-   "height": 443,
-   "source": "facebook",
-   "sourceUrl": "https://scontent-atl3-1.xx.fbcdn.net/v/t39.30808-6/513449232_23916537624655762_5700370121571219450_n.jpg",
-   "postedAt": "2017-06-25T16:11:36+00:00",
-   "caption": "Kỉ niệm ngày thành lập !!!",
-   "alt": null,
-   "dhash": "d210220b872b2939",
-   "features": {
-    "top2Share": 0.259,
-    "edgeDensity": 0.282,
-    "centreLuminance": 0.4519
-   },
-   "human": {
-    "subject": "interior",
-    "textPresence": "absent"
-   },
-   "visionRecorded": {
-    "subject": "interior",
-    "textPresence": "absent",
-    "quality": "dark",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": false,
-    "oneLine": "Woven basket ceiling with hanging lanterns"
-   }
-  },
-  {
-   "id": "passion-08",
-   "width": 590,
-   "height": 590,
-   "source": "facebook",
-   "sourceUrl": "https://scontent.fagc3-2.fna.fbcdn.net/v/t39.30808-6/527869220_1119084390283533_6403847229229918572_n.jpg",
-   "postedAt": "2025-08-05T09:11:14+00:00",
-   "caption": "✨Let's start dinner with some delicious starters with Passion!\n\n🥞Hoi An Rice Pancake - Banh xeo with shrimp and pork filling, served with fresh herbs and dipping sauce.\n🥭Mango Salad With Shrimp - Shredded green mango, shrimp, peanuts and sweet and sour fish sauce\n🥑 Avocado Sal",
-   "alt": null,
-   "dhash": "e6ef1c6c676b7af0",
-   "features": {
-    "top2Share": 0.3074,
-    "edgeDensity": 0.4019,
-    "centreLuminance": 0.4656
-   },
-   "human": {
-    "subject": "food",
-    "textPresence": "present"
-   },
-   "visionRecorded": {
-    "subject": "food",
-    "textPresence": "present",
-    "quality": "good",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": true,
-    "oneLine": "Close-up of noodle dish topped with crushed peanuts and shrimp"
-   }
-  },
-  {
-   "id": "passion-09",
-   "width": 590,
-   "height": 443,
-   "source": "facebook",
-   "sourceUrl": "https://scontent-atl3-2.xx.fbcdn.net/v/t39.30808-6/512792879_23916731957969662_949191412211669447_n.jpg",
-   "postedAt": "2017-06-28T04:16:38+00:00",
-   "caption": "Passion restaurant & bar rất vui vì sự hài lòng của khách ...Thanks khách nhìu",
-   "alt": null,
-   "dhash": "6a631f1b35310fdc",
-   "features": {
-    "top2Share": 0.3042,
-    "edgeDensity": 0.2393,
-    "centreLuminance": 0.5769
-   },
-   "human": {
-    "subject": "food",
-    "textPresence": "absent"
-   },
-   "visionRecorded": {
-    "subject": "food",
-    "textPresence": "absent",
-    "quality": "dark",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": false,
-    "oneLine": "Plated shrimp and vegetable appetizer on white dish"
-   }
-  },
-  {
-   "id": "passion-10",
-   "width": 590,
-   "height": 392,
-   "source": "facebook",
-   "sourceUrl": "https://scontent.flas1-1.fna.fbcdn.net/v/t39.30808-6/593138713_1215566250635346_8587869422261107295_n.jpg",
-   "postedAt": "2025-12-01T02:55:41+00:00",
-   "caption": "Hoi An is peaceful, the food is authentic!\n\n📸: Hoian.recorder",
-   "alt": null,
-   "dhash": "0f0b9b034b8cae01",
-   "features": {
-    "top2Share": 0.386,
-    "edgeDensity": 0.0921,
-    "centreLuminance": 0.2809
-   },
-   "human": {
-    "subject": "exterior",
-    "textPresence": "absent"
-   },
-   "visionRecorded": {
-    "subject": "people",
-    "textPresence": "absent",
-    "quality": "dark",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": false,
-    "oneLine": "Street vendors in conical hats sitting by yellow wall"
-   }
-  },
-  {
-   "id": "passion-11",
-   "width": 472,
-   "height": 590,
-   "source": "facebook",
-   "sourceUrl": "https://scontent.flas1-1.fna.fbcdn.net/v/t39.30808-6/591616665_1215566347302003_1698745458781421919_n.jpg",
-   "postedAt": "2025-12-01T02:55:41+00:00",
-   "caption": "Hoi An is peaceful, the food is authentic!\n\n📸: Hoian.recorder",
-   "alt": null,
-   "dhash": "0343222424242424",
-   "features": {
-    "top2Share": 0.7932,
-    "edgeDensity": 0.1155,
-    "centreLuminance": 0.1459
-   },
-   "human": {
-    "subject": "exterior",
-    "textPresence": "absent"
-   },
-   "visionRecorded": {
-    "subject": "exterior",
-    "textPresence": "absent",
-    "quality": "dark",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": false,
-    "oneLine": "Narrow alley with glowing lantern and silhouetted people"
-   }
-  },
-  {
-   "id": "passion-12",
-   "width": 393,
-   "height": 590,
-   "source": "facebook",
-   "sourceUrl": "https://scontent.fagc3-1.fna.fbcdn.net/v/t39.30808-6/528168157_1119084280283544_5790626016588597696_n.jpg",
-   "postedAt": "2025-08-05T09:11:14+00:00",
-   "caption": "✨Let's start dinner with some delicious starters with Passion!\n\n🥞Hoi An Rice Pancake - Banh xeo with shrimp and pork filling, served with fresh herbs and dipping sauce.\n🥭Mango Salad With Shrimp - Shredded green mango, shrimp, peanuts and sweet and sour fish sauce\n🥑 Avocado Sal",
-   "alt": null,
-   "dhash": "21098d0c2c2869e0",
-   "features": {
-    "top2Share": 0.2383,
-    "edgeDensity": 0.359,
-    "centreLuminance": 0.4382
-   },
-   "human": {
-    "subject": "poster",
-    "textPresence": "present"
-   },
-   "visionRecorded": {
-    "subject": "poster",
-    "textPresence": "present",
-    "quality": "good",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": true,
-    "oneLine": "Promotional graphic for delicious starters with contact details"
-   }
-  },
-  {
-   "id": "passion-13",
-   "width": 590,
-   "height": 443,
-   "source": "facebook",
-   "sourceUrl": "https://scontent-atl3-2.xx.fbcdn.net/v/t39.30808-6/512960158_23916731967969661_8462828313331341000_n.jpg",
-   "postedAt": "2017-06-28T04:16:38+00:00",
-   "caption": "Passion restaurant & bar rất vui vì sự hài lòng của khách ...Thanks khách nhìu",
-   "alt": null,
-   "dhash": "11233b3f3d31878f",
-   "features": {
-    "top2Share": 0.3982,
-    "edgeDensity": 0.1548,
-    "centreLuminance": 0.3767
-   },
-   "human": {
-    "subject": "interior",
-    "textPresence": "absent"
-   },
-   "visionRecorded": {
-    "subject": "interior",
-    "textPresence": "absent",
-    "quality": "dark",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": false,
-    "oneLine": "Colorfully lit bar counter with bottles and glasses"
-   }
-  },
-  {
-   "id": "passion-14",
-   "width": 590,
-   "height": 392,
-   "source": "facebook",
-   "sourceUrl": "https://scontent.flas1-2.fna.fbcdn.net/v/t39.30808-6/593739475_1215566000635371_3445620456128264392_n.jpg",
-   "postedAt": "2025-12-01T02:55:41+00:00",
-   "caption": "Hoi An is peaceful, the food is authentic!\n\n📸: Hoian.recorder",
-   "alt": null,
-   "dhash": "93c3671b09191919",
-   "features": {
-    "top2Share": 0.3452,
-    "edgeDensity": 0.1857,
-    "centreLuminance": 0.6524
-   },
-   "human": {
-    "subject": "other",
-    "textPresence": "absent"
-   },
-   "visionRecorded": {
-    "subject": "people",
-    "textPresence": "present",
-    "quality": "good",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": false,
-    "oneLine": "Man photographing river view under Hoi An sign"
-   }
-  },
-  {
-   "id": "passion-15",
-   "width": 572,
-   "height": 590,
-   "source": "facebook",
-   "sourceUrl": "https://scontent-iad3-2.xx.fbcdn.net/v/t39.30808-6/530419662_1124528566405782_1672786252197521444_n.jpg",
-   "postedAt": "2025-08-12T08:51:10+00:00",
-   "caption": "🌟Passion is delighted and sincerely thankful to all our valued guests who had a wonderful experience and left feedback on Google.\n\nYour happiness is the greatest gift to Passion. Each positive review is not only a joy but also a motivation for us to keep improving every day, bri",
-   "alt": null,
-   "dhash": "8282949482848281",
-   "features": {
-    "top2Share": 0.9329,
-    "edgeDensity": 0.1041,
-    "centreLuminance": 0.9802
-   },
-   "human": {
-    "subject": "poster",
-    "textPresence": "present"
-   },
-   "visionRecorded": {
-    "subject": "other",
-    "textPresence": "present",
-    "quality": "good",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": false,
-    "oneLine": "Screenshot of online restaurant reviews and ratings"
-   }
-  },
-  {
-   "id": "passion-16",
-   "width": 443,
-   "height": 590,
-   "source": "facebook",
-   "sourceUrl": "https://scontent-atl3-2.xx.fbcdn.net/v/t39.30808-6/480550290_990752813116692_1904920430119007209_n.jpg",
-   "postedAt": "2023-08-12T07:51:46+00:00",
-   "caption": null,
-   "alt": null,
-   "dhash": "860f38fa4e9c3c39",
-   "features": {
-    "top2Share": 0.2683,
-    "edgeDensity": 0.2427,
-    "centreLuminance": 0.4972
-   },
-   "human": {
-    "subject": "food",
-    "textPresence": "absent"
-   },
-   "visionRecorded": {
-    "subject": "food",
-    "textPresence": "absent",
-    "quality": "good",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": false,
-    "oneLine": "Grilled meat with rice, lettuce, cucumber and tomato on plate"
-   }
-  },
-  {
-   "id": "passion-17",
-   "width": 590,
-   "height": 392,
-   "source": "facebook",
-   "sourceUrl": "https://scontent.flas1-2.fna.fbcdn.net/v/t39.30808-6/592059142_1215566150635356_2031366252201150392_n.jpg",
-   "postedAt": "2025-12-01T02:55:41+00:00",
-   "caption": "Hoi An is peaceful, the food is authentic!\n\n📸: Hoian.recorder",
-   "alt": null,
-   "dhash": "4b1f1f237b264f0f",
-   "features": {
-    "top2Share": 0.2771,
-    "edgeDensity": 0.3522,
-    "centreLuminance": 0.4234
-   },
-   "human": {
-    "subject": "food",
-    "textPresence": "absent"
-   },
-   "visionRecorded": {
-    "subject": "food",
-    "textPresence": "absent",
-    "quality": "good",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": false,
-    "oneLine": "Round baskets of golden noodles drying in sunlight"
-   }
-  },
-  {
-   "id": "passion-18",
-   "width": 590,
-   "height": 590,
-   "source": "facebook",
-   "sourceUrl": "https://scontent-lga3-3.xx.fbcdn.net/v/t39.30808-6/549787907_1154171966774775_6620591297107753622_n.jpg",
-   "postedAt": "2025-09-18T11:00:30+00:00",
-   "caption": "🤔 Hard to decide what to eat tonight?\n👉 Easy! Just come to Passion!\n\nGood vibes, tasty bites, and refreshing drinks are waiting for you 🍹✨\nBring your friends, your date, or simply yourself – it’s always a good time here.\n______________________________________________\n𝐏𝐀𝐒𝐒\ud835",
-   "alt": null,
-   "dhash": "42c6f5dab1b31939",
-   "features": {
-    "top2Share": 0.3003,
-    "edgeDensity": 0.257,
-    "centreLuminance": 0.649
-   },
-   "human": {
-    "subject": "food",
-    "textPresence": "present"
-   },
-   "visionRecorded": {
-    "subject": "food",
-    "textPresence": "present",
-    "quality": "good",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": true,
-    "oneLine": "Table spread of dishes and colorful drinks with text overlay"
-   }
-  },
-  {
-   "id": "passion-19",
-   "width": 443,
-   "height": 590,
-   "source": "facebook",
-   "sourceUrl": "https://scontent-atl3-2.xx.fbcdn.net/v/t39.30808-6/480693547_990752809783359_6572176743371871540_n.jpg",
-   "postedAt": "2023-08-12T07:51:46+00:00",
-   "caption": null,
-   "alt": null,
-   "dhash": "383cda68dce9d571",
-   "features": {
-    "top2Share": 0.2786,
-    "edgeDensity": 0.2862,
-    "centreLuminance": 0.4009
-   },
-   "human": {
-    "subject": "food",
-    "textPresence": "absent"
-   },
-   "visionRecorded": {
-    "subject": "food",
-    "textPresence": "absent",
-    "quality": "good",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": false,
-    "oneLine": "Skewered grilled prawns on lettuce on white plate"
-   }
-  },
-  {
-   "id": "passion-20",
-   "width": 443,
-   "height": 590,
-   "source": "facebook",
-   "sourceUrl": "https://scontent-lga3-1.xx.fbcdn.net/v/t39.30808-6/484859971_9435205753215523_1505714643789385593_n.jpg",
-   "postedAt": "2022-08-15T16:12:49+00:00",
-   "caption": "Once again thank you all stay safe after covid  Thank you for remembering us \nReturning customer from 2018 \n❤️❤️❤️",
-   "alt": null,
-   "dhash": "6373362726067f6d",
-   "features": {
-    "top2Share": 0.3174,
-    "edgeDensity": 0.2575,
-    "centreLuminance": 0.4124
-   },
-   "human": {
-    "subject": "people",
-    "textPresence": "absent"
-   },
-   "visionRecorded": {
-    "subject": "people",
-    "textPresence": "absent",
-    "quality": "good",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": false,
-    "oneLine": "Guests and staff talking around a wooden table"
-   }
-  },
-  {
-   "id": "passion-21",
-   "width": 443,
-   "height": 590,
-   "source": "facebook",
-   "sourceUrl": "https://scontent-atl3-1.xx.fbcdn.net/v/t39.30808-6/479674270_990752819783358_2555399733152747912_n.jpg",
-   "postedAt": "2023-08-12T07:51:46+00:00",
-   "caption": null,
-   "alt": null,
-   "dhash": "1b1359c3d1e1797b",
-   "features": {
-    "top2Share": 0.2961,
-    "edgeDensity": 0.3098,
-    "centreLuminance": 0.383
-   },
-   "human": {
-    "subject": "food",
-    "textPresence": "absent"
-   },
-   "visionRecorded": {
-    "subject": "food",
-    "textPresence": "absent",
-    "quality": "good",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": false,
-    "oneLine": "Beef skewers with peppers, cucumber and tomato on plate"
-   }
-  },
-  {
-   "id": "hill-22",
-   "width": 1365,
-   "height": 1365,
-   "source": "instagram",
-   "sourceUrl": "https://scontent-mxp1-1.cdninstagram.com/v/t39.30808-6/791510174_1633673018769032_6574489312703680201_n.jpg",
-   "postedAt": "2026-09-05T09:00:49+00:00",
-   "caption": "A Deli Table for Sum Vầy’s opening night.\n\nCheeses, cold cuts, breads, pickles and small desserts, prepared by The Hill Station for guests to gather around throughout the evening.\n\nPlanning a gathering of your own? Get in touch with us about catering.\n\n----------\nMenu & Reserve: ",
-   "alt": null,
-   "dhash": "0249cf0305c1c8dd",
-   "features": {
-    "top2Share": 0.6064,
-    "edgeDensity": 0.2664,
-    "centreLuminance": 0.2773
-   },
-   "human": {
-    "subject": "food",
-    "textPresence": "absent"
-   },
-   "visionRecorded": {
-    "subject": "food",
-    "textPresence": "absent",
-    "quality": "dark",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": false,
-    "oneLine": "Charcuterie board with cheese, meats and small jars"
-   }
-  },
-  {
-   "id": "hill-23",
-   "width": 810,
-   "height": 540,
-   "source": "facebook",
-   "sourceUrl": "https://scontent-iad6-1.xx.fbcdn.net/v/t39.30808-6/651918983_1476537477815921_9195954304942442038_n.jpg",
-   "postedAt": "2026-03-16T09:35:39+00:00",
-   "caption": "First introduced during the darkest days of Covid, our take on the classic Reuben sandwich continues to be one of our most beloved menu items.\n\nOur Menu: https://www.thehillstation.com/menu \nReserve your table: https://www.tablecheck.com/en/the-hill-station-vietnam/reserve/landin",
-   "alt": null,
-   "dhash": "50742969602387c6",
-   "features": {
-    "top2Share": 0.3669,
-    "edgeDensity": 0.2245,
-    "centreLuminance": 0.4349
-   },
-   "human": {
-    "subject": "food",
-    "textPresence": "present"
-   },
-   "visionRecorded": {
-    "subject": "food",
-    "textPresence": "present",
-    "quality": "good",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": true,
-    "oneLine": "Stacked sandwich with purple cabbage and salad on tray"
-   }
-  },
-  {
-   "id": "hill-24",
-   "width": 2048,
-   "height": 1305,
-   "source": "instagram",
-   "sourceUrl": "https://scontent-mrs2-1.cdninstagram.com/v/t39.30808-6/849272357_1676109151192085_8221685696206518496_n.jpg",
-   "postedAt": "2026-10-14T13:25:59+00:00",
-   "caption": "𝐂𝐡𝐢𝐜𝐤𝐞𝐧 & 𝐂𝐡𝐨𝐫𝐢𝐳𝐨 𝐒𝐭𝐞𝐰\n\nWith the cooler, rain-soaked days in Hội An, this one feels right at home.\n\nTender chicken, smoky chorizo, chickpeas and paprika, slowly cooked together until the sauce turns rich and thick. Served hot with toasted sourdough, and even bet",
-   "alt": null,
-   "dhash": "7c4d3a43b3231a1d",
-   "features": {
-    "top2Share": 0.3357,
-    "edgeDensity": 0.3374,
-    "centreLuminance": 0.421
-   },
-   "human": {
-    "subject": "food",
-    "textPresence": "present"
-   },
-   "visionRecorded": {
-    "subject": "food",
-    "textPresence": "present",
-    "quality": "good",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": true,
-    "oneLine": "Hearty bean and meat stew in a bowl with parsley"
-   }
-  },
-  {
-   "id": "hill-25",
-   "width": 2047,
-   "height": 1364,
-   "source": "instagram",
-   "sourceUrl": "https://instagram.fqro1-1.fna.fbcdn.net/v/t39.30808-6/650600068_1472969324839403_704294214846181509_n.jpg",
-   "postedAt": "2026-03-12T09:00:24+00:00",
-   "caption": "We’ve added a few new cheeses to the board.\nRed Fox Vintage Cheddar, Crackington Black Pepper Cheddar, Derby Port Wine Cheddar, and the classic Five Counties.\nFour unique cheeses now available as a designated tasting platter at The Hill Station.\n\nOur Menu: https://www.thehillstat",
-   "alt": null,
-   "dhash": "c7cfcbd9d991b1d3",
-   "features": {
-    "top2Share": 0.3828,
-    "edgeDensity": 0.1202,
-    "centreLuminance": 0.3536
-   },
-   "human": {
-    "subject": "food",
-    "textPresence": "absent"
-   },
-   "visionRecorded": {
-    "subject": "food",
-    "textPresence": "absent",
-    "quality": "good",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": false,
-    "oneLine": "Wedge of orange cheese on a wooden table"
-   }
-  },
-  {
-   "id": "hill-26",
-   "width": 590,
-   "height": 393,
-   "source": "facebook",
-   "sourceUrl": "https://scontent-mia5-2.xx.fbcdn.net/v/t39.30808-6/669442479_1500745612061774_727190958188189788_n.jpg",
-   "postedAt": "2026-04-13T09:00:28+00:00",
-   "caption": "We’re always happy when guests choose to bring The Hill Station into their own gatherings.\n\nLast week, we teamed up with our sister outlets Hidden Thaiger and Em's Bakery catering for a private occasion - in the relaxing privacy of your home.\n\nIf you have a gathering in mind, we’",
-   "alt": null,
-   "dhash": "640daf736d8e8c99",
-   "features": {
-    "top2Share": 0.2563,
-    "edgeDensity": 0.3465,
-    "centreLuminance": 0.5987
-   },
-   "human": {
-    "subject": "food",
-    "textPresence": "absent"
-   },
-   "visionRecorded": {
-    "subject": "food",
-    "textPresence": "absent",
-    "quality": "good",
-    "focus": "center",
-    "heroWorthy": true,
-    "isCollage": false,
-    "hasTextOverlay": false,
-    "oneLine": "Charcuterie board with meats, bread and cheese by pool"
-   }
-  },
-  {
-   "id": "hill-27",
-   "width": 590,
-   "height": 590,
-   "source": "facebook",
-   "sourceUrl": "https://scontent-lax3-1.xx.fbcdn.net/v/t39.30808-6/584707357_1376187021184301_3106437973051198892_n.jpg",
-   "postedAt": "2025-11-19T10:46:20+00:00",
-   "caption": "DANANG CHRISTMAS MARKET 2025 🎄✨\n\n✨ The Da Nang Christmas Market 2025 is just around the corner! Don’t forget to mark your calendar and join The Hill Station for this magical event!\n🎄 The event will take place on December 5th, 6th, and 7th at the Ariyana Convention Center.\n🟢 FR",
-   "alt": null,
-   "dhash": "4d0d4d44ccd44c0e",
-   "features": {
-    "top2Share": 0.4475,
-    "edgeDensity": 0.2906,
-    "centreLuminance": 0.3609
-   },
-   "human": {
-    "subject": "poster",
-    "textPresence": "present"
-   },
-   "visionRecorded": {
-    "subject": "poster",
-    "textPresence": "present",
-    "quality": "good",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": true,
-    "oneLine": "Da Nang Christmas Market 2025 event poster"
-   }
-  },
-  {
-   "id": "hill-28",
-   "width": 137,
-   "height": 91,
-   "source": "website",
-   "sourceUrl": "https://static.wixstatic.com/media/5aa541_3b6f630e473b43df98e09363b0b7ee9b~mv2.jpg/v1/fill/w_137,h_91,al_c,q_80,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/5aa541_3b6f630e473b43df98e09363b0b7ee9b~mv2.jpg",
-   "postedAt": null,
-   "caption": "4b.jpg",
-   "alt": null,
-   "dhash": "0e0e222795d4d092",
-   "features": {
-    "top2Share": 0.2566,
-    "edgeDensity": 0.0164,
-    "centreLuminance": 0.2839
-   },
-   "human": {
-    "subject": "other",
-    "textPresence": "absent"
-   },
-   "visionRecorded": {
-    "subject": "people",
-    "textPresence": "absent",
-    "quality": "blurry",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": false,
-    "oneLine": "Blurry dark view of people in a room"
-   }
-  },
-  {
-   "id": "hill-29",
-   "width": 590,
-   "height": 393,
-   "source": "facebook",
-   "sourceUrl": "https://scontent-ord5-1.xx.fbcdn.net/v/t39.30808-6/637494651_1452702973532705_1719447745824773947_n.jpg",
-   "postedAt": "2026-02-19T01:00:02+00:00",
-   "caption": "🌸 𝐓ế𝐭 𝐢𝐬 𝐡𝐞𝐫𝐞 🌸\n\nA little behind the scenes as our team puts up the final Tết touches around the house. Some flowers, lucky details, and lots of care, all to welcome the new year with you.\n\nOur Menu: https://www.thehillstation.com/menu \nReserve your table: https://www.t",
-   "alt": null,
-   "dhash": "9adc1fa7b7ede7ce",
-   "features": {
-    "top2Share": 0.2959,
-    "edgeDensity": 0.2066,
-    "centreLuminance": 0.4224
-   },
-   "human": {
-    "subject": "other",
-    "textPresence": "absent"
-   },
-   "visionRecorded": {
-    "subject": "food",
-    "textPresence": "present",
-    "quality": "good",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": false,
-    "oneLine": "Traditional wrapped rice cakes with conical hat and fan"
-   }
-  },
-  {
-   "id": "hill-30",
-   "width": 1200,
-   "height": 1500,
-   "source": "instagram",
-   "sourceUrl": "https://instagram.ffec11-1.fna.fbcdn.net/v/t39.30808-6/799334140_1638463798289954_1318115707050620311_n.jpg",
-   "postedAt": "2026-09-08T12:00:06+00:00",
-   "caption": "𝐀 𝐒𝐡𝐨𝐫𝐭 𝐏𝐚𝐮𝐬𝐞 𝐚𝐭 𝐭𝐡𝐞 𝐎𝐥𝐝 𝐇𝐨𝐮𝐬𝐞\n\nOur team is heading away with the rest of Lim Hospitality Group for our annual team trip, so The Hill Station will be closed on 9–10 September.\n\nThe doors will open again at 7 AM on 11 September. See you then!\n----------\nMen",
-   "alt": null,
-   "dhash": "683323330e170743",
-   "features": {
-    "top2Share": 0.8311,
-    "edgeDensity": 0.218,
-    "centreLuminance": 0.0864
-   },
-   "human": {
-    "subject": "poster",
-    "textPresence": "present"
-   },
-   "visionRecorded": {
-    "subject": "poster",
-    "textPresence": "present",
-    "quality": "good",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": true,
-    "oneLine": "Off duty on tour closure announcement graphic"
-   }
-  },
-  {
-   "id": "hill-31",
-   "width": 590,
-   "height": 590,
-   "source": "facebook",
-   "sourceUrl": "https://scontent-lax3-1.xx.fbcdn.net/v/t39.30808-6/594075493_1387963686673301_507150918376336789_n.jpg",
-   "postedAt": "2025-12-03T12:45:09+00:00",
-   "caption": "DANANG CHRISTMAS MARKET 2025 \nOFFICIAL AGENDA\nThe biggest Christmas event in Central Vietnam is ready to light up the season with 3 full days of festive activities from December 5–7th, 2025.\nGet ready for a European-style winter filled with spectacular performances, magical momen",
-   "alt": null,
-   "dhash": "4f1b19a949dba913",
-   "features": {
-    "top2Share": 0.3074,
-    "edgeDensity": 0.4597,
-    "centreLuminance": 0.5654
-   },
-   "human": {
-    "subject": "poster",
-    "textPresence": "present"
-   },
-   "visionRecorded": {
-    "subject": "poster",
-    "textPresence": "present",
-    "quality": "good",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": true,
-    "hasTextOverlay": true,
-    "oneLine": "Christmas market poster with four dance performance photos"
-   }
-  },
-  {
-   "id": "hill-32",
-   "width": 590,
-   "height": 375,
-   "source": "facebook",
-   "sourceUrl": "https://scontent-lax3-1.xx.fbcdn.net/v/t39.30808-6/584764096_1376187397850930_5526703366548179520_n.jpg",
-   "postedAt": "2025-11-19T10:46:20+00:00",
-   "caption": "DANANG CHRISTMAS MARKET 2025 🎄✨\n\n✨ The Da Nang Christmas Market 2025 is just around the corner! Don’t forget to mark your calendar and join The Hill Station for this magical event!\n🎄 The event will take place on December 5th, 6th, and 7th at the Ariyana Convention Center.\n🟢 FR",
-   "alt": null,
-   "dhash": "184d0f0c0c0ecfc1",
-   "features": {
-    "top2Share": 0.2817,
-    "edgeDensity": 0.236,
-    "centreLuminance": 0.632
-   },
-   "human": {
-    "subject": "food",
-    "textPresence": "present"
-   },
-   "visionRecorded": {
-    "subject": "food",
-    "textPresence": "present",
-    "quality": "good",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": true,
-    "oneLine": "Melted cheese poured over potatoes and charcuterie plate"
-   }
-  },
-  {
-   "id": "hill-33",
-   "width": 1365,
-   "height": 1365,
-   "source": "instagram",
-   "sourceUrl": "https://instagram.fmxp12-1.fna.fbcdn.net/v/t39.30808-6/638291126_1452704243532578_8594442954256802259_n.jpg",
-   "postedAt": "2026-02-19T01:00:10+00:00",
-   "caption": "🌸 𝐓ế𝐭 𝐢𝐬 𝐡𝐞𝐫𝐞 🌸\n\nA little behind the scenes as our team puts up the final Tết touches around the house. Some flowers, lucky details, and lots of care, all to welcome the new year with you.\n\nOur Menu: https://www.thehillstation.com/menu \nReserve your table: https://www.t",
-   "alt": null,
-   "dhash": "19190919591c4636",
-   "features": {
-    "top2Share": 0.2996,
-    "edgeDensity": 0.2807,
-    "centreLuminance": 0.4263
-   },
-   "human": {
-    "subject": "interior",
-    "textPresence": "absent"
-   },
-   "visionRecorded": {
-    "subject": "other",
-    "textPresence": "present",
-    "quality": "good",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": false,
-    "oneLine": "Potted orange tree on windowsill between shutters"
-   }
-  },
-  {
-   "id": "hill-34",
-   "width": 590,
-   "height": 590,
-   "source": "facebook",
-   "sourceUrl": "https://scontent-iad3-1.xx.fbcdn.net/v/t39.30808-6/590212669_1384485033687833_2207221668556217522_n.jpg",
-   "postedAt": "2025-11-29T02:19:46+00:00",
-   "caption": "🎅🎅🎅 Christmas Check-in Spot – 100% FREE right in the heart of Da Nang!\n✨✨ Join the countdown to the hottest holiday event of the season: DANANG CHRISTMAS MARKET 2025 ✨  \n✨✨ Da Nang, get ready! The 3rd season of the Danang Christmas Market is officially back: bigger, brighter, ",
-   "alt": null,
-   "dhash": "0c8e273313472733",
-   "features": {
-    "top2Share": 0.3604,
-    "edgeDensity": 0.4253,
-    "centreLuminance": 0.5382
-   },
-   "human": {
-    "subject": "poster",
-    "textPresence": "present"
-   },
-   "visionRecorded": {
-    "subject": "poster",
-    "textPresence": "present",
-    "quality": "good",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": true,
-    "hasTextOverlay": true,
-    "oneLine": "Christmas market poster with photo collage and dates"
-   }
-  },
-  {
-   "id": "hill-35",
-   "width": 1637,
-   "height": 2048,
-   "source": "instagram",
-   "sourceUrl": "https://scontent-iad3-2.cdninstagram.com/v/t39.30808-6/758841237_1599090758893925_2801753333021067635_n.jpg",
-   "postedAt": "2026-08-01T03:00:16+00:00",
-   "caption": "Wine service is made up of small moments.\n\nGently opening the bottle at the table, taking a moment to check in, and making sure everyone is comfortable. \n\nQuiet, thoughtful and attentive.\n\n----------\nOrder & more info: links in bio\n#HoiAnDeliCafe #HoiAnWineBar\n\n𝗧𝗵𝗲 𝗛𝗶𝗹𝗹 𝗦",
-   "alt": null,
-   "dhash": "0919d9e9b99a4e0d",
-   "features": {
-    "top2Share": 0.2524,
-    "edgeDensity": 0.3897,
-    "centreLuminance": 0.3378
-   },
-   "human": {
-    "subject": "people",
-    "textPresence": "absent"
-   },
-   "visionRecorded": {
-    "subject": "people",
-    "textPresence": "absent",
-    "quality": "good",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": false,
-    "oneLine": "Waitress pouring wine for seated guests"
-   }
-  },
-  {
-   "id": "hill-36",
-   "width": 590,
-   "height": 590,
-   "source": "facebook",
-   "sourceUrl": "https://scontent-lax3-2.xx.fbcdn.net/v/t39.30808-6/584991458_1376187051184298_2989104706385862068_n.jpg",
-   "postedAt": "2025-11-19T10:46:20+00:00",
-   "caption": "DANANG CHRISTMAS MARKET 2025 🎄✨\n\n✨ The Da Nang Christmas Market 2025 is just around the corner! Don’t forget to mark your calendar and join The Hill Station for this magical event!\n🎄 The event will take place on December 5th, 6th, and 7th at the Ariyana Convention Center.\n🟢 FR",
-   "alt": null,
-   "dhash": "150f49c21f355317",
-   "features": {
-    "top2Share": 0.5417,
-    "edgeDensity": 0.2646,
-    "centreLuminance": 0.4227
-   },
-   "human": {
-    "subject": "poster",
-    "textPresence": "present"
-   },
-   "visionRecorded": {
-    "subject": "poster",
-    "textPresence": "present",
-    "quality": "good",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": true,
-    "oneLine": "Illustrated Christmas market poster with tree and stalls"
-   }
-  },
-  {
-   "id": "hill-37",
-   "width": 526,
-   "height": 789,
-   "source": "facebook",
-   "sourceUrl": "https://scontent-ord5-2.xx.fbcdn.net/v/t39.30808-6/656100329_1484682553668080_6164582032463130475_n.jpg",
-   "postedAt": "2026-03-30T03:00:43+00:00",
-   "caption": "Look back at photos of The Hill Station since the opening in 2015 and chances are you will see this exact chalkboard and text.\n\nThe Happy Hour has remained the same and has turned into something of a gathering point in our little corner of the world.\n\nOur Menu: https://www.thehil",
-   "alt": null,
-   "dhash": "b0b0181808202869",
-   "features": {
-    "top2Share": 0.239,
-    "edgeDensity": 0.2544,
-    "centreLuminance": 0.4691
-   },
-   "human": {
-    "subject": "menu-board",
-    "textPresence": "present"
-   },
-   "visionRecorded": {
-    "subject": "menu-board",
-    "textPresence": "present",
-    "quality": "good",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": false,
-    "oneLine": "Chalkboard happy hour sign on blue shutter"
-   }
-  },
-  {
-   "id": "hill-38",
-   "width": 590,
-   "height": 393,
-   "source": "facebook",
-   "sourceUrl": "https://scontent.fabe1-1.fna.fbcdn.net/v/t39.30808-6/650974809_1472969288172740_2798834352270109083_n.jpg",
-   "postedAt": "2026-03-12T09:00:14+00:00",
-   "caption": "We’ve added a few new cheeses to the board.\nRed Fox Vintage Cheddar, Crackington Black Pepper Cheddar, Derby Port Wine Cheddar, and the classic Five Counties.\nFour unique cheeses now available as a designated tasting platter at The Hill Station.\n\nOur Menu: https://www.thehillstat",
-   "alt": null,
-   "dhash": "1f27070b2b2b2429",
-   "features": {
-    "top2Share": 0.3376,
-    "edgeDensity": 0.1727,
-    "centreLuminance": 0.5754
-   },
-   "human": {
-    "subject": "food",
-    "textPresence": "present"
-   },
-   "visionRecorded": {
-    "subject": "food",
-    "textPresence": "present",
-    "quality": "good",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": true,
-    "oneLine": "Stacked artisan cheese blocks with logo watermark"
-   }
-  },
-  {
-   "id": "hill-39",
-   "width": 2048,
-   "height": 1366,
-   "source": "instagram",
-   "sourceUrl": "https://instagram.fhnd3-2.fna.fbcdn.net/v/t39.30808-6/797672427_1646283594174641_2334596640177007142_n.jpg",
-   "postedAt": "2026-09-16T09:00:34+00:00",
-   "caption": "𝐀 𝐂𝐡𝐚𝐧𝐠𝐞 𝐨𝐟 𝐒𝐜𝐞𝐧𝐞𝐫𝐲\n\nOld walls gave way to open skies, and the usual pace of service was replaced by games, long meals, and time by the sea.\n\nThe Hill Station team joined colleagues from across Lim Hospitality Group for two days away from our everyday roles. There",
-   "alt": null,
-   "dhash": "6c2f25a4850d0961",
-   "features": {
-    "top2Share": 0.3081,
-    "edgeDensity": 0.4129,
-    "centreLuminance": 0.413
-   },
-   "human": {
-    "subject": "event",
-    "textPresence": "absent"
-   },
-   "visionRecorded": {
-    "subject": "event",
-    "textPresence": "present",
-    "quality": "good",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": false,
-    "oneLine": "Costumed performers on stage at celebration event"
-   }
-  },
-  {
-   "id": "hill-40",
-   "width": 810,
-   "height": 540,
-   "source": "facebook",
-   "sourceUrl": "https://scontent-lax3-2.xx.fbcdn.net/v/t39.30808-6/580508241_1370981188371551_6123069403852019120_n.jpg",
-   "postedAt": "2025-11-13T03:27:13+00:00",
-   "caption": "THE HILL STATION HỘI AN ĐANG TUYỂN DỤNG!\n\nHãy cùng chúng tôi mang đến những trải nghiệm ẩm thực đáng nhớ ngay tại trung tâm phố cổ Hội An!\n\n💼 VỊ TRÍ TUYỂN DỤNG\n\n- Nhân viên phục vụ \n\n- Đầu bếp \n\n- Nhân viên rửa bát \n\n💫 YÊU CẦU\n\nKhông yêu cầu kinh nghiệm, chúng tôi trân trọng đa",
-   "alt": null,
-   "dhash": "33136b6b7bea6272",
-   "features": {
-    "top2Share": 0.5188,
-    "edgeDensity": 0.1379,
-    "centreLuminance": 0.3992
-   },
-   "human": {
-    "subject": "poster",
-    "textPresence": "present"
-   },
-   "visionRecorded": {
-    "subject": "poster",
-    "textPresence": "present",
-    "quality": "good",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": true,
-    "oneLine": "Recruitment poster for The Hill Station staff"
-   }
-  },
-  {
-   "id": "hill-41",
-   "width": 42,
-   "height": 42,
-   "source": "website",
-   "sourceUrl": "https://static.wixstatic.com/media/11062b_6e9638ad803e4099a6116eb750b5a584~mv2.png/v1/fill/w_42,h_42,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/11062b_6e9638ad803e4099a6116eb750b5a584~mv2.png",
-   "postedAt": null,
-   "caption": "Instagram",
-   "alt": null,
-   "dhash": "61962317172b9641",
-   "features": {
-    "top2Share": 0.8596,
-    "edgeDensity": 0.2495,
-    "centreLuminance": 0.3217
-   },
-   "human": {
-    "subject": "logo",
-    "textPresence": "absent"
-   },
-   "visionRecorded": {
-    "subject": "logo",
-    "textPresence": "absent",
-    "quality": "good",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": false,
-    "oneLine": "Instagram logo icon on black background"
-   }
-  },
-  {
-   "id": "hill-42",
-   "width": 1440,
-   "height": 1440,
-   "source": "instagram",
-   "sourceUrl": "https://instagram.fpoz3-1.fna.fbcdn.net/v/t39.30808-6/830966832_1664272095709124_6537488349681716740_n.jpg",
-   "postedAt": "2026-10-03T10:07:24+00:00",
-   "caption": "𝐅𝐫𝐨𝐦 𝐦𝐨𝐮𝐧𝐭𝐚𝐢𝐧 𝐦𝐢𝐬𝐭 𝐭𝐨 𝐇𝐨𝐢 𝐀𝐧\n\nPeople still ask about the name from time to time, especially in the middle of a Hội An summer.\n\nThe Hill Station actually began in the winter of 2011, up in the cold mist of Sa Pa, built around a warm fire, simple comfort food",
-   "alt": null,
-   "dhash": "656f6e0eed3dfddd",
-   "features": {
-    "top2Share": 0.5593,
-    "edgeDensity": 0.2198,
-    "centreLuminance": 0.7455
-   },
-   "human": {
-    "subject": "poster",
-    "textPresence": "present"
-   },
-   "visionRecorded": {
-    "subject": "poster",
-    "textPresence": "present",
-    "quality": "good",
-    "focus": "right",
-    "heroWorthy": false,
-    "isCollage": true,
-    "hasTextOverlay": true,
-    "oneLine": "Promotional graphic with building and rice terraces"
-   }
-  },
-  {
-   "id": "hill-43",
-   "width": 590,
-   "height": 590,
-   "source": "facebook",
-   "sourceUrl": "https://scontent.fpit1-1.fna.fbcdn.net/v/t39.30808-6/600490535_1398163895653280_5800299672046633325_n.jpg",
-   "postedAt": "2025-12-16T13:18:27+00:00",
-   "caption": "It is that time of the year again where the soothing aroma of mulled wine, a cozy space and the flavors of home is just what the doctor ordered. \n\n𝐓𝐡𝐞 𝐇𝐢𝐥𝐥 𝐒𝐭𝐚𝐭𝐢𝐨𝐧 𝐇𝐨𝐢 𝐀𝐧\n321 Nguyen Duy Hieu, Hoi An\n+84 235 629 2999",
-   "alt": null,
-   "dhash": "4e4e4a7a1c1c5919",
-   "features": {
-    "top2Share": 0.271,
-    "edgeDensity": 0.2042,
-    "centreLuminance": 0.4325
-   },
-   "human": {
-    "subject": "drink",
-    "textPresence": "absent"
-   },
-   "visionRecorded": {
-    "subject": "drink",
-    "textPresence": "absent",
-    "quality": "good",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": false,
-    "oneLine": "Hand holding dark cocktail with orange peel"
-   }
-  },
-  {
-   "id": "hill-44",
-   "width": 2048,
-   "height": 1365,
-   "source": "instagram",
-   "sourceUrl": "https://instagram.fgrq1-1.fna.fbcdn.net/v/t39.30808-6/834962801_1668422398627427_6502415502688714531_n.jpg",
-   "postedAt": "2026-10-07T10:00:29+00:00",
-   "caption": "𝐎𝐩𝐞𝐧 𝐬𝐡𝐮𝐭𝐭𝐞𝐫𝐬, 𝐛𝐮𝐬𝐲 𝐚𝐟𝐭𝐞𝐫𝐧𝐨𝐨𝐧𝐬\n\nBy afternoon, the shutters are open and the house spills out onto Nguyễn Duy Hiệu.\n\nWine glasses find their way to the tables outside, friends settle in under the arches, and conversations carry on while the street moves p",
-   "alt": null,
-   "dhash": "79b6b6b69692b74f",
-   "features": {
-    "top2Share": 0.1904,
-    "edgeDensity": 0.4129,
-    "centreLuminance": 0.4182
-   },
-   "human": {
-    "subject": "exterior",
-    "textPresence": "absent"
-   },
-   "visionRecorded": {
-    "subject": "exterior",
-    "textPresence": "present",
-    "quality": "good",
-    "focus": "center",
-    "heroWorthy": true,
-    "isCollage": false,
-    "hasTextOverlay": false,
-    "oneLine": "Yellow colonial cafe facade with guests seated outside"
-   }
-  },
-  {
-   "id": "hill-45",
-   "width": 2048,
-   "height": 1366,
-   "source": "instagram",
-   "sourceUrl": "https://instagram.fhnd3-1.fna.fbcdn.net/v/t39.30808-6/795664606_1646284724174528_6589097855274295233_n.jpg",
-   "postedAt": "2026-09-16T09:00:34+00:00",
-   "caption": "𝐀 𝐂𝐡𝐚𝐧𝐠𝐞 𝐨𝐟 𝐒𝐜𝐞𝐧𝐞𝐫𝐲\n\nOld walls gave way to open skies, and the usual pace of service was replaced by games, long meals, and time by the sea.\n\nThe Hill Station team joined colleagues from across Lim Hospitality Group for two days away from our everyday roles. There",
-   "alt": null,
-   "dhash": "33316226e5ec961b",
-   "features": {
-    "top2Share": 0.2898,
-    "edgeDensity": 0.4417,
-    "centreLuminance": 0.586
-   },
-   "human": {
-    "subject": "event",
-    "textPresence": "absent"
-   },
-   "visionRecorded": {
-    "subject": "event",
-    "textPresence": "present",
-    "quality": "good",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": false,
-    "oneLine": "Large group photo on beach with banner"
-   }
-  },
-  {
-   "id": "hill-46",
-   "width": 834,
-   "height": 1043,
-   "source": "instagram",
-   "sourceUrl": "https://scontent-ams2-1.cdninstagram.com/v/t39.30808-6/700889508_1532324825570519_347988088412296145_n.jpg",
-   "postedAt": "2026-05-18T12:00:46+00:00",
-   "caption": "The true gift of this century-old house lies in its quiet corners. Here, time and nature have turned bare walls into a living canvas.\n\nOur Menu: https://www.thehillstation.com/menu \nReserve your table: https://www.tablecheck.com/en/the-hill-station-vietnam/reserve/landing \n\n𝐓𝐡\ud835",
-   "alt": null,
-   "dhash": "8282808280808882",
-   "features": {
-    "top2Share": 0.2888,
-    "edgeDensity": 0.2222,
-    "centreLuminance": 0.5849
-   },
-   "human": {
-    "subject": "interior",
-    "textPresence": "absent"
-   },
-   "visionRecorded": {
-    "subject": "interior",
-    "textPresence": "absent",
-    "quality": "cluttered",
-    "focus": "center",
-    "heroWorthy": false,
-    "isCollage": false,
-    "hasTextOverlay": false,
-    "oneLine": "Weathered yellow wall with hanging lantern"
-   }
-  },
-  {
-   "id": "hill-47",
-   "width": 480,
-   "height": 265,
-   "source": "website",
-   "sourceUrl": "https://static.wixstatic.com/media/5aa541_740a82c4acdc458a8158581c0ad0a626~mv2.jpg/v1/fit/w_480,h_266,q_90,enc_avif,quality_auto/5aa541_740a82c4acdc458a8158581c0ad0a626~mv2.jpg",
-   "postedAt": null,
-   "caption": "Món ăn đặc trưng được phục vụ tại The Hill Station, Hội An.",
-   "alt": null,
-   "dhash": "fcfcfcfcf6d0f8d2",
-   "features": {
-    "top2Share": 0.4773,
-    "edgeDensity": 0.187,
-    "centreLuminance": 0.5185
-   },
-   "human": {
-    "subject": "food",
-    "textPresence": "absent"
-   },
-   "visionRecorded": {
-    "subject": "food",
-    "textPresence": "absent",
-    "quality": "good",
-    "focus": "center",
-    "heroWorthy": true,
-    "isCollage": false,
-    "hasTextOverlay": false,
-    "oneLine": "Pink pasta dish garnished with herbs and cheese"
-   }
-  }
- ],
- "vision": "deepseek-chat, prompt p1, 512px q70 thumbnails, answered 18/10/2026 (48 pictures, 6 calls, 15339 tokens, 6.3 s)"
+  "about": "Passion (facebook) and The Hill Station (website, facebook, instagram), stand wo 18/10/2026; labelled by hand from contact sheets",
+  "pictures": [
+    {
+      "id": "passion-00",
+      "width": 720,
+      "height": 540,
+      "source": "facebook",
+      "sourceUrl": "https://scontent-atl3-2.xx.fbcdn.net/v/t1.6435-9/64729002_2290369154365921_2993833913186516992_n.jpg",
+      "postedAt": "2019-06-21T10:40:11+00:00",
+      "caption": "We are ready",
+      "alt": null,
+      "dhash": "d820ecd0e9e0f838",
+      "features": {
+        "top2Share": 0.4985,
+        "edgeDensity": 0.2183,
+        "centreLuminance": 0.5402
+      },
+      "human": {
+        "subject": "poster",
+        "textPresence": "present"
+      },
+      "visionRecorded": {
+        "subject": "poster",
+        "textPresence": "present",
+        "quality": "good",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": false,
+        "oneLine": "Reopening announcement sign for Passion Restaurant & Bar"
+      }
+    },
+    {
+      "id": "passion-01",
+      "width": 590,
+      "height": 590,
+      "source": "facebook",
+      "sourceUrl": "https://scontent-lga3-2.xx.fbcdn.net/v/t39.30808-6/706901455_1350694020455901_2415393409404465931_n.jpg",
+      "postedAt": "2026-05-24T04:00:00+00:00",
+      "caption": "✨ It’s been a while since our last post… but Passion Restaurant & Bar is still here every day, welcoming lovely guests from around the world 💛\n\nSome things never change in Hoi An ✨\n🏮 Lantern lights\n🍤 Delicious local food\n🍷 Cozy dinners\n😊 And slow, meaningful evenings with pe",
+      "alt": null,
+      "dhash": "3979d9d9de71434e",
+      "features": {
+        "top2Share": 0.323,
+        "edgeDensity": 0.1889,
+        "centreLuminance": 0.5898
+      },
+      "human": {
+        "subject": "food",
+        "textPresence": "absent"
+      },
+      "visionRecorded": {
+        "subject": "food",
+        "textPresence": "absent",
+        "quality": "good",
+        "heroWorthy": true,
+        "isCollage": false,
+        "hasTextOverlay": false,
+        "oneLine": "Plate of crispy topped appetizers with tomato garnish"
+      }
+    },
+    {
+      "id": "passion-02",
+      "width": 443,
+      "height": 590,
+      "source": "facebook",
+      "sourceUrl": "https://scontent-atl3-1.xx.fbcdn.net/v/t1.6435-9/119032006_3278643775538449_7574511165824873049_n.jpg",
+      "postedAt": "2020-09-10T07:03:03+00:00",
+      "caption": "Nhớ nhiều lắm những vị khách thân thương ... ❤️❤️không biết bây giờ họ có khỏe không .",
+      "alt": null,
+      "dhash": "5f753636363634a0",
+      "features": {
+        "top2Share": 0.3862,
+        "edgeDensity": 0.2224,
+        "centreLuminance": 0.4597
+      },
+      "human": {
+        "subject": "people",
+        "textPresence": "absent"
+      },
+      "visionRecorded": {
+        "subject": "people",
+        "textPresence": "absent",
+        "quality": "good",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": false,
+        "oneLine": "Two young girls posing in front of bamboo bar"
+      }
+    },
+    {
+      "id": "passion-03",
+      "width": 590,
+      "height": 590,
+      "source": "facebook",
+      "sourceUrl": "https://scontent-lga3-3.xx.fbcdn.net/v/t39.30808-6/548293907_1154171983441440_2199398433514776313_n.jpg",
+      "postedAt": "2025-09-18T11:00:30+00:00",
+      "caption": "🤔 Hard to decide what to eat tonight?\n👉 Easy! Just come to Passion!\n\nGood vibes, tasty bites, and refreshing drinks are waiting for you 🍹✨\nBring your friends, your date, or simply yourself – it’s always a good time here.\n______________________________________________\n𝐏𝐀𝐒𝐒\ud835",
+      "alt": null,
+      "dhash": "feabe193ce939a0c",
+      "features": {
+        "top2Share": 0.2788,
+        "edgeDensity": 0.18,
+        "centreLuminance": 0.6853
+      },
+      "human": {
+        "subject": "food",
+        "textPresence": "present"
+      },
+      "visionRecorded": {
+        "subject": "food",
+        "textPresence": "present",
+        "quality": "good",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": true,
+        "oneLine": "Chopsticks dipping a fresh spring roll in sauce"
+      }
+    },
+    {
+      "id": "passion-04",
+      "width": 590,
+      "height": 590,
+      "source": "facebook",
+      "sourceUrl": "https://scontent.fagc3-2.fna.fbcdn.net/v/t39.30808-6/527400969_1116720237186615_357897184383559183_n.jpg",
+      "postedAt": "2025-08-02T10:29:30+00:00",
+      "caption": "We’re still here – and still serving your favorite Vietnamese dishes!\n\nIt’s been a while since our last post, but Passion Restaurant & Bar is open daily, cooking up the freshest Vietnamese seafood dishes with love and local flavors ❤️\n\n🍤 Come try local favorites like Grilled Sca",
+      "alt": null,
+      "dhash": "71ca4c78b369491f",
+      "features": {
+        "top2Share": 0.218,
+        "edgeDensity": 0.3835,
+        "centreLuminance": 0.6623
+      },
+      "human": {
+        "subject": "poster",
+        "textPresence": "present"
+      },
+      "visionRecorded": {
+        "subject": "food",
+        "textPresence": "present",
+        "quality": "good",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": true,
+        "oneLine": "Grilled scallops plated with lime and salt"
+      }
+    },
+    {
+      "id": "passion-05",
+      "width": 590,
+      "height": 590,
+      "source": "facebook",
+      "sourceUrl": "https://scontent-dfw5-1.xx.fbcdn.net/v/t39.30808-6/706818751_1350713857120584_8121374232297948496_n.jpg",
+      "postedAt": "2026-05-26T04:00:23+00:00",
+      "caption": "Thank you for your continued support of Passion. ❤️\n\nPassion is dedicated to serving delicious local dishes, fresh seafood, and providing a warm and welcoming dining experience, making every guest feel right at home in Hoi An.\n\nFrom romantic dinners for couples and family gatheri",
+      "alt": null,
+      "dhash": "d48fa36775512330",
+      "features": {
+        "top2Share": 0.27,
+        "edgeDensity": 0.3317,
+        "centreLuminance": 0.3262
+      },
+      "human": {
+        "subject": "interior",
+        "textPresence": "absent"
+      },
+      "visionRecorded": {
+        "subject": "interior",
+        "textPresence": "present",
+        "quality": "good",
+        "heroWorthy": true,
+        "isCollage": false,
+        "hasTextOverlay": false,
+        "oneLine": "Busy dining room with cocktails in foreground"
+      }
+    },
+    {
+      "id": "passion-06",
+      "width": 590,
+      "height": 443,
+      "source": "facebook",
+      "sourceUrl": "https://scontent-atl3-1.xx.fbcdn.net/v/t39.30808-6/514344020_23916732214636303_2306287857930895296_n.jpg",
+      "postedAt": "2017-06-28T04:16:38+00:00",
+      "caption": "Passion restaurant & bar rất vui vì sự hài lòng của khách ...Thanks khách nhìu",
+      "alt": null,
+      "dhash": "6475e0e86b4f5ede",
+      "features": {
+        "top2Share": 0.3025,
+        "edgeDensity": 0.3379,
+        "centreLuminance": 0.2825
+      },
+      "human": {
+        "subject": "interior",
+        "textPresence": "absent"
+      },
+      "visionRecorded": {
+        "subject": "people",
+        "textPresence": "absent",
+        "quality": "good",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": false,
+        "oneLine": "Guests smiling and dining in bamboo interior"
+      }
+    },
+    {
+      "id": "passion-07",
+      "width": 590,
+      "height": 443,
+      "source": "facebook",
+      "sourceUrl": "https://scontent-atl3-1.xx.fbcdn.net/v/t39.30808-6/513449232_23916537624655762_5700370121571219450_n.jpg",
+      "postedAt": "2017-06-25T16:11:36+00:00",
+      "caption": "Kỉ niệm ngày thành lập !!!",
+      "alt": null,
+      "dhash": "d210220b872b2939",
+      "features": {
+        "top2Share": 0.259,
+        "edgeDensity": 0.282,
+        "centreLuminance": 0.4519
+      },
+      "human": {
+        "subject": "interior",
+        "textPresence": "absent"
+      },
+      "visionRecorded": {
+        "subject": "interior",
+        "textPresence": "absent",
+        "quality": "dark",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": false,
+        "oneLine": "Woven basket ceiling with hanging lanterns"
+      }
+    },
+    {
+      "id": "passion-08",
+      "width": 590,
+      "height": 590,
+      "source": "facebook",
+      "sourceUrl": "https://scontent.fagc3-2.fna.fbcdn.net/v/t39.30808-6/527869220_1119084390283533_6403847229229918572_n.jpg",
+      "postedAt": "2025-08-05T09:11:14+00:00",
+      "caption": "✨Let's start dinner with some delicious starters with Passion!\n\n🥞Hoi An Rice Pancake - Banh xeo with shrimp and pork filling, served with fresh herbs and dipping sauce.\n🥭Mango Salad With Shrimp - Shredded green mango, shrimp, peanuts and sweet and sour fish sauce\n🥑 Avocado Sal",
+      "alt": null,
+      "dhash": "e6ef1c6c676b7af0",
+      "features": {
+        "top2Share": 0.3074,
+        "edgeDensity": 0.4019,
+        "centreLuminance": 0.4656
+      },
+      "human": {
+        "subject": "food",
+        "textPresence": "present"
+      },
+      "visionRecorded": {
+        "subject": "food",
+        "textPresence": "present",
+        "quality": "good",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": true,
+        "oneLine": "Close-up of noodle dish topped with crushed peanuts and shrimp"
+      }
+    },
+    {
+      "id": "passion-09",
+      "width": 590,
+      "height": 443,
+      "source": "facebook",
+      "sourceUrl": "https://scontent-atl3-2.xx.fbcdn.net/v/t39.30808-6/512792879_23916731957969662_949191412211669447_n.jpg",
+      "postedAt": "2017-06-28T04:16:38+00:00",
+      "caption": "Passion restaurant & bar rất vui vì sự hài lòng của khách ...Thanks khách nhìu",
+      "alt": null,
+      "dhash": "6a631f1b35310fdc",
+      "features": {
+        "top2Share": 0.3042,
+        "edgeDensity": 0.2393,
+        "centreLuminance": 0.5769
+      },
+      "human": {
+        "subject": "food",
+        "textPresence": "absent"
+      },
+      "visionRecorded": {
+        "subject": "food",
+        "textPresence": "absent",
+        "quality": "dark",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": false,
+        "oneLine": "Plated shrimp and vegetable appetizer on white dish"
+      }
+    },
+    {
+      "id": "passion-10",
+      "width": 590,
+      "height": 392,
+      "source": "facebook",
+      "sourceUrl": "https://scontent.flas1-1.fna.fbcdn.net/v/t39.30808-6/593138713_1215566250635346_8587869422261107295_n.jpg",
+      "postedAt": "2025-12-01T02:55:41+00:00",
+      "caption": "Hoi An is peaceful, the food is authentic!\n\n📸: Hoian.recorder",
+      "alt": null,
+      "dhash": "0f0b9b034b8cae01",
+      "features": {
+        "top2Share": 0.386,
+        "edgeDensity": 0.0921,
+        "centreLuminance": 0.2809
+      },
+      "human": {
+        "subject": "exterior",
+        "textPresence": "absent"
+      },
+      "visionRecorded": {
+        "subject": "people",
+        "textPresence": "absent",
+        "quality": "dark",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": false,
+        "oneLine": "Street vendors in conical hats sitting by yellow wall"
+      }
+    },
+    {
+      "id": "passion-11",
+      "width": 472,
+      "height": 590,
+      "source": "facebook",
+      "sourceUrl": "https://scontent.flas1-1.fna.fbcdn.net/v/t39.30808-6/591616665_1215566347302003_1698745458781421919_n.jpg",
+      "postedAt": "2025-12-01T02:55:41+00:00",
+      "caption": "Hoi An is peaceful, the food is authentic!\n\n📸: Hoian.recorder",
+      "alt": null,
+      "dhash": "0343222424242424",
+      "features": {
+        "top2Share": 0.7932,
+        "edgeDensity": 0.1155,
+        "centreLuminance": 0.1459
+      },
+      "human": {
+        "subject": "exterior",
+        "textPresence": "absent"
+      },
+      "visionRecorded": {
+        "subject": "exterior",
+        "textPresence": "absent",
+        "quality": "dark",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": false,
+        "oneLine": "Narrow alley with glowing lantern and silhouetted people"
+      }
+    },
+    {
+      "id": "passion-12",
+      "width": 393,
+      "height": 590,
+      "source": "facebook",
+      "sourceUrl": "https://scontent.fagc3-1.fna.fbcdn.net/v/t39.30808-6/528168157_1119084280283544_5790626016588597696_n.jpg",
+      "postedAt": "2025-08-05T09:11:14+00:00",
+      "caption": "✨Let's start dinner with some delicious starters with Passion!\n\n🥞Hoi An Rice Pancake - Banh xeo with shrimp and pork filling, served with fresh herbs and dipping sauce.\n🥭Mango Salad With Shrimp - Shredded green mango, shrimp, peanuts and sweet and sour fish sauce\n🥑 Avocado Sal",
+      "alt": null,
+      "dhash": "21098d0c2c2869e0",
+      "features": {
+        "top2Share": 0.2383,
+        "edgeDensity": 0.359,
+        "centreLuminance": 0.4382
+      },
+      "human": {
+        "subject": "poster",
+        "textPresence": "present"
+      },
+      "visionRecorded": {
+        "subject": "poster",
+        "textPresence": "present",
+        "quality": "good",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": true,
+        "oneLine": "Promotional graphic for delicious starters with contact details"
+      }
+    },
+    {
+      "id": "passion-13",
+      "width": 590,
+      "height": 443,
+      "source": "facebook",
+      "sourceUrl": "https://scontent-atl3-2.xx.fbcdn.net/v/t39.30808-6/512960158_23916731967969661_8462828313331341000_n.jpg",
+      "postedAt": "2017-06-28T04:16:38+00:00",
+      "caption": "Passion restaurant & bar rất vui vì sự hài lòng của khách ...Thanks khách nhìu",
+      "alt": null,
+      "dhash": "11233b3f3d31878f",
+      "features": {
+        "top2Share": 0.3982,
+        "edgeDensity": 0.1548,
+        "centreLuminance": 0.3767
+      },
+      "human": {
+        "subject": "interior",
+        "textPresence": "absent"
+      },
+      "visionRecorded": {
+        "subject": "interior",
+        "textPresence": "absent",
+        "quality": "dark",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": false,
+        "oneLine": "Colorfully lit bar counter with bottles and glasses"
+      }
+    },
+    {
+      "id": "passion-14",
+      "width": 590,
+      "height": 392,
+      "source": "facebook",
+      "sourceUrl": "https://scontent.flas1-2.fna.fbcdn.net/v/t39.30808-6/593739475_1215566000635371_3445620456128264392_n.jpg",
+      "postedAt": "2025-12-01T02:55:41+00:00",
+      "caption": "Hoi An is peaceful, the food is authentic!\n\n📸: Hoian.recorder",
+      "alt": null,
+      "dhash": "93c3671b09191919",
+      "features": {
+        "top2Share": 0.3452,
+        "edgeDensity": 0.1857,
+        "centreLuminance": 0.6524
+      },
+      "human": {
+        "subject": "other",
+        "textPresence": "absent"
+      },
+      "visionRecorded": {
+        "subject": "people",
+        "textPresence": "present",
+        "quality": "good",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": false,
+        "oneLine": "Man photographing river view under Hoi An sign"
+      }
+    },
+    {
+      "id": "passion-15",
+      "width": 572,
+      "height": 590,
+      "source": "facebook",
+      "sourceUrl": "https://scontent-iad3-2.xx.fbcdn.net/v/t39.30808-6/530419662_1124528566405782_1672786252197521444_n.jpg",
+      "postedAt": "2025-08-12T08:51:10+00:00",
+      "caption": "🌟Passion is delighted and sincerely thankful to all our valued guests who had a wonderful experience and left feedback on Google.\n\nYour happiness is the greatest gift to Passion. Each positive review is not only a joy but also a motivation for us to keep improving every day, bri",
+      "alt": null,
+      "dhash": "8282949482848281",
+      "features": {
+        "top2Share": 0.9329,
+        "edgeDensity": 0.1041,
+        "centreLuminance": 0.9802
+      },
+      "human": {
+        "subject": "poster",
+        "textPresence": "present"
+      },
+      "visionRecorded": {
+        "subject": "other",
+        "textPresence": "present",
+        "quality": "good",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": false,
+        "oneLine": "Screenshot of online restaurant reviews and ratings"
+      }
+    },
+    {
+      "id": "passion-16",
+      "width": 443,
+      "height": 590,
+      "source": "facebook",
+      "sourceUrl": "https://scontent-atl3-2.xx.fbcdn.net/v/t39.30808-6/480550290_990752813116692_1904920430119007209_n.jpg",
+      "postedAt": "2023-08-12T07:51:46+00:00",
+      "caption": null,
+      "alt": null,
+      "dhash": "860f38fa4e9c3c39",
+      "features": {
+        "top2Share": 0.2683,
+        "edgeDensity": 0.2427,
+        "centreLuminance": 0.4972
+      },
+      "human": {
+        "subject": "food",
+        "textPresence": "absent"
+      },
+      "visionRecorded": {
+        "subject": "food",
+        "textPresence": "absent",
+        "quality": "good",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": false,
+        "oneLine": "Grilled meat with rice, lettuce, cucumber and tomato on plate"
+      }
+    },
+    {
+      "id": "passion-17",
+      "width": 590,
+      "height": 392,
+      "source": "facebook",
+      "sourceUrl": "https://scontent.flas1-2.fna.fbcdn.net/v/t39.30808-6/592059142_1215566150635356_2031366252201150392_n.jpg",
+      "postedAt": "2025-12-01T02:55:41+00:00",
+      "caption": "Hoi An is peaceful, the food is authentic!\n\n📸: Hoian.recorder",
+      "alt": null,
+      "dhash": "4b1f1f237b264f0f",
+      "features": {
+        "top2Share": 0.2771,
+        "edgeDensity": 0.3522,
+        "centreLuminance": 0.4234
+      },
+      "human": {
+        "subject": "food",
+        "textPresence": "absent"
+      },
+      "visionRecorded": {
+        "subject": "food",
+        "textPresence": "absent",
+        "quality": "good",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": false,
+        "oneLine": "Round baskets of golden noodles drying in sunlight"
+      }
+    },
+    {
+      "id": "passion-18",
+      "width": 590,
+      "height": 590,
+      "source": "facebook",
+      "sourceUrl": "https://scontent-lga3-3.xx.fbcdn.net/v/t39.30808-6/549787907_1154171966774775_6620591297107753622_n.jpg",
+      "postedAt": "2025-09-18T11:00:30+00:00",
+      "caption": "🤔 Hard to decide what to eat tonight?\n👉 Easy! Just come to Passion!\n\nGood vibes, tasty bites, and refreshing drinks are waiting for you 🍹✨\nBring your friends, your date, or simply yourself – it’s always a good time here.\n______________________________________________\n𝐏𝐀𝐒𝐒\ud835",
+      "alt": null,
+      "dhash": "42c6f5dab1b31939",
+      "features": {
+        "top2Share": 0.3003,
+        "edgeDensity": 0.257,
+        "centreLuminance": 0.649
+      },
+      "human": {
+        "subject": "food",
+        "textPresence": "present"
+      },
+      "visionRecorded": {
+        "subject": "food",
+        "textPresence": "present",
+        "quality": "good",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": true,
+        "oneLine": "Table spread of dishes and colorful drinks with text overlay"
+      }
+    },
+    {
+      "id": "passion-19",
+      "width": 443,
+      "height": 590,
+      "source": "facebook",
+      "sourceUrl": "https://scontent-atl3-2.xx.fbcdn.net/v/t39.30808-6/480693547_990752809783359_6572176743371871540_n.jpg",
+      "postedAt": "2023-08-12T07:51:46+00:00",
+      "caption": null,
+      "alt": null,
+      "dhash": "383cda68dce9d571",
+      "features": {
+        "top2Share": 0.2786,
+        "edgeDensity": 0.2862,
+        "centreLuminance": 0.4009
+      },
+      "human": {
+        "subject": "food",
+        "textPresence": "absent"
+      },
+      "visionRecorded": {
+        "subject": "food",
+        "textPresence": "absent",
+        "quality": "good",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": false,
+        "oneLine": "Skewered grilled prawns on lettuce on white plate"
+      }
+    },
+    {
+      "id": "passion-20",
+      "width": 443,
+      "height": 590,
+      "source": "facebook",
+      "sourceUrl": "https://scontent-lga3-1.xx.fbcdn.net/v/t39.30808-6/484859971_9435205753215523_1505714643789385593_n.jpg",
+      "postedAt": "2022-08-15T16:12:49+00:00",
+      "caption": "Once again thank you all stay safe after covid  Thank you for remembering us \nReturning customer from 2018 \n❤️❤️❤️",
+      "alt": null,
+      "dhash": "6373362726067f6d",
+      "features": {
+        "top2Share": 0.3174,
+        "edgeDensity": 0.2575,
+        "centreLuminance": 0.4124
+      },
+      "human": {
+        "subject": "people",
+        "textPresence": "absent"
+      },
+      "visionRecorded": {
+        "subject": "people",
+        "textPresence": "absent",
+        "quality": "good",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": false,
+        "oneLine": "Guests and staff talking around a wooden table"
+      }
+    },
+    {
+      "id": "passion-21",
+      "width": 443,
+      "height": 590,
+      "source": "facebook",
+      "sourceUrl": "https://scontent-atl3-1.xx.fbcdn.net/v/t39.30808-6/479674270_990752819783358_2555399733152747912_n.jpg",
+      "postedAt": "2023-08-12T07:51:46+00:00",
+      "caption": null,
+      "alt": null,
+      "dhash": "1b1359c3d1e1797b",
+      "features": {
+        "top2Share": 0.2961,
+        "edgeDensity": 0.3098,
+        "centreLuminance": 0.383
+      },
+      "human": {
+        "subject": "food",
+        "textPresence": "absent"
+      },
+      "visionRecorded": {
+        "subject": "food",
+        "textPresence": "absent",
+        "quality": "good",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": false,
+        "oneLine": "Beef skewers with peppers, cucumber and tomato on plate"
+      }
+    },
+    {
+      "id": "hill-22",
+      "width": 1365,
+      "height": 1365,
+      "source": "instagram",
+      "sourceUrl": "https://scontent-mxp1-1.cdninstagram.com/v/t39.30808-6/791510174_1633673018769032_6574489312703680201_n.jpg",
+      "postedAt": "2026-09-05T09:00:49+00:00",
+      "caption": "A Deli Table for Sum Vầy’s opening night.\n\nCheeses, cold cuts, breads, pickles and small desserts, prepared by The Hill Station for guests to gather around throughout the evening.\n\nPlanning a gathering of your own? Get in touch with us about catering.\n\n----------\nMenu & Reserve: ",
+      "alt": null,
+      "dhash": "0249cf0305c1c8dd",
+      "features": {
+        "top2Share": 0.6064,
+        "edgeDensity": 0.2664,
+        "centreLuminance": 0.2773
+      },
+      "human": {
+        "subject": "food",
+        "textPresence": "absent"
+      },
+      "visionRecorded": {
+        "subject": "food",
+        "textPresence": "absent",
+        "quality": "dark",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": false,
+        "oneLine": "Charcuterie board with cheese, meats and small jars"
+      }
+    },
+    {
+      "id": "hill-23",
+      "width": 810,
+      "height": 540,
+      "source": "facebook",
+      "sourceUrl": "https://scontent-iad6-1.xx.fbcdn.net/v/t39.30808-6/651918983_1476537477815921_9195954304942442038_n.jpg",
+      "postedAt": "2026-03-16T09:35:39+00:00",
+      "caption": "First introduced during the darkest days of Covid, our take on the classic Reuben sandwich continues to be one of our most beloved menu items.\n\nOur Menu: https://www.thehillstation.com/menu \nReserve your table: https://www.tablecheck.com/en/the-hill-station-vietnam/reserve/landin",
+      "alt": null,
+      "dhash": "50742969602387c6",
+      "features": {
+        "top2Share": 0.3669,
+        "edgeDensity": 0.2245,
+        "centreLuminance": 0.4349
+      },
+      "human": {
+        "subject": "food",
+        "textPresence": "present"
+      },
+      "visionRecorded": {
+        "subject": "food",
+        "textPresence": "present",
+        "quality": "good",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": true,
+        "oneLine": "Stacked sandwich with purple cabbage and salad on tray"
+      }
+    },
+    {
+      "id": "hill-24",
+      "width": 2048,
+      "height": 1305,
+      "source": "instagram",
+      "sourceUrl": "https://scontent-mrs2-1.cdninstagram.com/v/t39.30808-6/849272357_1676109151192085_8221685696206518496_n.jpg",
+      "postedAt": "2026-10-14T13:25:59+00:00",
+      "caption": "𝐂𝐡𝐢𝐜𝐤𝐞𝐧 & 𝐂𝐡𝐨𝐫𝐢𝐳𝐨 𝐒𝐭𝐞𝐰\n\nWith the cooler, rain-soaked days in Hội An, this one feels right at home.\n\nTender chicken, smoky chorizo, chickpeas and paprika, slowly cooked together until the sauce turns rich and thick. Served hot with toasted sourdough, and even bet",
+      "alt": null,
+      "dhash": "7c4d3a43b3231a1d",
+      "features": {
+        "top2Share": 0.3357,
+        "edgeDensity": 0.3374,
+        "centreLuminance": 0.421
+      },
+      "human": {
+        "subject": "food",
+        "textPresence": "present"
+      },
+      "visionRecorded": {
+        "subject": "food",
+        "textPresence": "present",
+        "quality": "good",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": true,
+        "oneLine": "Hearty bean and meat stew in a bowl with parsley"
+      }
+    },
+    {
+      "id": "hill-25",
+      "width": 2047,
+      "height": 1364,
+      "source": "instagram",
+      "sourceUrl": "https://instagram.fqro1-1.fna.fbcdn.net/v/t39.30808-6/650600068_1472969324839403_704294214846181509_n.jpg",
+      "postedAt": "2026-03-12T09:00:24+00:00",
+      "caption": "We’ve added a few new cheeses to the board.\nRed Fox Vintage Cheddar, Crackington Black Pepper Cheddar, Derby Port Wine Cheddar, and the classic Five Counties.\nFour unique cheeses now available as a designated tasting platter at The Hill Station.\n\nOur Menu: https://www.thehillstat",
+      "alt": null,
+      "dhash": "c7cfcbd9d991b1d3",
+      "features": {
+        "top2Share": 0.3828,
+        "edgeDensity": 0.1202,
+        "centreLuminance": 0.3536
+      },
+      "human": {
+        "subject": "food",
+        "textPresence": "absent"
+      },
+      "visionRecorded": {
+        "subject": "food",
+        "textPresence": "absent",
+        "quality": "good",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": false,
+        "oneLine": "Wedge of orange cheese on a wooden table"
+      }
+    },
+    {
+      "id": "hill-26",
+      "width": 590,
+      "height": 393,
+      "source": "facebook",
+      "sourceUrl": "https://scontent-mia5-2.xx.fbcdn.net/v/t39.30808-6/669442479_1500745612061774_727190958188189788_n.jpg",
+      "postedAt": "2026-04-13T09:00:28+00:00",
+      "caption": "We’re always happy when guests choose to bring The Hill Station into their own gatherings.\n\nLast week, we teamed up with our sister outlets Hidden Thaiger and Em's Bakery catering for a private occasion - in the relaxing privacy of your home.\n\nIf you have a gathering in mind, we’",
+      "alt": null,
+      "dhash": "640daf736d8e8c99",
+      "features": {
+        "top2Share": 0.2563,
+        "edgeDensity": 0.3465,
+        "centreLuminance": 0.5987
+      },
+      "human": {
+        "subject": "food",
+        "textPresence": "absent"
+      },
+      "visionRecorded": {
+        "subject": "food",
+        "textPresence": "absent",
+        "quality": "good",
+        "focus": "center",
+        "heroWorthy": true,
+        "isCollage": false,
+        "hasTextOverlay": false,
+        "oneLine": "Charcuterie board with meats, bread and cheese by pool"
+      }
+    },
+    {
+      "id": "hill-27",
+      "width": 590,
+      "height": 590,
+      "source": "facebook",
+      "sourceUrl": "https://scontent-lax3-1.xx.fbcdn.net/v/t39.30808-6/584707357_1376187021184301_3106437973051198892_n.jpg",
+      "postedAt": "2025-11-19T10:46:20+00:00",
+      "caption": "DANANG CHRISTMAS MARKET 2025 🎄✨\n\n✨ The Da Nang Christmas Market 2025 is just around the corner! Don’t forget to mark your calendar and join The Hill Station for this magical event!\n🎄 The event will take place on December 5th, 6th, and 7th at the Ariyana Convention Center.\n🟢 FR",
+      "alt": null,
+      "dhash": "4d0d4d44ccd44c0e",
+      "features": {
+        "top2Share": 0.4475,
+        "edgeDensity": 0.2906,
+        "centreLuminance": 0.3609
+      },
+      "human": {
+        "subject": "poster",
+        "textPresence": "present"
+      },
+      "visionRecorded": {
+        "subject": "poster",
+        "textPresence": "present",
+        "quality": "good",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": true,
+        "oneLine": "Da Nang Christmas Market 2025 event poster"
+      }
+    },
+    {
+      "id": "hill-28",
+      "width": 137,
+      "height": 91,
+      "source": "website",
+      "sourceUrl": "https://static.wixstatic.com/media/5aa541_3b6f630e473b43df98e09363b0b7ee9b~mv2.jpg/v1/fill/w_137,h_91,al_c,q_80,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/5aa541_3b6f630e473b43df98e09363b0b7ee9b~mv2.jpg",
+      "postedAt": null,
+      "caption": "4b.jpg",
+      "alt": null,
+      "dhash": "0e0e222795d4d092",
+      "features": {
+        "top2Share": 0.2566,
+        "edgeDensity": 0.0164,
+        "centreLuminance": 0.2839
+      },
+      "human": {
+        "subject": "other",
+        "textPresence": "absent"
+      },
+      "visionRecorded": {
+        "subject": "people",
+        "textPresence": "absent",
+        "quality": "blurry",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": false,
+        "oneLine": "Blurry dark view of people in a room"
+      }
+    },
+    {
+      "id": "hill-29",
+      "width": 590,
+      "height": 393,
+      "source": "facebook",
+      "sourceUrl": "https://scontent-ord5-1.xx.fbcdn.net/v/t39.30808-6/637494651_1452702973532705_1719447745824773947_n.jpg",
+      "postedAt": "2026-02-19T01:00:02+00:00",
+      "caption": "🌸 𝐓ế𝐭 𝐢𝐬 𝐡𝐞𝐫𝐞 🌸\n\nA little behind the scenes as our team puts up the final Tết touches around the house. Some flowers, lucky details, and lots of care, all to welcome the new year with you.\n\nOur Menu: https://www.thehillstation.com/menu \nReserve your table: https://www.t",
+      "alt": null,
+      "dhash": "9adc1fa7b7ede7ce",
+      "features": {
+        "top2Share": 0.2959,
+        "edgeDensity": 0.2066,
+        "centreLuminance": 0.4224
+      },
+      "human": {
+        "subject": "other",
+        "textPresence": "absent"
+      },
+      "visionRecorded": {
+        "subject": "food",
+        "textPresence": "present",
+        "quality": "good",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": false,
+        "oneLine": "Traditional wrapped rice cakes with conical hat and fan"
+      }
+    },
+    {
+      "id": "hill-30",
+      "width": 1200,
+      "height": 1500,
+      "source": "instagram",
+      "sourceUrl": "https://instagram.ffec11-1.fna.fbcdn.net/v/t39.30808-6/799334140_1638463798289954_1318115707050620311_n.jpg",
+      "postedAt": "2026-09-08T12:00:06+00:00",
+      "caption": "𝐀 𝐒𝐡𝐨𝐫𝐭 𝐏𝐚𝐮𝐬𝐞 𝐚𝐭 𝐭𝐡𝐞 𝐎𝐥𝐝 𝐇𝐨𝐮𝐬𝐞\n\nOur team is heading away with the rest of Lim Hospitality Group for our annual team trip, so The Hill Station will be closed on 9–10 September.\n\nThe doors will open again at 7 AM on 11 September. See you then!\n----------\nMen",
+      "alt": null,
+      "dhash": "683323330e170743",
+      "features": {
+        "top2Share": 0.8311,
+        "edgeDensity": 0.218,
+        "centreLuminance": 0.0864
+      },
+      "human": {
+        "subject": "poster",
+        "textPresence": "present"
+      },
+      "visionRecorded": {
+        "subject": "poster",
+        "textPresence": "present",
+        "quality": "good",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": true,
+        "oneLine": "Off duty on tour closure announcement graphic"
+      }
+    },
+    {
+      "id": "hill-31",
+      "width": 590,
+      "height": 590,
+      "source": "facebook",
+      "sourceUrl": "https://scontent-lax3-1.xx.fbcdn.net/v/t39.30808-6/594075493_1387963686673301_507150918376336789_n.jpg",
+      "postedAt": "2025-12-03T12:45:09+00:00",
+      "caption": "DANANG CHRISTMAS MARKET 2025 \nOFFICIAL AGENDA\nThe biggest Christmas event in Central Vietnam is ready to light up the season with 3 full days of festive activities from December 5–7th, 2025.\nGet ready for a European-style winter filled with spectacular performances, magical momen",
+      "alt": null,
+      "dhash": "4f1b19a949dba913",
+      "features": {
+        "top2Share": 0.3074,
+        "edgeDensity": 0.4597,
+        "centreLuminance": 0.5654
+      },
+      "human": {
+        "subject": "poster",
+        "textPresence": "present"
+      },
+      "visionRecorded": {
+        "subject": "poster",
+        "textPresence": "present",
+        "quality": "good",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": true,
+        "hasTextOverlay": true,
+        "oneLine": "Christmas market poster with four dance performance photos"
+      }
+    },
+    {
+      "id": "hill-32",
+      "width": 590,
+      "height": 375,
+      "source": "facebook",
+      "sourceUrl": "https://scontent-lax3-1.xx.fbcdn.net/v/t39.30808-6/584764096_1376187397850930_5526703366548179520_n.jpg",
+      "postedAt": "2025-11-19T10:46:20+00:00",
+      "caption": "DANANG CHRISTMAS MARKET 2025 🎄✨\n\n✨ The Da Nang Christmas Market 2025 is just around the corner! Don’t forget to mark your calendar and join The Hill Station for this magical event!\n🎄 The event will take place on December 5th, 6th, and 7th at the Ariyana Convention Center.\n🟢 FR",
+      "alt": null,
+      "dhash": "184d0f0c0c0ecfc1",
+      "features": {
+        "top2Share": 0.2817,
+        "edgeDensity": 0.236,
+        "centreLuminance": 0.632
+      },
+      "human": {
+        "subject": "food",
+        "textPresence": "present"
+      },
+      "visionRecorded": {
+        "subject": "food",
+        "textPresence": "present",
+        "quality": "good",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": true,
+        "oneLine": "Melted cheese poured over potatoes and charcuterie plate"
+      }
+    },
+    {
+      "id": "hill-33",
+      "width": 1365,
+      "height": 1365,
+      "source": "instagram",
+      "sourceUrl": "https://instagram.fmxp12-1.fna.fbcdn.net/v/t39.30808-6/638291126_1452704243532578_8594442954256802259_n.jpg",
+      "postedAt": "2026-02-19T01:00:10+00:00",
+      "caption": "🌸 𝐓ế𝐭 𝐢𝐬 𝐡𝐞𝐫𝐞 🌸\n\nA little behind the scenes as our team puts up the final Tết touches around the house. Some flowers, lucky details, and lots of care, all to welcome the new year with you.\n\nOur Menu: https://www.thehillstation.com/menu \nReserve your table: https://www.t",
+      "alt": null,
+      "dhash": "19190919591c4636",
+      "features": {
+        "top2Share": 0.2996,
+        "edgeDensity": 0.2807,
+        "centreLuminance": 0.4263
+      },
+      "human": {
+        "subject": "interior",
+        "textPresence": "absent"
+      },
+      "visionRecorded": {
+        "subject": "other",
+        "textPresence": "present",
+        "quality": "good",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": false,
+        "oneLine": "Potted orange tree on windowsill between shutters"
+      }
+    },
+    {
+      "id": "hill-34",
+      "width": 590,
+      "height": 590,
+      "source": "facebook",
+      "sourceUrl": "https://scontent-iad3-1.xx.fbcdn.net/v/t39.30808-6/590212669_1384485033687833_2207221668556217522_n.jpg",
+      "postedAt": "2025-11-29T02:19:46+00:00",
+      "caption": "🎅🎅🎅 Christmas Check-in Spot – 100% FREE right in the heart of Da Nang!\n✨✨ Join the countdown to the hottest holiday event of the season: DANANG CHRISTMAS MARKET 2025 ✨  \n✨✨ Da Nang, get ready! The 3rd season of the Danang Christmas Market is officially back: bigger, brighter, ",
+      "alt": null,
+      "dhash": "0c8e273313472733",
+      "features": {
+        "top2Share": 0.3604,
+        "edgeDensity": 0.4253,
+        "centreLuminance": 0.5382
+      },
+      "human": {
+        "subject": "poster",
+        "textPresence": "present"
+      },
+      "visionRecorded": {
+        "subject": "poster",
+        "textPresence": "present",
+        "quality": "good",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": true,
+        "hasTextOverlay": true,
+        "oneLine": "Christmas market poster with photo collage and dates"
+      }
+    },
+    {
+      "id": "hill-35",
+      "width": 1637,
+      "height": 2048,
+      "source": "instagram",
+      "sourceUrl": "https://scontent-iad3-2.cdninstagram.com/v/t39.30808-6/758841237_1599090758893925_2801753333021067635_n.jpg",
+      "postedAt": "2026-08-01T03:00:16+00:00",
+      "caption": "Wine service is made up of small moments.\n\nGently opening the bottle at the table, taking a moment to check in, and making sure everyone is comfortable. \n\nQuiet, thoughtful and attentive.\n\n----------\nOrder & more info: links in bio\n#HoiAnDeliCafe #HoiAnWineBar\n\n𝗧𝗵𝗲 𝗛𝗶𝗹𝗹 𝗦",
+      "alt": null,
+      "dhash": "0919d9e9b99a4e0d",
+      "features": {
+        "top2Share": 0.2524,
+        "edgeDensity": 0.3897,
+        "centreLuminance": 0.3378
+      },
+      "human": {
+        "subject": "people",
+        "textPresence": "absent"
+      },
+      "visionRecorded": {
+        "subject": "people",
+        "textPresence": "absent",
+        "quality": "good",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": false,
+        "oneLine": "Waitress pouring wine for seated guests"
+      }
+    },
+    {
+      "id": "hill-36",
+      "width": 590,
+      "height": 590,
+      "source": "facebook",
+      "sourceUrl": "https://scontent-lax3-2.xx.fbcdn.net/v/t39.30808-6/584991458_1376187051184298_2989104706385862068_n.jpg",
+      "postedAt": "2025-11-19T10:46:20+00:00",
+      "caption": "DANANG CHRISTMAS MARKET 2025 🎄✨\n\n✨ The Da Nang Christmas Market 2025 is just around the corner! Don’t forget to mark your calendar and join The Hill Station for this magical event!\n🎄 The event will take place on December 5th, 6th, and 7th at the Ariyana Convention Center.\n🟢 FR",
+      "alt": null,
+      "dhash": "150f49c21f355317",
+      "features": {
+        "top2Share": 0.5417,
+        "edgeDensity": 0.2646,
+        "centreLuminance": 0.4227
+      },
+      "human": {
+        "subject": "poster",
+        "textPresence": "present"
+      },
+      "visionRecorded": {
+        "subject": "poster",
+        "textPresence": "present",
+        "quality": "good",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": true,
+        "oneLine": "Illustrated Christmas market poster with tree and stalls"
+      }
+    },
+    {
+      "id": "hill-37",
+      "width": 526,
+      "height": 789,
+      "source": "facebook",
+      "sourceUrl": "https://scontent-ord5-2.xx.fbcdn.net/v/t39.30808-6/656100329_1484682553668080_6164582032463130475_n.jpg",
+      "postedAt": "2026-03-30T03:00:43+00:00",
+      "caption": "Look back at photos of The Hill Station since the opening in 2015 and chances are you will see this exact chalkboard and text.\n\nThe Happy Hour has remained the same and has turned into something of a gathering point in our little corner of the world.\n\nOur Menu: https://www.thehil",
+      "alt": null,
+      "dhash": "b0b0181808202869",
+      "features": {
+        "top2Share": 0.239,
+        "edgeDensity": 0.2544,
+        "centreLuminance": 0.4691
+      },
+      "human": {
+        "subject": "menu-board",
+        "textPresence": "present"
+      },
+      "visionRecorded": {
+        "subject": "menu-board",
+        "textPresence": "present",
+        "quality": "good",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": false,
+        "oneLine": "Chalkboard happy hour sign on blue shutter"
+      }
+    },
+    {
+      "id": "hill-38",
+      "width": 590,
+      "height": 393,
+      "source": "facebook",
+      "sourceUrl": "https://scontent.fabe1-1.fna.fbcdn.net/v/t39.30808-6/650974809_1472969288172740_2798834352270109083_n.jpg",
+      "postedAt": "2026-03-12T09:00:14+00:00",
+      "caption": "We’ve added a few new cheeses to the board.\nRed Fox Vintage Cheddar, Crackington Black Pepper Cheddar, Derby Port Wine Cheddar, and the classic Five Counties.\nFour unique cheeses now available as a designated tasting platter at The Hill Station.\n\nOur Menu: https://www.thehillstat",
+      "alt": null,
+      "dhash": "1f27070b2b2b2429",
+      "features": {
+        "top2Share": 0.3376,
+        "edgeDensity": 0.1727,
+        "centreLuminance": 0.5754
+      },
+      "human": {
+        "subject": "food",
+        "textPresence": "present"
+      },
+      "visionRecorded": {
+        "subject": "food",
+        "textPresence": "present",
+        "quality": "good",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": true,
+        "oneLine": "Stacked artisan cheese blocks with logo watermark"
+      }
+    },
+    {
+      "id": "hill-39",
+      "width": 2048,
+      "height": 1366,
+      "source": "instagram",
+      "sourceUrl": "https://instagram.fhnd3-2.fna.fbcdn.net/v/t39.30808-6/797672427_1646283594174641_2334596640177007142_n.jpg",
+      "postedAt": "2026-09-16T09:00:34+00:00",
+      "caption": "𝐀 𝐂𝐡𝐚𝐧𝐠𝐞 𝐨𝐟 𝐒𝐜𝐞𝐧𝐞𝐫𝐲\n\nOld walls gave way to open skies, and the usual pace of service was replaced by games, long meals, and time by the sea.\n\nThe Hill Station team joined colleagues from across Lim Hospitality Group for two days away from our everyday roles. There",
+      "alt": null,
+      "dhash": "6c2f25a4850d0961",
+      "features": {
+        "top2Share": 0.3081,
+        "edgeDensity": 0.4129,
+        "centreLuminance": 0.413
+      },
+      "human": {
+        "subject": "event",
+        "textPresence": "absent"
+      },
+      "visionRecorded": {
+        "subject": "event",
+        "textPresence": "present",
+        "quality": "good",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": false,
+        "oneLine": "Costumed performers on stage at celebration event"
+      }
+    },
+    {
+      "id": "hill-40",
+      "width": 810,
+      "height": 540,
+      "source": "facebook",
+      "sourceUrl": "https://scontent-lax3-2.xx.fbcdn.net/v/t39.30808-6/580508241_1370981188371551_6123069403852019120_n.jpg",
+      "postedAt": "2025-11-13T03:27:13+00:00",
+      "caption": "THE HILL STATION HỘI AN ĐANG TUYỂN DỤNG!\n\nHãy cùng chúng tôi mang đến những trải nghiệm ẩm thực đáng nhớ ngay tại trung tâm phố cổ Hội An!\n\n💼 VỊ TRÍ TUYỂN DỤNG\n\n- Nhân viên phục vụ \n\n- Đầu bếp \n\n- Nhân viên rửa bát \n\n💫 YÊU CẦU\n\nKhông yêu cầu kinh nghiệm, chúng tôi trân trọng đa",
+      "alt": null,
+      "dhash": "33136b6b7bea6272",
+      "features": {
+        "top2Share": 0.5188,
+        "edgeDensity": 0.1379,
+        "centreLuminance": 0.3992
+      },
+      "human": {
+        "subject": "poster",
+        "textPresence": "present"
+      },
+      "visionRecorded": {
+        "subject": "poster",
+        "textPresence": "present",
+        "quality": "good",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": true,
+        "oneLine": "Recruitment poster for The Hill Station staff"
+      }
+    },
+    {
+      "id": "hill-41",
+      "width": 42,
+      "height": 42,
+      "source": "website",
+      "sourceUrl": "https://static.wixstatic.com/media/11062b_6e9638ad803e4099a6116eb750b5a584~mv2.png/v1/fill/w_42,h_42,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/11062b_6e9638ad803e4099a6116eb750b5a584~mv2.png",
+      "postedAt": null,
+      "caption": "Instagram",
+      "alt": null,
+      "dhash": "61962317172b9641",
+      "features": {
+        "top2Share": 0.8596,
+        "edgeDensity": 0.2495,
+        "centreLuminance": 0.3217
+      },
+      "human": {
+        "subject": "logo",
+        "textPresence": "absent"
+      },
+      "visionRecorded": {
+        "subject": "logo",
+        "textPresence": "absent",
+        "quality": "good",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": false,
+        "oneLine": "Instagram logo icon on black background"
+      }
+    },
+    {
+      "id": "hill-42",
+      "width": 1440,
+      "height": 1440,
+      "source": "instagram",
+      "sourceUrl": "https://instagram.fpoz3-1.fna.fbcdn.net/v/t39.30808-6/830966832_1664272095709124_6537488349681716740_n.jpg",
+      "postedAt": "2026-10-03T10:07:24+00:00",
+      "caption": "𝐅𝐫𝐨𝐦 𝐦𝐨𝐮𝐧𝐭𝐚𝐢𝐧 𝐦𝐢𝐬𝐭 𝐭𝐨 𝐇𝐨𝐢 𝐀𝐧\n\nPeople still ask about the name from time to time, especially in the middle of a Hội An summer.\n\nThe Hill Station actually began in the winter of 2011, up in the cold mist of Sa Pa, built around a warm fire, simple comfort food",
+      "alt": null,
+      "dhash": "656f6e0eed3dfddd",
+      "features": {
+        "top2Share": 0.5593,
+        "edgeDensity": 0.2198,
+        "centreLuminance": 0.7455
+      },
+      "human": {
+        "subject": "poster",
+        "textPresence": "present"
+      },
+      "visionRecorded": {
+        "subject": "poster",
+        "textPresence": "present",
+        "quality": "good",
+        "focus": "right",
+        "heroWorthy": false,
+        "isCollage": true,
+        "hasTextOverlay": true,
+        "oneLine": "Promotional graphic with building and rice terraces"
+      }
+    },
+    {
+      "id": "hill-43",
+      "width": 590,
+      "height": 590,
+      "source": "facebook",
+      "sourceUrl": "https://scontent.fpit1-1.fna.fbcdn.net/v/t39.30808-6/600490535_1398163895653280_5800299672046633325_n.jpg",
+      "postedAt": "2025-12-16T13:18:27+00:00",
+      "caption": "It is that time of the year again where the soothing aroma of mulled wine, a cozy space and the flavors of home is just what the doctor ordered. \n\n𝐓𝐡𝐞 𝐇𝐢𝐥𝐥 𝐒𝐭𝐚𝐭𝐢𝐨𝐧 𝐇𝐨𝐢 𝐀𝐧\n321 Nguyen Duy Hieu, Hoi An\n+84 235 629 2999",
+      "alt": null,
+      "dhash": "4e4e4a7a1c1c5919",
+      "features": {
+        "top2Share": 0.271,
+        "edgeDensity": 0.2042,
+        "centreLuminance": 0.4325
+      },
+      "human": {
+        "subject": "drink",
+        "textPresence": "absent"
+      },
+      "visionRecorded": {
+        "subject": "drink",
+        "textPresence": "absent",
+        "quality": "good",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": false,
+        "oneLine": "Hand holding dark cocktail with orange peel"
+      }
+    },
+    {
+      "id": "hill-44",
+      "width": 2048,
+      "height": 1365,
+      "source": "instagram",
+      "sourceUrl": "https://instagram.fgrq1-1.fna.fbcdn.net/v/t39.30808-6/834962801_1668422398627427_6502415502688714531_n.jpg",
+      "postedAt": "2026-10-07T10:00:29+00:00",
+      "caption": "𝐎𝐩𝐞𝐧 𝐬𝐡𝐮𝐭𝐭𝐞𝐫𝐬, 𝐛𝐮𝐬𝐲 𝐚𝐟𝐭𝐞𝐫𝐧𝐨𝐨𝐧𝐬\n\nBy afternoon, the shutters are open and the house spills out onto Nguyễn Duy Hiệu.\n\nWine glasses find their way to the tables outside, friends settle in under the arches, and conversations carry on while the street moves p",
+      "alt": null,
+      "dhash": "79b6b6b69692b74f",
+      "features": {
+        "top2Share": 0.1904,
+        "edgeDensity": 0.4129,
+        "centreLuminance": 0.4182
+      },
+      "human": {
+        "subject": "exterior",
+        "textPresence": "absent"
+      },
+      "visionRecorded": {
+        "subject": "exterior",
+        "textPresence": "present",
+        "quality": "good",
+        "focus": "center",
+        "heroWorthy": true,
+        "isCollage": false,
+        "hasTextOverlay": false,
+        "oneLine": "Yellow colonial cafe facade with guests seated outside"
+      }
+    },
+    {
+      "id": "hill-45",
+      "width": 2048,
+      "height": 1366,
+      "source": "instagram",
+      "sourceUrl": "https://instagram.fhnd3-1.fna.fbcdn.net/v/t39.30808-6/795664606_1646284724174528_6589097855274295233_n.jpg",
+      "postedAt": "2026-09-16T09:00:34+00:00",
+      "caption": "𝐀 𝐂𝐡𝐚𝐧𝐠𝐞 𝐨𝐟 𝐒𝐜𝐞𝐧𝐞𝐫𝐲\n\nOld walls gave way to open skies, and the usual pace of service was replaced by games, long meals, and time by the sea.\n\nThe Hill Station team joined colleagues from across Lim Hospitality Group for two days away from our everyday roles. There",
+      "alt": null,
+      "dhash": "33316226e5ec961b",
+      "features": {
+        "top2Share": 0.2898,
+        "edgeDensity": 0.4417,
+        "centreLuminance": 0.586
+      },
+      "human": {
+        "subject": "event",
+        "textPresence": "absent"
+      },
+      "visionRecorded": {
+        "subject": "event",
+        "textPresence": "present",
+        "quality": "good",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": false,
+        "oneLine": "Large group photo on beach with banner"
+      }
+    },
+    {
+      "id": "hill-46",
+      "width": 834,
+      "height": 1043,
+      "source": "instagram",
+      "sourceUrl": "https://scontent-ams2-1.cdninstagram.com/v/t39.30808-6/700889508_1532324825570519_347988088412296145_n.jpg",
+      "postedAt": "2026-05-18T12:00:46+00:00",
+      "caption": "The true gift of this century-old house lies in its quiet corners. Here, time and nature have turned bare walls into a living canvas.\n\nOur Menu: https://www.thehillstation.com/menu \nReserve your table: https://www.tablecheck.com/en/the-hill-station-vietnam/reserve/landing \n\n𝐓𝐡\ud835",
+      "alt": null,
+      "dhash": "8282808280808882",
+      "features": {
+        "top2Share": 0.2888,
+        "edgeDensity": 0.2222,
+        "centreLuminance": 0.5849
+      },
+      "human": {
+        "subject": "interior",
+        "textPresence": "absent"
+      },
+      "visionRecorded": {
+        "subject": "interior",
+        "textPresence": "absent",
+        "quality": "cluttered",
+        "focus": "center",
+        "heroWorthy": false,
+        "isCollage": false,
+        "hasTextOverlay": false,
+        "oneLine": "Weathered yellow wall with hanging lantern"
+      }
+    },
+    {
+      "id": "hill-47",
+      "width": 480,
+      "height": 265,
+      "source": "website",
+      "sourceUrl": "https://static.wixstatic.com/media/5aa541_740a82c4acdc458a8158581c0ad0a626~mv2.jpg/v1/fit/w_480,h_266,q_90,enc_avif,quality_auto/5aa541_740a82c4acdc458a8158581c0ad0a626~mv2.jpg",
+      "postedAt": null,
+      "caption": "Món ăn đặc trưng được phục vụ tại The Hill Station, Hội An.",
+      "alt": null,
+      "dhash": "fcfcfcfcf6d0f8d2",
+      "features": {
+        "top2Share": 0.4773,
+        "edgeDensity": 0.187,
+        "centreLuminance": 0.5185
+      },
+      "human": {
+        "subject": "food",
+        "textPresence": "absent"
+      },
+      "visionRecorded": {
+        "subject": "food",
+        "textPresence": "absent",
+        "quality": "good",
+        "focus": "center",
+        "heroWorthy": true,
+        "isCollage": false,
+        "hasTextOverlay": false,
+        "oneLine": "Pink pasta dish garnished with herbs and cheese"
+      }
+    }
+  ],
+  "vision": "deepseek-chat, prompt p1, 512px q70 thumbnails, answered 18/10/2026 (48 pictures, 6 calls, 15339 tokens, 6.3 s)"
 }

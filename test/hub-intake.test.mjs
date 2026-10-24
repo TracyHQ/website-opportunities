@@ -32,8 +32,7 @@ const host = {
   hubAccountOf: async (pool, principalId) => (await ensureHubAccount(pool, principalId)).accountId
 }
 
-const app = (extra = {}) =>
-  hubIntakeRoutes({ pool: db.pool, host, config: { origin: ORIGIN }, ...extra })
+const app = (extra = {}) => hubIntakeRoutes({ pool: db.pool, host, config: { origin: ORIGIN }, ...extra })
 
 const google = { family: 'google_maps', objectId: 'ChIJ-cafe' }
 const body = (observations, subjectId = 'ChIJ-cafe') => ({
@@ -186,37 +185,57 @@ test('a pipeline field nested anywhere is refused, with its reason', opts, async
       ['rejected', 'private_field']
     ]
   )
-  const stored = await db.pool.query('select value from wo_hub_observation where contribution_id = $1 and ordinal = 1', [
-    receipt.id
-  ])
+  const stored = await db.pool.query(
+    'select value from wo_hub_observation where contribution_id = $1 and ordinal = 1',
+    [receipt.id]
+  )
   assert.equal(stored.rows[0].value, null)
 })
 
-test('withdraw is for the account’s own contribution and marks its observations withdrawn', opts, async () => {
-  const hub = app()
-  const { token } = await tokens.issue(await principal())
-  const { token: other } = await tokens.issue(await principal())
-  const receipt = await (
-    await send(hub, token, body([website(), { field: 'phone', value: '1', source: google }]), { key: 'w' })
-  ).json()
-  assert.equal((await send(hub, other, {}, { path: `/hub/v1/contributions/${receipt.id}/withdraw`, key: null })).status, 404)
-  const res = await send(hub, token, {}, { path: `/hub/v1/contributions/${receipt.id}/withdraw`, key: null })
-  assert.equal(res.status, 200)
-  const withdrawn = await res.json()
-  assert.equal(withdrawn.status, 'withdrawn')
-  assert.ok(withdrawn.withdrawnAt)
-  assert.deepEqual(
-    withdrawn.observations.map((o) => o.status),
-    ['withdrawn', 'rejected']
-  )
-  const twice = await send(hub, token, {}, { path: `/hub/v1/contributions/${receipt.id}/withdraw`, key: null })
-  assert.deepEqual(await twice.json(), withdrawn)
-})
+test(
+  'withdraw is for the account’s own contribution and marks its observations withdrawn',
+  opts,
+  async () => {
+    const hub = app()
+    const { token } = await tokens.issue(await principal())
+    const { token: other } = await tokens.issue(await principal())
+    const receipt = await (
+      await send(hub, token, body([website(), { field: 'phone', value: '1', source: google }]), { key: 'w' })
+    ).json()
+    assert.equal(
+      (await send(hub, other, {}, { path: `/hub/v1/contributions/${receipt.id}/withdraw`, key: null }))
+        .status,
+      404
+    )
+    const res = await send(
+      hub,
+      token,
+      {},
+      { path: `/hub/v1/contributions/${receipt.id}/withdraw`, key: null }
+    )
+    assert.equal(res.status, 200)
+    const withdrawn = await res.json()
+    assert.equal(withdrawn.status, 'withdrawn')
+    assert.ok(withdrawn.withdrawnAt)
+    assert.deepEqual(
+      withdrawn.observations.map((o) => o.status),
+      ['withdrawn', 'rejected']
+    )
+    const twice = await send(
+      hub,
+      token,
+      {},
+      { path: `/hub/v1/contributions/${receipt.id}/withdraw`, key: null }
+    )
+    assert.deepEqual(await twice.json(), withdrawn)
+  }
+)
 
 test('an account may wait on at most N places at once', opts, async () => {
   const hub = app({ pendingPlacesLimit: 2 })
   const { token } = await tokens.issue(await principal())
-  const place = (id) => body([{ field: 'name', value: 'Cafe', source: { family: 'google_maps', objectId: id } }], id)
+  const place = (id) =>
+    body([{ field: 'name', value: 'Cafe', source: { family: 'google_maps', objectId: id } }], id)
   assert.equal((await send(hub, token, place('ChIJ-a'), { key: 'a' })).status, 202)
   assert.equal((await send(hub, token, place('ChIJ-b'), { key: 'b' })).status, 202)
   assert.equal((await send(hub, token, place('ChIJ-a'), { key: 'a2' })).status, 202)
@@ -251,12 +270,15 @@ test('a signed-in person gets, rotates and revokes their token through the host'
   assert.equal((await as('POST', { origin: 'http://evil.example' })).status, 403)
   assert.equal((await as('DELETE')).status, 200)
   assert.equal(await tokens.authenticate(rotated.token), null)
-  const anonymous = await hub.request('/hub/v1/account/token', { method: 'POST', headers: { origin: ORIGIN } })
+  const anonymous = await hub.request('/hub/v1/account/token', {
+    method: 'POST',
+    headers: { origin: ORIGIN }
+  })
   assert.equal(anonymous.status, 401)
 })
 
 test('without hubAccountOf the host offers no token doors', opts, async () => {
-  const { hubAccountOf, ...plain } = host
+  const { hubAccountOf: _hubAccountOf, ...plain } = host
   const hub = hubIntakeRoutes({ pool: db.pool, host: plain, config: { origin: ORIGIN } })
   assert.equal((await hub.request('/hub/v1/account/token')).status, 404)
 })

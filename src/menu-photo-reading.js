@@ -392,7 +392,8 @@ export async function readMenuPhotos({
     only
   })
   const records = new Map(before.photos.filter((r) => r?.sha256).map((r) => [r.sha256, r]))
-  const heldItems = (sha) => before.items.filter((i) => i?.source?.kind === 'photo' && i.source.sha256 === sha)
+  const heldItems = (sha) =>
+    before.items.filter((i) => i?.source?.kind === 'photo' && i.source.sha256 === sha)
   const fresh = new Map()
   const usage = { calls: 0, promptTokens: 0, completionTokens: 0, cents: 0 }
   let status = 'complete'
@@ -403,7 +404,13 @@ export async function readMenuPhotos({
       break
     }
     signal?.throwIfAborted()
-    const base = { mediaId: photo.id, sha256: photo.sha256 ?? null, url: photo.source_url, version, at: collectedAt }
+    const base = {
+      mediaId: photo.id,
+      sha256: photo.sha256 ?? null,
+      url: photo.source_url,
+      version,
+      at: collectedAt
+    }
     let answer
     try {
       const data = await image(photo)

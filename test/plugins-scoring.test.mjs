@@ -5,7 +5,12 @@ import { mkdtemp, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import noWebsite from '../domain/scoring/no-website.mjs'
-import { BUILT_IN_SCORING_RULES, loadScoringRules, scoreWithRules, scoringRules } from '../src/plugins/scoring.js'
+import {
+  BUILT_IN_SCORING_RULES,
+  loadScoringRules,
+  scoreWithRules,
+  scoringRules
+} from '../src/plugins/scoring.js'
 import { scoreOpportunity } from '../domain/opportunity-score.mjs'
 import { scoreInputs } from './fixtures/plugins/golden-inputs.mjs'
 
@@ -17,7 +22,11 @@ test('no-website: full web points without a website, the social-only reason when
     points: 40,
     reason: 'web.socialOnly'
   })
-  assert.equal(noWebsite.score({ candidate: { website: 'https://x.example/' } }), null, 'a website is not this rule')
+  assert.equal(
+    noWebsite.score({ candidate: { website: 'https://x.example/' } }),
+    null,
+    'a website is not this rule'
+  )
 })
 
 test('golden: the built-in rules score the fixture set exactly as the single function did before the split', () => {
@@ -31,12 +40,19 @@ test('golden: the built-in rules score the fixture set exactly as the single fun
 })
 
 test('an added rule adds its reason after the built-in ones; points are kept within 0..weight', () => {
-  const generous = { id: 'booking-link', weight: 5, score: () => ({ points: 9, reason: 'booking.thirdPartyOnly' }) }
+  const generous = {
+    id: 'booking-link',
+    weight: 5,
+    score: () => ({ points: 9, reason: 'booking.thirdPartyOnly' })
+  }
   const r = scoreWithRules(scoringRules([...BUILT_IN_SCORING_RULES, generous]), { candidate: {}, now: NOW })
   assert.deepEqual(r.reasons.at(-1), ['booking.thirdPartyOnly', 5])
   // web 40 + demand 2 (no reviews: round(6·log10 2)) + contact 0 + the added rule cut to its weight 5.
   assert.equal(r.score, 47)
-  const r2 = scoreWithRules(scoringRules([{ id: 'harsh', weight: 5, score: () => ({ points: -3, reason: 'x' }) }]), { now: NOW })
+  const r2 = scoreWithRules(
+    scoringRules([{ id: 'harsh', weight: 5, score: () => ({ points: -3, reason: 'x' }) }]),
+    { now: NOW }
+  )
   assert.deepEqual(r2.reasons, [['x', 0]])
 })
 
@@ -44,7 +60,10 @@ test('a rule that does not apply adds no reason; an unknown answer holds the sco
   const skip = { id: 'skip', weight: 1, score: () => null }
   const unknown = { id: 'unknown', weight: 1, score: () => ({ points: null, reason: 'u' }) }
   assert.deepEqual(scoreWithRules(scoringRules([skip, unknown]), { now: NOW }), {
-    score: 0, grade: 'C', pending: false, reasons: [['u', null]]
+    score: 0,
+    grade: 'C',
+    pending: false,
+    reasons: [['u', null]]
   })
   const holding = scoreWithRules(scoringRules([{ ...unknown, holdsScore: true }]), { now: NOW })
   assert.equal(holding.pending, true)
@@ -59,11 +78,20 @@ test('scoringRules refuses a malformed rule and an id used twice', () => {
 
 test('loadScoringRules: the rule files of a folder come after the built-in ones, in name order', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'wo-scoring-'))
-  await writeFile(join(dir, 'b-rule.js'), "export default { id: 'b-rule', weight: 2, score: () => ({ points: 2, reason: 'b' }) }\n")
-  await writeFile(join(dir, 'a-rule.mjs'), "export default { id: 'a-rule', weight: 1, score: () => ({ points: 1, reason: 'a' }) }\n")
+  await writeFile(
+    join(dir, 'b-rule.js'),
+    "export default { id: 'b-rule', weight: 2, score: () => ({ points: 2, reason: 'b' }) }\n"
+  )
+  await writeFile(
+    join(dir, 'a-rule.mjs'),
+    "export default { id: 'a-rule', weight: 1, score: () => ({ points: 1, reason: 'a' }) }\n"
+  )
   await writeFile(join(dir, 'notes.txt'), 'not a rule')
   const rules = await loadScoringRules(dir)
-  assert.deepEqual(rules.map((r) => r.id), [...BUILT_IN_SCORING_RULES.map((r) => r.id), 'a-rule', 'b-rule'])
+  assert.deepEqual(
+    rules.map((r) => r.id),
+    [...BUILT_IN_SCORING_RULES.map((r) => r.id), 'a-rule', 'b-rule']
+  )
   await writeFile(join(dir, 'c-rule.js'), 'export const rule = 1\n')
   await assert.rejects(loadScoringRules(dir), /no default export/)
 })

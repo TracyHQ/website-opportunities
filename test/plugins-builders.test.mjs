@@ -20,7 +20,13 @@ const OPP = {
   provider: 'osm',
   provider_id: 'node/1',
   place_id: null,
-  candidate: { name: 'Corner Cafe', address: '1 Main Street, Springfield', phone: '+1 555 0100', lat: 40.7, lon: -74 }
+  candidate: {
+    name: 'Corner Cafe',
+    address: '1 Main Street, Springfield',
+    phone: '+1 555 0100',
+    lat: 40.7,
+    lon: -74
+  }
 }
 
 /** The database as the manual builder reads it: one opportunity of this account, no research rows yet. */
@@ -30,7 +36,9 @@ function fakePool() {
       if (/select \* from wo_opportunity where id = \$1 and account_id = \$2/.test(sql))
         return { rows: params[0] === MINE && params[1] === ACCOUNT ? [OPP] : [] }
       if (/select id from wo_opportunity where account_id = \$1/.test(sql))
-        return { rows: params[0] === ACCOUNT ? params[1].filter((id) => id === MINE).map((id) => ({ id })) : [] }
+        return {
+          rows: params[0] === ACCOUNT ? params[1].filter((id) => id === MINE).map((id) => ({ id })) : []
+        }
       if (/from wo_profile/.test(sql)) return { rows: [] }
       return { rows: [] }
     }
@@ -92,23 +100,40 @@ test('manual: Build demo writes the brief to files and the Markdown downloads', 
   assert.equal(download.status, 200)
   assert.match(download.headers.get('content-disposition'), /^attachment; .*Corner-Cafe-brief\.md$/)
   assert.equal(await download.text(), markdown)
-  assert.equal((await app.request(`${BASE}/${OTHER}/manual/brief`, { method: 'POST' })).status, 404, 'not this account')
+  assert.equal(
+    (await app.request(`${BASE}/${OTHER}/manual/brief`, { method: 'POST' })).status,
+    404,
+    'not this account'
+  )
 })
 
 test('manual: a demo built elsewhere is recorded and read back by the list, the detail and Find', async () => {
   const objects = memoryObjects()
   const builder = createManualBuilder({ pool: fakePool(), objects, now: () => NOW })
   const app = mount(builder)
-  const put = (b) => app.request(`${BASE}/${MINE}/manual/built`, { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(b) })
+  const put = (b) =>
+    app.request(`${BASE}/${MINE}/manual/built`, {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(b)
+    })
   assert.equal((await put({ url: 'javascript:alert(1)' })).status, 422)
   assert.equal((await put({ url: 'https://user:pw@demo.example/' })).status, 422)
   const saved = await put({ url: 'https://demo.example/corner', note: 'Made by our designer' })
   assert.equal(saved.status, 200)
-  const demo = { builtElsewhere: true, url: 'https://demo.example/corner', note: 'Made by our designer', recordedAt: '2026-10-24T09:00:00.000Z' }
+  const demo = {
+    builtElsewhere: true,
+    url: 'https://demo.example/corner',
+    note: 'Made by our designer',
+    recordedAt: '2026-10-24T09:00:00.000Z'
+  }
   assert.deepEqual(await saved.json(), { demo })
   assert.deepEqual(await builder.listedDemoOf(ACCOUNT, [MINE, OTHER]), new Map([[MINE, { demo }]]))
   assert.deepEqual(await builder.detailOf(OPP, ACCOUNT), { demo })
-  assert.deepEqual(await builder.demoFactsOf(ACCOUNT, [MINE, OTHER]), new Map([[MINE, { built: true, liveSiteKey: null, queuedActionId: null }]]))
+  assert.deepEqual(
+    await builder.demoFactsOf(ACCOUNT, [MINE, OTHER]),
+    new Map([[MINE, { built: true, liveSiteKey: null, queuedActionId: null }]])
+  )
   assert.deepEqual(await builder.listedDemoOf('someone-else', [MINE]), new Map())
   await app.request(`${BASE}/${MINE}/manual/built`, { method: 'DELETE' })
   assert.deepEqual(await builder.detailOf(OPP, ACCOUNT), { demo: null })
@@ -130,7 +155,10 @@ test('manual: without a file store the doors say so instead of losing the brief'
 })
 
 test('tracy: planned only, it refuses to start', () => {
-  assert.throws(() => createTracyBuilder({}), (e) => e.code === 'BUILDER_PLANNED')
+  assert.throws(
+    () => createTracyBuilder({}),
+    (e) => e.code === 'BUILDER_PLANNED'
+  )
 })
 
 test('defineBuilder: every member the router calls must be there', () => {
@@ -146,7 +174,10 @@ test('defineBuilder: every member the router calls must be there', () => {
 test('loadBuilderFactories: each file of a folder is a factory, named by its file', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'wo-builders-'))
   const methods = BUILDER_METHODS.map((m) => `${m}: () => {}`).join(', ')
-  await writeFile(join(dir, 'agency.js'), `export default (deps) => ({ id: 'agency', ${methods}, endpoint: deps.endpoint })\n`)
+  await writeFile(
+    join(dir, 'agency.js'),
+    `export default (deps) => ({ id: 'agency', ${methods}, endpoint: deps.endpoint })\n`
+  )
   const factories = await loadBuilderFactories(dir)
   assert.deepEqual(Object.keys(factories), ['agency'])
   assert.equal(factories.agency({ endpoint: 'https://agency.example' }).endpoint, 'https://agency.example')

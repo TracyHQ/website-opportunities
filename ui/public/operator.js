@@ -94,12 +94,28 @@ export async function operatorView({ token, tab, show, current, toast, showError
       'ul',
       { class: 'tabs' },
       tabs.map((name) =>
-        h('li', {}, h('a', { href: `#/operator/${name}`, 'aria-current': name === active ? 'page' : null }, t(`op.tab.${name}`)))
+        h(
+          'li',
+          {},
+          h(
+            'a',
+            { href: `#/operator/${name}`, 'aria-current': name === active ? 'page' : null },
+            t(`op.tab.${name}`)
+          )
+        )
       )
     )
   )
-  if (!show(token, h('h1', {}, t('op.title')), h('p', { class: 'lead muted' }, t('op.lead')), nav, body)) return
-  const ctx = { token, current, toast, me, body, rerender: () => operatorView({ token, tab: active, show, current, toast, showError }) }
+  if (!show(token, h('h1', {}, t('op.title')), h('p', { class: 'lead muted' }, t('op.lead')), nav, body))
+    return
+  const ctx = {
+    token,
+    current,
+    toast,
+    me,
+    body,
+    rerender: () => operatorView({ token, tab: active, show, current, toast, showError })
+  }
   const render = { settings: settingsTab, spend: spendTab, queue: queueTab, hub: hubTab }[active]
   await render(ctx).catch((error) => showError(error, token))
 }
@@ -124,12 +140,18 @@ function keysCard(ctx, doc, redraw) {
       t('op.keys.test'),
       async () => {
         const out = await api(`${OP}/keys/${provider}/test`, { method: 'POST', body: {} })
-        result.replaceChildren(chip(out.ok ? t('op.state.connected') : out.status, out.ok ? 'ok' : 'bad'), ' ', out.detail ?? '')
+        result.replaceChildren(
+          chip(out.ok ? t('op.state.connected') : out.status, out.ok ? 'ok' : 'bad'),
+          ' ',
+          out.detail ?? ''
+        )
       },
       { toast: ctx.toast, busy: t('op.keys.testing') }
     )
     const id = `key-${provider}`
-    const input = view.editable ? h('input', { id, type: 'password', autocomplete: 'off', spellcheck: 'false' }) : null
+    const input = view.editable
+      ? h('input', { id, type: 'password', autocomplete: 'off', spellcheck: 'false' })
+      : null
     const save = async (apiKey) => {
       redraw(await api(`${OP}/keys/${provider}`, { method: 'PUT', body: { apiKey } }))
       ctx.toast(t('op.saved'))
@@ -142,14 +164,23 @@ function keysCard(ctx, doc, redraw) {
         ? h(
             'div',
             { class: 'fields' },
-            h('div', { class: 'field grow' }, h('label', { for: id, class: 'sr-only' }, t('op.keys.input', { provider: view.label })), input)
+            h(
+              'div',
+              { class: 'field grow' },
+              h('label', { for: id, class: 'sr-only' }, t('op.keys.input', { provider: view.label })),
+              input
+            )
           )
         : null,
       h(
         'div',
         { class: 'row' },
-        view.editable ? action(t('op.keys.save'), () => save(input.value.trim()), { toast: ctx.toast, primary: true }) : null,
-        view.editable && fact.source === 'ops' ? action(t('op.keys.clear'), () => save(''), { toast: ctx.toast }) : null,
+        view.editable
+          ? action(t('op.keys.save'), () => save(input.value.trim()), { toast: ctx.toast, primary: true })
+          : null,
+        view.editable && fact.source === 'ops'
+          ? action(t('op.keys.clear'), () => save(''), { toast: ctx.toast })
+          : null,
         test
       ),
       result
@@ -164,8 +195,13 @@ function keysCard(ctx, doc, redraw) {
 
 function capsCard(ctx, doc, redraw) {
   const inputs = CAP_FIELDS.map(([key, unit]) => {
-    const value = unit === 'cents' ? (doc.settings[key] / 100).toFixed(2) : Number(doc.settings[key]).toFixed(2)
-    return [key, unit, h('input', { id: `cap-${key}`, type: 'text', inputmode: 'decimal', value, autocomplete: 'off' })]
+    const value =
+      unit === 'cents' ? (doc.settings[key] / 100).toFixed(2) : Number(doc.settings[key]).toFixed(2)
+    return [
+      key,
+      unit,
+      h('input', { id: `cap-${key}`, type: 'text', inputmode: 'decimal', value, autocomplete: 'off' })
+    ]
   })
   const error = h('p', { class: 'notice bad', role: 'alert', hidden: true })
   const form = h(
@@ -198,7 +234,9 @@ function capsCard(ctx, doc, redraw) {
     h(
       'div',
       { class: 'fields' },
-      inputs.map(([key, , input]) => h('div', { class: 'field small-wide' }, h('label', { for: input.id }, t(`op.caps.${key}`)), input))
+      inputs.map(([key, , input]) =>
+        h('div', { class: 'field small-wide' }, h('label', { for: input.id }, t(`op.caps.${key}`)), input)
+      )
     ),
     error,
     h('div', { class: 'row' }, h('button', { type: 'submit', class: 'primary' }, t('op.save')))
@@ -217,16 +255,52 @@ function orderCard(ctx, doc, redraw) {
           const controls = group.wired
             ? row.inUse
               ? [
-                  h('button', { type: 'button', 'aria-label': t('op.order.up', { provider: row.label }), disabled: index === 0, on: { click: () => ((order = moveInOrder(order, index, -1)), draw()) } }, '↑'),
-                  h('button', { type: 'button', 'aria-label': t('op.order.down', { provider: row.label }), disabled: index === order.length - 1, on: { click: () => ((order = moveInOrder(order, index, 1)), draw()) } }, '↓'),
-                  h('button', { type: 'button', on: { click: () => ((order = order.filter((id) => id !== row.id)), draw()) } }, t('op.order.remove'))
+                  h(
+                    'button',
+                    {
+                      type: 'button',
+                      'aria-label': t('op.order.up', { provider: row.label }),
+                      disabled: index === 0,
+                      on: { click: () => ((order = moveInOrder(order, index, -1)), draw()) }
+                    },
+                    '↑'
+                  ),
+                  h(
+                    'button',
+                    {
+                      type: 'button',
+                      'aria-label': t('op.order.down', { provider: row.label }),
+                      disabled: index === order.length - 1,
+                      on: { click: () => ((order = moveInOrder(order, index, 1)), draw()) }
+                    },
+                    '↓'
+                  ),
+                  h(
+                    'button',
+                    {
+                      type: 'button',
+                      on: { click: () => ((order = order.filter((id) => id !== row.id)), draw()) }
+                    },
+                    t('op.order.remove')
+                  )
                 ]
-              : [h('button', { type: 'button', on: { click: () => ((order = [...order, row.id]), draw()) } }, t('op.order.add'))]
+              : [
+                  h(
+                    'button',
+                    { type: 'button', on: { click: () => ((order = [...order, row.id]), draw()) } },
+                    t('op.order.add')
+                  )
+                ]
             : []
           return h(
             'li',
             { class: `op-row${row.inUse ? '' : ' unused'}` },
-            h('div', { class: 'op-row-head' }, h('span', {}, row.label), chip(row.inUse ? row.stateText : t('op.order.unused'), row.inUse ? row.tone : 'neutral')),
+            h(
+              'div',
+              { class: 'op-row-head' },
+              h('span', {}, row.label),
+              chip(row.inUse ? row.stateText : t('op.order.unused'), row.inUse ? row.tone : 'neutral')
+            ),
             controls.length ? h('div', { class: 'row' }, controls) : null
           )
         })
@@ -236,7 +310,7 @@ function orderCard(ctx, doc, redraw) {
     const save = action(
       t('op.order.save'),
       async () => {
-        const providerOrder = { ...(doc.settings.providerOrder ?? {}), [group.id]: order }
+        const providerOrder = { ...doc.settings.providerOrder, [group.id]: order }
         redraw(await api(`${OP}/settings`, { method: 'PUT', body: { settings: { providerOrder } } }))
         ctx.toast(t('op.saved'))
       },
@@ -263,7 +337,13 @@ async function spendTab(ctx) {
   const select = h(
     'select',
     { id: 'spend-days', on: { change: () => ((spendState.days = Number(select.value)), ctx.rerender()) } },
-    SPEND_DAYS.map((d) => h('option', { value: String(d), selected: d === spendState.days }, t('op.spend.daysOption', { days: d })))
+    SPEND_DAYS.map((d) =>
+      h(
+        'option',
+        { value: String(d), selected: d === spendState.days },
+        t('op.spend.daysOption', { days: d })
+      )
+    )
   )
   const meter = capMeter(summary.today.committedCents, summary.caps.researchDailyCapCents)
   const table = (title, key, list) =>
@@ -276,7 +356,14 @@ async function spendTab(ctx) {
             'ul',
             { class: 'op-list' },
             breakdownRows(list, key).map((r) =>
-              h('li', { class: 'op-row op-row-head' }, h('span', {}, r.label), h('span', { class: 'muted' }, r.calls), h('strong', {}, r.amount), r.flag ? chip(r.flag, 'warn') : null)
+              h(
+                'li',
+                { class: 'op-row op-row-head' },
+                h('span', {}, r.label),
+                h('span', { class: 'muted' }, r.calls),
+                h('strong', {}, r.amount),
+                r.flag ? chip(r.flag, 'warn') : null
+              )
             )
           )
         : h('p', { class: 'muted' }, t('op.spend.empty'))
@@ -288,17 +375,36 @@ async function spendTab(ctx) {
       h('h3', {}, t('op.spend.today')),
       h('p', {}, chip(meter.text, meter.tone)),
       h('progress', { max: '1', value: String(meter.ratio), 'aria-label': t('op.spend.today') }),
-      h('p', { class: 'summary' }, t('op.spend.total', { amount: centsText(summary.totals.committedCents), calls: tCount('op.calls', summary.totals.calls) })),
+      h(
+        'p',
+        { class: 'summary' },
+        t('op.spend.total', {
+          amount: centsText(summary.totals.committedCents),
+          calls: tCount('op.calls', summary.totals.calls)
+        })
+      ),
       summary.totals.unreconciledCalls
         ? h(
             'p',
             {},
-            chip(t('op.spend.unreconciled', { amount: centsText(summary.totals.unreconciledCents), count: summary.totals.unreconciledCalls }), 'warn'),
+            chip(
+              t('op.spend.unreconciled', {
+                amount: centsText(summary.totals.unreconciledCents),
+                count: summary.totals.unreconciledCalls
+              }),
+              'warn'
+            ),
             ' ',
             h('span', { class: 'hint' }, t('op.spend.unreconciledHint'))
           )
         : null,
-      h('div', { class: 'op-tables' }, table(t('op.spend.byProvider'), 'provider', summary.byProvider), table(t('op.spend.byPurpose'), 'purpose', summary.byPurpose), table(t('op.spend.byDay'), 'day', summary.byDay))
+      h(
+        'div',
+        { class: 'op-tables' },
+        table(t('op.spend.byProvider'), 'provider', summary.byProvider),
+        table(t('op.spend.byPurpose'), 'purpose', summary.byPurpose),
+        table(t('op.spend.byDay'), 'day', summary.byDay)
+      )
     ),
     rowsCard(ctx)
   )
@@ -308,9 +414,18 @@ function rowsCard(ctx) {
   const list = h('ul', { class: 'op-list' })
   const filter = h(
     'select',
-    { id: 'spend-filter', on: { change: () => ((spendState.unreconciledOnly = filter.value === 'unreconciled'), load(null, true)) } },
+    {
+      id: 'spend-filter',
+      on: {
+        change: () => ((spendState.unreconciledOnly = filter.value === 'unreconciled'), load(null, true))
+      }
+    },
     h('option', { value: 'all', selected: !spendState.unreconciledOnly }, t('op.spend.filter.all')),
-    h('option', { value: 'unreconciled', selected: spendState.unreconciledOnly }, t('op.spend.filter.unreconciled'))
+    h(
+      'option',
+      { value: 'unreconciled', selected: spendState.unreconciledOnly },
+      t('op.spend.filter.unreconciled')
+    )
   )
   const more = h('div', { class: 'row' })
   async function load(cursor, reset) {
@@ -325,15 +440,38 @@ function rowsCard(ctx) {
         h(
           'li',
           { class: 'op-row' },
-          h('div', { class: 'op-row-head' }, h('span', { class: 'mono' }, t('op.spend.row', { day: r.day, provider: r.provider, operation: r.operation })), chip(t(`op.ledger.${r.state}`), r.state === 'unreconciled' ? 'warn' : r.state === 'settled' ? 'ok' : 'neutral')),
-          h('p', { class: 'hint' }, `${centsText(r.actualCents ?? r.reservedCents)}${r.purpose ? ` · ${r.purpose}` : ''}`)
+          h(
+            'div',
+            { class: 'op-row-head' },
+            h(
+              'span',
+              { class: 'mono' },
+              t('op.spend.row', { day: r.day, provider: r.provider, operation: r.operation })
+            ),
+            chip(
+              t(`op.ledger.${r.state}`),
+              r.state === 'unreconciled' ? 'warn' : r.state === 'settled' ? 'ok' : 'neutral'
+            )
+          ),
+          h(
+            'p',
+            { class: 'hint' },
+            `${centsText(r.actualCents ?? r.reservedCents)}${r.purpose ? ` · ${r.purpose}` : ''}`
+          )
         )
       )
     if (!list.children.length) list.append(h('li', { class: 'muted' }, t('op.spend.empty')))
-    more.replaceChildren(page.next ? action(t('op.spend.more'), () => load(page.next, false), { toast: ctx.toast }) : '')
+    more.replaceChildren(
+      page.next ? action(t('op.spend.more'), () => load(page.next, false), { toast: ctx.toast }) : ''
+    )
   }
   load(null, true).catch((error) => ctx.toast(errorText(error)))
-  return card(t('op.spend.rows'), h('div', { class: 'field filter' }, h('label', { for: 'spend-filter' }, t('op.spend.filter')), filter), list, more)
+  return card(
+    t('op.spend.rows'),
+    h('div', { class: 'field filter' }, h('label', { for: 'spend-filter' }, t('op.spend.filter')), filter),
+    list,
+    more
+  )
 }
 
 // ── Queue ──────────────────────────────────────────────────────────────────────────────────
@@ -349,7 +487,11 @@ async function queueTab(ctx) {
     { id: 'queue-state', on: { change: () => ((queueState.state = select.value), ctx.rerender()) } },
     h('option', { value: '', selected: !queueState.state }, t('op.queue.needsEye')),
     QUEUE_STATES.map((s) =>
-      h('option', { value: s, selected: queueState.state === s }, t('op.queue.count', { state: t(`op.queue.state.${s}`), count: q.counts[s] ?? 0 }))
+      h(
+        'option',
+        { value: s, selected: queueState.state === s },
+        t('op.queue.count', { state: t(`op.queue.state.${s}`), count: q.counts[s] ?? 0 })
+      )
     )
   )
   const rows = q.jobs.map((job) => {
@@ -400,8 +542,22 @@ async function hubTab(ctx) {
             h(
               'li',
               { class: 'op-row op-row-head' },
-              h('span', {}, t('op.hub.contribution', { when: when(c.receivedAt), status: c.status, count: c.observations.total })),
-              c.status === 'withdrawn' ? null : action(t('op.hub.withdraw'), async () => (await post(`/contributions/${c.id}/withdraw`), ctx.rerender()), { toast: ctx.toast })
+              h(
+                'span',
+                {},
+                t('op.hub.contribution', {
+                  when: when(c.receivedAt),
+                  status: c.status,
+                  count: c.observations.total
+                })
+              ),
+              c.status === 'withdrawn'
+                ? null
+                : action(
+                    t('op.hub.withdraw'),
+                    async () => (await post(`/contributions/${c.id}/withdraw`), ctx.rerender()),
+                    { toast: ctx.toast }
+                  )
             )
           )
         )
@@ -412,18 +568,44 @@ async function hubTab(ctx) {
     return h(
       'li',
       { class: 'op-row' },
-      h('div', { class: 'op-row-head' }, h('strong', { class: 'mono' }, t('op.hub.account', { id: a.id.slice(0, 8) })), chip(t(`op.hub.state.${a.state}`), a.state === 'active' ? 'ok' : 'bad')),
-      h('p', { class: 'hint' }, a.tokenPrefix ? t('op.hub.token', { prefix: a.tokenPrefix }) : t('op.hub.noToken'), ' · ', t('op.hub.contributions', a.contributions)),
+      h(
+        'div',
+        { class: 'op-row-head' },
+        h('strong', { class: 'mono' }, t('op.hub.account', { id: a.id.slice(0, 8) })),
+        chip(t(`op.hub.state.${a.state}`), a.state === 'active' ? 'ok' : 'bad')
+      ),
+      h(
+        'p',
+        { class: 'hint' },
+        a.tokenPrefix ? t('op.hub.token', { prefix: a.tokenPrefix }) : t('op.hub.noToken'),
+        ' · ',
+        t('op.hub.contributions', a.contributions)
+      ),
       h(
         'dl',
         { class: 'facts-list' },
-        usageView(a.usage, accounts.limits).flatMap((u) => [h('dt', {}, u.label), h('dd', {}, `${t('op.hub.usage.day')} ${u.day} · ${t('op.hub.usage.month')} ${u.month}`)])
+        usageView(a.usage, accounts.limits).flatMap((u) => [
+          h('dt', {}, u.label),
+          h('dd', {}, `${t('op.hub.usage.day')} ${u.day} · ${t('op.hub.usage.month')} ${u.month}`)
+        ])
       ),
       h(
         'div',
         { class: 'row' },
-        action(t(a.state === 'active' ? 'op.hub.block' : 'op.hub.unblock'), async () => (await post(`/accounts/${a.id}/${a.state === 'active' ? 'block' : 'unblock'}`), ctx.rerender()), { toast: ctx.toast }),
-        a.tokenPrefix ? action(t('op.hub.revokeToken'), async () => (await post(`/accounts/${a.id}/revoke-token`), ctx.rerender()), { toast: ctx.toast }) : null,
+        action(
+          t(a.state === 'active' ? 'op.hub.block' : 'op.hub.unblock'),
+          async () => (
+            await post(`/accounts/${a.id}/${a.state === 'active' ? 'block' : 'unblock'}`), ctx.rerender()
+          ),
+          { toast: ctx.toast }
+        ),
+        a.tokenPrefix
+          ? action(
+              t('op.hub.revokeToken'),
+              async () => (await post(`/accounts/${a.id}/revoke-token`), ctx.rerender()),
+              { toast: ctx.toast }
+            )
+          : null,
         showContributions
       ),
       contributions
@@ -432,12 +614,27 @@ async function hubTab(ctx) {
   ctx.body.replaceChildren(
     card(
       t('op.hub.verify'),
-      h('p', {}, t('op.hub.backlog', { observations: verify.backlog.pendingObservations, groups: verify.backlog.pendingGroups, deferred: verify.backlog.deferredBudget })),
-      verify.backlog.oldestReceivedAt ? h('p', { class: 'hint' }, t('op.hub.oldest', { when: when(verify.backlog.oldestReceivedAt) })) : null,
+      h(
+        'p',
+        {},
+        t('op.hub.backlog', {
+          observations: verify.backlog.pendingObservations,
+          groups: verify.backlog.pendingGroups,
+          deferred: verify.backlog.deferredBudget
+        })
+      ),
+      verify.backlog.oldestReceivedAt
+        ? h('p', { class: 'hint' }, t('op.hub.oldest', { when: when(verify.backlog.oldestReceivedAt) }))
+        : null,
       h('h3', {}, t('op.hub.budget')),
       h('p', {}, chip(meter.text, meter.tone))
     ),
-    card(t('op.hub.accounts'), accountRows.length ? h('ul', { class: 'op-list' }, accountRows) : h('p', { class: 'muted' }, t('op.hub.accounts.empty'))),
+    card(
+      t('op.hub.accounts'),
+      accountRows.length
+        ? h('ul', { class: 'op-list' }, accountRows)
+        : h('p', { class: 'muted' }, t('op.hub.accounts.empty'))
+    ),
     removalCard(ctx, 'place', post),
     removalCard(ctx, 'media', post)
   )
@@ -445,11 +642,19 @@ async function hubTab(ctx) {
 
 /** A small form: an id, a reason, and the removal buttons for a place or a picture. Each asks before it acts. */
 function removalCard(ctx, kind, post) {
-  const id = h('input', { id: `hub-${kind}-id`, type: 'text', autocomplete: 'off', spellcheck: 'false', class: 'mono' })
+  const id = h('input', {
+    id: `hub-${kind}-id`,
+    type: 'text',
+    autocomplete: 'off',
+    spellcheck: 'false',
+    class: 'mono'
+  })
   const reason = h('input', { id: `hub-${kind}-reason`, type: 'text', autocomplete: 'off', maxlength: '500' })
   const run = (path) => async () => {
     if (!window.confirm(t('op.hub.confirm'))) return
-    await post(`/${kind === 'place' ? 'places' : 'media'}/${encodeURIComponent(id.value.trim())}/${path}`, { reason: reason.value.trim() })
+    await post(`/${kind === 'place' ? 'places' : 'media'}/${encodeURIComponent(id.value.trim())}/${path}`, {
+      reason: reason.value.trim()
+    })
     ctx.toast(t('op.saved'))
     id.value = ''
     reason.value = ''
@@ -459,16 +664,23 @@ function removalCard(ctx, kind, post) {
     h(
       'div',
       { class: 'fields' },
-      h('div', { class: 'field grow' }, h('label', { for: id.id }, t(kind === 'place' ? 'op.hub.placeId' : 'op.hub.mediaId')), id),
+      h(
+        'div',
+        { class: 'field grow' },
+        h('label', { for: id.id }, t(kind === 'place' ? 'op.hub.placeId' : 'op.hub.mediaId')),
+        id
+      ),
       h('div', { class: 'field grow' }, h('label', { for: reason.id }, t('op.reason')), reason)
     ),
     h(
       'div',
       { class: 'row' },
       kind === 'place'
-        ? [action(t('op.hub.revokePlace'), run('revoke'), { toast: ctx.toast }), action(t('op.hub.suppress'), run('suppress'), { toast: ctx.toast })]
+        ? [
+            action(t('op.hub.revokePlace'), run('revoke'), { toast: ctx.toast }),
+            action(t('op.hub.suppress'), run('suppress'), { toast: ctx.toast })
+          ]
         : action(t('op.hub.revokeMedia'), run('revoke'), { toast: ctx.toast })
     )
   )
 }
-

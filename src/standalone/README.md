@@ -1,7 +1,7 @@
 # Website Opportunities, standalone
 
-Run the open Website Opportunities layer on its own: find restaurants and cafes around a place, see which ones
-need a website, and research them. One operator, one Postgres database, your own provider keys. No demo
+Run the open Website Opportunities layer on its own: find local businesses around a place (any kind, or one kind
+such as food and drink, beauty or home services), see which ones need a website, and research them. One operator, one Postgres database, your own provider keys. No demo
 builder: the build features stay off (`GET /api/website-opportunities/settings` answers `{}`).
 
 This folder holds the server (`server.js`), the one-operator host adapter (`host.js`), its settings

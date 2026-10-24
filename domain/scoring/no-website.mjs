@@ -1,5 +1,6 @@
 const SOCIAL_NETWORKS = ['facebook', 'instagram', 'tiktok', 'youtube']
-const hasSocial = (candidate) => SOCIAL_NETWORKS.some((n) => typeof candidate.socials?.[n] === 'string' && candidate.socials[n])
+const hasSocial = (candidate) =>
+  SOCIAL_NETWORKS.some((n) => typeof candidate.socials?.[n] === 'string' && candidate.socials[n])
 
 /** A place with no website at all needs one most: full web points. A place with a website is the next rule's. */
 export default {

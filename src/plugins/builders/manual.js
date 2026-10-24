@@ -40,7 +40,8 @@ export default function createManualBuilder({ pool, objects, now = Date.now }) {
     const res = objects ? await objects.get(key).catch(() => null) : null
     return res?.ok ? res.text() : null
   }
-  const putText = (key, text, type) => (objects ? objects.put(key, new TextEncoder().encode(text), type) : false)
+  const putText = (key, text, type) =>
+    objects ? objects.put(key, new TextEncoder().encode(text), type) : false
   const recordOf = async (accountId, id) => {
     const text = await readText(keyOf(accountId, id, 'built.json'))
     if (!text) return null
@@ -53,11 +54,19 @@ export default function createManualBuilder({ pool, objects, now = Date.now }) {
   /** Built-elsewhere records of the account's own opportunities among `ids`. */
   async function recordsOf(accountId, ids) {
     if (!accountId || !ids.length) return new Map()
-    const { rows } = await pool.query('select id from wo_opportunity where account_id = $1 and id = any($2::uuid[])', [accountId, ids])
+    const { rows } = await pool.query(
+      'select id from wo_opportunity where account_id = $1 and id = any($2::uuid[])',
+      [accountId, ids]
+    )
     const pairs = await Promise.all(rows.map(async (r) => [r.id, await recordOf(accountId, r.id)]))
     return new Map(pairs.filter(([, record]) => record))
   }
-  const demoOf = (record) => ({ builtElsewhere: true, url: record.url, note: record.note ?? null, recordedAt: record.recordedAt })
+  const demoOf = (record) => ({
+    builtElsewhere: true,
+    url: record.url,
+    note: record.note ?? null,
+    recordedAt: record.recordedAt
+  })
 
   function routes(app, ctx) {
     const { caller, refuse, notFound, featureOn, featureOff, domainOr, body, UUID } = ctx
@@ -70,7 +79,8 @@ export default function createManualBuilder({ pool, objects, now = Date.now }) {
       const opp = who.accountId && UUID.test(id) ? await opportunityOf(pool, who.accountId, id) : null
       return opp ? { who, opp } : notFound(c, 'opportunity')
     }
-    const noStore = (c) => refuse(c, 503, 'STORE_UNAVAILABLE', 'This server has no file store: set one up to keep briefs.')
+    const noStore = (c) =>
+      refuse(c, 503, 'STORE_UNAVAILABLE', 'This server has no file store: set one up to keep briefs.')
 
     app.post(`${BASE}/:id/manual/brief`, async (c) => {
       const mine = await own(c, { create: true })
@@ -82,7 +92,10 @@ export default function createManualBuilder({ pool, objects, now = Date.now }) {
       const madeAt = new Date(now()).toISOString()
       const brief = makeSiteBrief(domain, read, { opportunity: briefOpportunityOf(mine.opp), madeAt })
       const checked = domain.validateBrief(brief)
-      if (!checked?.ok) return refuse(c, 422, 'BRIEF_INVALID', 'Research this place further, then make the brief again.', { errors: checked?.errors ?? [] })
+      if (!checked?.ok)
+        return refuse(c, 422, 'BRIEF_INVALID', 'Research this place further, then make the brief again.', {
+          errors: checked?.errors ?? []
+        })
       const markdown = renderBriefWithReviews(domain, brief)
       const at = (name) => keyOf(mine.who.accountId, mine.opp.id, name)
       const kept =
@@ -97,7 +110,11 @@ export default function createManualBuilder({ pool, objects, now = Date.now }) {
       if (mine instanceof Response) return mine
       const markdown = await readText(keyOf(mine.who.accountId, mine.opp.id, 'brief.md'))
       if (markdown === null) return refuse(c, 404, 'BRIEF_MISSING', 'Make the brief first: press Build demo.')
-      const name = String(mine.opp.name ?? 'brief').replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '').slice(0, 60) || 'brief'
+      const name =
+        String(mine.opp.name ?? 'brief')
+          .replace(/[^\p{L}\p{N}]+/gu, '-')
+          .replace(/^-|-$/g, '')
+          .slice(0, 60) || 'brief'
       return new Response(markdown, {
         headers: {
           'content-type': 'text/markdown; charset=utf-8',
@@ -113,11 +130,23 @@ export default function createManualBuilder({ pool, objects, now = Date.now }) {
       if (!objects) return noStore(c)
       const sent = await body(c)
       const url = builtUrl(sent?.url)
-      if (!url) return refuse(c, 422, 'INVALID_URL', 'Send {"url": "https://…"}, the address of the demo that was built.')
+      if (!url)
+        return refuse(
+          c,
+          422,
+          'INVALID_URL',
+          'Send {"url": "https://…"}, the address of the demo that was built.'
+        )
       if (sent.note !== undefined && (typeof sent.note !== 'string' || sent.note.length > NOTE_MAX))
         return refuse(c, 422, 'INVALID_NOTE', `A note is text of up to ${NOTE_MAX} characters.`)
       const record = { url, note: sent.note?.trim() || null, recordedAt: new Date(now()).toISOString() }
-      if (!(await putText(keyOf(mine.who.accountId, mine.opp.id, 'built.json'), JSON.stringify(record), 'application/json')))
+      if (
+        !(await putText(
+          keyOf(mine.who.accountId, mine.opp.id, 'built.json'),
+          JSON.stringify(record),
+          'application/json'
+        ))
+      )
         return refuse(c, 502, 'STORE_WRITE_FAILED', 'Try again: the file store did not answer.')
       return c.json({ demo: demoOf(record) })
     })
@@ -135,10 +164,15 @@ export default function createManualBuilder({ pool, objects, now = Date.now }) {
     id: 'manual',
     routes,
     settingsOf: async () => ({ builder: 'manual' }),
-    saveSettings: async () => ({ status: 404, body: { code: 'NO_SETTINGS', next: 'The manual builder has nothing to set.' } }),
+    saveSettings: async () => ({
+      status: 404,
+      body: { code: 'NO_SETTINGS', next: 'The manual builder has nothing to set.' }
+    }),
     templateChoicesOf: async () => ({}),
     async listedDemoOf(accountId, ids) {
-      return new Map([...(await recordsOf(accountId, ids))].map(([id, record]) => [id, { demo: demoOf(record) }]))
+      return new Map(
+        [...(await recordsOf(accountId, ids))].map(([id, record]) => [id, { demo: demoOf(record) }])
+      )
     },
     async detailOf(opp, accountId) {
       const record = await recordOf(accountId, opp.id)
@@ -146,7 +180,9 @@ export default function createManualBuilder({ pool, objects, now = Date.now }) {
     },
     async demoFactsOf(accountId, ids) {
       const records = await recordsOf(accountId, ids)
-      return new Map([...records.keys()].map((id) => [id, { built: true, liveSiteKey: null, queuedActionId: null }]))
+      return new Map(
+        [...records.keys()].map((id) => [id, { built: true, liveSiteKey: null, queuedActionId: null }])
+      )
     },
     // The record lives in the file store, not in SQL: the stage stays the research's.
     demoJourneySql: null

@@ -1,64 +1,100 @@
-import { fetchLimited } from './fetch-limited.mjs';
-import { redactToken } from './apify.mjs';
-import { sniffMime } from './media.mjs';
+import { fetchLimited } from './fetch-limited.mjs'
+import { redactToken } from './apify.mjs'
+import { sniffMime } from './media.mjs'
 
-const API = 'https://places.googleapis.com/v1/';
-const DETAILS_MAX_BYTES = 2 * 1024 * 1024;
-const PHOTO_MAX_BYTES = 25 * 1024 * 1024;
-const MAX_REVIEWS = 5;
-const MAX_PHOTOS = 10;
-const REVIEW_TEXT_MAX = 2000;
+const API = 'https://places.googleapis.com/v1/'
+const DETAILS_MAX_BYTES = 2 * 1024 * 1024
+const PHOTO_MAX_BYTES = 25 * 1024 * 1024
+const MAX_REVIEWS = 5
+const MAX_PHOTOS = 10
+const REVIEW_TEXT_MAX = 2000
 
 const AMENITIES = [
-  'servesBreakfast', 'servesBrunch', 'servesLunch', 'servesDinner', 'servesBeer', 'servesWine', 'servesCocktails',
-  'servesCoffee', 'servesDessert', 'servesVegetarianFood', 'outdoorSeating', 'liveMusic', 'delivery', 'takeout', 'dineIn',
-  'goodForChildren', 'goodForGroups', 'allowsDogs',
-];
+  'servesBreakfast',
+  'servesBrunch',
+  'servesLunch',
+  'servesDinner',
+  'servesBeer',
+  'servesWine',
+  'servesCocktails',
+  'servesCoffee',
+  'servesDessert',
+  'servesVegetarianFood',
+  'outdoorSeating',
+  'liveMusic',
+  'delivery',
+  'takeout',
+  'dineIn',
+  'goodForChildren',
+  'goodForGroups',
+  'allowsDogs'
+]
 
 // One Atmosphere-tier call per researched place, never per search result. `websiteUri` is the place's own
 // website as Google records it: the shared research starts from it, never from a website a client sent.
 export const GPLACES_DETAIL_FIELDS = [
-  'id', 'displayName', 'websiteUri', 'formattedAddress', 'nationalPhoneNumber', 'internationalPhoneNumber', 'addressComponents', 'editorialSummary', 'generativeSummary', 'reviewSummary', 'reviews', 'photos',
-  'regularOpeningHours', 'priceLevel', 'priceRange', 'reservable', 'primaryType', 'types', ...AMENITIES,
-].join(',');
+  'id',
+  'displayName',
+  'websiteUri',
+  'formattedAddress',
+  'location',
+  'nationalPhoneNumber',
+  'internationalPhoneNumber',
+  'addressComponents',
+  'editorialSummary',
+  'generativeSummary',
+  'reviewSummary',
+  'reviews',
+  'photos',
+  'regularOpeningHours',
+  'priceLevel',
+  'priceRange',
+  'reservable',
+  'primaryType',
+  'types',
+  ...AMENITIES
+].join(',')
 
-const fail = (code, message, extra) => Object.assign(new Error(message), { code, ...extra });
-const text = (v) => (typeof v === 'string' && v.trim() ? v.trim() : undefined);
-const local = (v) => text(v?.text);
+const fail = (code, message, extra) => Object.assign(new Error(message), { code, ...extra })
+const text = (v) => (typeof v === 'string' && v.trim() ? v.trim() : undefined)
+const local = (v) => text(v?.text)
 
 /** One authenticated call to the Places API; returns the parsed JSON or throws {code}. */
 async function placesCall(url, headers, deps) {
-  const key = deps.googleKey;
-  if (!key) throw fail('CREDENTIAL_MISSING', 'no Google key');
-  let res;
+  const key = deps.googleKey
+  if (!key) throw fail('CREDENTIAL_MISSING', 'no Google key')
+  let res
   try {
     res = await fetchLimited(url, {
       fetch: deps.fetch,
       resolve: deps.resolve,
       headers: { 'X-Goog-Api-Key': key, ...headers },
       maxBytes: DETAILS_MAX_BYTES,
-      timeoutMs: deps.timeoutMs ?? 15_000,
-    });
+      timeoutMs: deps.timeoutMs ?? 15_000
+    })
   } catch (err) {
-    throw fail(err?.code === 'TIMEOUT' ? 'TIMEOUT' : 'PROVIDER_ERROR', redactToken(err?.message, key));
+    throw fail(err?.code === 'TIMEOUT' ? 'TIMEOUT' : 'PROVIDER_ERROR', redactToken(err?.message, key))
   }
-  const body = new TextDecoder().decode(res.bytes);
-  if (res.status === 429 || (res.status === 403 && /quota|billing/i.test(body))) throw fail('QUOTA', 'quota', { status: res.status });
-  if (res.status < 200 || res.status >= 300) throw fail('PROVIDER_ERROR', `HTTP ${res.status}`, { status: res.status });
+  const body = new TextDecoder().decode(res.bytes)
+  if (res.status === 429 || (res.status === 403 && /quota|billing/i.test(body)))
+    throw fail('QUOTA', 'quota', { status: res.status })
+  if (res.status < 200 || res.status >= 300)
+    throw fail('PROVIDER_ERROR', `HTTP ${res.status}`, { status: res.status })
   try {
-    return JSON.parse(body);
+    return JSON.parse(body)
   } catch {
-    throw fail('PROVIDER_ERROR', 'invalid JSON from provider');
+    throw fail('PROVIDER_ERROR', 'invalid JSON from provider')
   }
 }
 
 /** Place Details (New) with the Atmosphere field mask. `deps.language` sets `languageCode`. */
 export async function fetchPlaceDetails(placeId, deps = {}) {
-  if (!deps.googleKey) throw fail('CREDENTIAL_MISSING', 'no Google key');
-  if (typeof placeId !== 'string' || !/^[A-Za-z0-9_-]+$/.test(placeId)) throw fail('PROVIDER_ERROR', 'invalid place id');
-  const url = new URL(`places/${placeId}`, API);
-  if (text(deps.language)) url.searchParams.set('languageCode', deps.language.trim());
-  return placesCall(url.href, { 'X-Goog-FieldMask': GPLACES_DETAIL_FIELDS }, deps);
+  if (!deps.googleKey) throw fail('CREDENTIAL_MISSING', 'no Google key')
+  if (typeof placeId !== 'string' || !/^[A-Za-z0-9_-]+$/.test(placeId))
+    throw fail('PROVIDER_ERROR', 'invalid place id')
+  const url = new URL(`places/${placeId}`, API)
+  if (text(deps.language)) url.searchParams.set('languageCode', deps.language.trim())
+  return placesCall(url.href, { 'X-Goog-FieldMask': GPLACES_DETAIL_FIELDS }, deps)
 }
 
 /**
@@ -66,33 +102,67 @@ export async function fetchPlaceDetails(placeId, deps = {}) {
  * cheaper than the Atmosphere mask of `fetchPlaceDetails`). Null when Google names none. Throws {code}.
  */
 export async function fetchPlaceWebsite(placeId, deps = {}) {
-  if (!deps.googleKey) throw fail('CREDENTIAL_MISSING', 'no Google key');
-  if (typeof placeId !== 'string' || !/^[A-Za-z0-9_-]+$/.test(placeId)) throw fail('PROVIDER_ERROR', 'invalid place id');
-  const raw = await placesCall(new URL(`places/${placeId}`, API).href, { 'X-Goog-FieldMask': 'websiteUri' }, deps);
-  const website = text(raw?.websiteUri);
-  return website && /^https?:\/\//i.test(website) ? website : null;
+  if (!deps.googleKey) throw fail('CREDENTIAL_MISSING', 'no Google key')
+  if (typeof placeId !== 'string' || !/^[A-Za-z0-9_-]+$/.test(placeId))
+    throw fail('PROVIDER_ERROR', 'invalid place id')
+  const raw = await placesCall(
+    new URL(`places/${placeId}`, API).href,
+    { 'X-Goog-FieldMask': 'websiteUri' },
+    deps
+  )
+  const website = text(raw?.websiteUri)
+  return website && /^https?:\/\//i.test(website) ? website : null
 }
 
-/** The facts the shared hub checks a contribution against: identity, name, website, phones, address, point, rating. */
+/**
+ * The facts the shared hub checks a contribution against: identity, name, website, phones, address, point, rating,
+ * primary type and regular opening hours. `rating` already bills this mask at the Enterprise tier, which also covers
+ * the hours, so the two added fields cost nothing more per read.
+ */
 export const PLACE_VERIFICATION_FIELDS =
-  'id,displayName,websiteUri,formattedAddress,nationalPhoneNumber,internationalPhoneNumber,location,rating,userRatingCount';
+  'id,displayName,websiteUri,formattedAddress,nationalPhoneNumber,internationalPhoneNumber,location,rating,userRatingCount,primaryType,regularOpeningHours'
+
+const weekPoint = (t) =>
+  Number.isInteger(t?.day) && Number.isInteger(t?.hour) && Number.isInteger(t?.minute)
+    ? { day: t.day, hour: t.hour, minute: t.minute }
+    : null
+
+/** Google's regular opening hours as `{periods: [{open, close?}], weekdayText}` with only day/hour/minute kept; null when absent. */
+function openingHoursOf(raw) {
+  const periods = []
+  for (const p of Array.isArray(raw?.periods) ? raw.periods : []) {
+    const open = weekPoint(p?.open)
+    if (!open) continue
+    const close = weekPoint(p?.close)
+    periods.push(close ? { open, close } : { open })
+  }
+  const weekdayText = (Array.isArray(raw?.weekdayDescriptions) ? raw.weekdayDescriptions : [])
+    .map(text)
+    .filter(Boolean)
+  return periods.length || weekdayText.length ? { periods, weekdayText } : null
+}
 
 /**
  * Those facts of one place as Google records them, flat; `{found: false, id}` when Google has no such place.
  * Throws {code} on any other failure (a failed read is never turned into "not there").
  */
 export async function fetchPlaceVerification(placeId, deps = {}) {
-  if (!deps.googleKey) throw fail('CREDENTIAL_MISSING', 'no Google key');
-  if (typeof placeId !== 'string' || !/^[A-Za-z0-9_-]+$/.test(placeId)) throw fail('PROVIDER_ERROR', 'invalid place id');
-  let raw;
+  if (!deps.googleKey) throw fail('CREDENTIAL_MISSING', 'no Google key')
+  if (typeof placeId !== 'string' || !/^[A-Za-z0-9_-]+$/.test(placeId))
+    throw fail('PROVIDER_ERROR', 'invalid place id')
+  let raw
   try {
-    raw = await placesCall(new URL(`places/${placeId}`, API).href, { 'X-Goog-FieldMask': PLACE_VERIFICATION_FIELDS }, deps);
+    raw = await placesCall(
+      new URL(`places/${placeId}`, API).href,
+      { 'X-Goog-FieldMask': PLACE_VERIFICATION_FIELDS },
+      deps
+    )
   } catch (err) {
-    if (err?.status === 404) return { found: false, id: placeId };
-    throw err;
+    if (err?.status === 404) return { found: false, id: placeId }
+    throw err
   }
-  const lat = raw?.location?.latitude;
-  const lon = raw?.location?.longitude;
+  const lat = raw?.location?.latitude
+  const lon = raw?.location?.longitude
   return {
     found: true,
     id: text(raw?.id) ?? placeId,
@@ -103,79 +173,99 @@ export async function fetchPlaceVerification(placeId, deps = {}) {
     location: Number.isFinite(lat) && Number.isFinite(lon) ? { latitude: lat, longitude: lon } : null,
     rating: Number.isFinite(raw?.rating) ? raw.rating : null,
     reviewCount: Number.isInteger(raw?.userRatingCount) ? raw.userRatingCount : null,
-  };
+    category: text(raw?.primaryType) ?? null,
+    openingHours: openingHoursOf(raw?.regularOpeningHours)
+  }
 }
 
 /** A picked suggestion's point: the cheapest Details mask that names and places it. */
-export const PLACE_LOCATION_FIELDS = 'id,displayName,formattedAddress,location';
+export const PLACE_LOCATION_FIELDS = 'id,displayName,formattedAddress,location'
 
 /** `{placeId, label, lat, lon}` of a place, or null when Google gives no location. `deps.sessionToken` closes an Autocomplete session. */
 export async function fetchPlaceLocation(placeId, deps = {}) {
-  if (!deps.googleKey) throw fail('CREDENTIAL_MISSING', 'no Google key');
-  if (typeof placeId !== 'string' || !/^[A-Za-z0-9_-]+$/.test(placeId)) throw fail('PROVIDER_ERROR', 'invalid place id');
-  const url = new URL(`places/${placeId}`, API);
-  if (text(deps.sessionToken)) url.searchParams.set('sessionToken', deps.sessionToken.trim());
-  if (text(deps.language)) url.searchParams.set('languageCode', deps.language.trim());
-  const raw = await placesCall(url.href, { 'X-Goog-FieldMask': PLACE_LOCATION_FIELDS }, { timeoutMs: 5_000, ...deps });
-  const lat = Number(raw?.location?.latitude);
-  const lon = Number(raw?.location?.longitude);
-  if (raw?.location?.latitude === undefined || !Number.isFinite(lat) || !Number.isFinite(lon)) return null;
-  return { placeId: text(raw.id) ?? placeId, label: text(raw.formattedAddress) ?? local(raw.displayName) ?? placeId, lat, lon };
+  if (!deps.googleKey) throw fail('CREDENTIAL_MISSING', 'no Google key')
+  if (typeof placeId !== 'string' || !/^[A-Za-z0-9_-]+$/.test(placeId))
+    throw fail('PROVIDER_ERROR', 'invalid place id')
+  const url = new URL(`places/${placeId}`, API)
+  if (text(deps.sessionToken)) url.searchParams.set('sessionToken', deps.sessionToken.trim())
+  if (text(deps.language)) url.searchParams.set('languageCode', deps.language.trim())
+  const raw = await placesCall(
+    url.href,
+    { 'X-Goog-FieldMask': PLACE_LOCATION_FIELDS },
+    { timeoutMs: 5_000, ...deps }
+  )
+  const lat = Number(raw?.location?.latitude)
+  const lon = Number(raw?.location?.longitude)
+  if (raw?.location?.latitude === undefined || !Number.isFinite(lat) || !Number.isFinite(lon)) return null
+  return {
+    placeId: text(raw.id) ?? placeId,
+    label: text(raw.formattedAddress) ?? local(raw.displayName) ?? placeId,
+    lat,
+    lon
+  }
 }
 
 const attributionOf = (a) => {
-  const displayName = text(a?.displayName);
-  return displayName ? { displayName, ...(text(a.uri) ? { uri: a.uri.trim() } : {}) } : null;
-};
+  const displayName = text(a?.displayName)
+  return displayName ? { displayName, ...(text(a.uri) ? { uri: a.uri.trim() } : {}) } : null
+}
 
 function reviewOf(r) {
-  const body = local(r?.text) ?? local(r?.originalText);
-  const author = text(r?.authorAttribution?.displayName);
-  if (!body || !author) return null;
-  const out = { author };
-  if (text(r.authorAttribution.uri)) out.authorUri = r.authorAttribution.uri.trim();
-  const avatar = text(r.authorAttribution.photoUri);
+  const body = local(r?.text) ?? local(r?.originalText)
+  const author = text(r?.authorAttribution?.displayName)
+  if (!body || !author) return null
+  const out = { author }
+  if (text(r.authorAttribution.uri)) out.authorUri = r.authorAttribution.uri.trim()
+  const avatar = text(r.authorAttribution.photoUri)
   if (avatar) {
     try {
-      const url = new URL(avatar);
-      if (url.protocol === 'https:' && !url.username && !url.password &&
-          (url.hostname === 'googleusercontent.com' || url.hostname.endsWith('.googleusercontent.com'))) {
-        out.authorAvatarUrl = url.href;
+      const url = new URL(avatar)
+      if (
+        url.protocol === 'https:' &&
+        !url.username &&
+        !url.password &&
+        (url.hostname === 'googleusercontent.com' || url.hostname.endsWith('.googleusercontent.com'))
+      ) {
+        out.authorAvatarUrl = url.href
       }
-    } catch { /* Missing or malformed avatars stay absent. */ }
+    } catch {
+      /* Missing or malformed avatars stay absent. */
+    }
   }
-  if (Number.isFinite(r.rating)) out.rating = r.rating;
-  out.text = body.slice(0, REVIEW_TEXT_MAX);
-  const language = text(r.text?.languageCode) ?? text(r.originalText?.languageCode);
-  if (language) out.language = language;
-  if (text(r.publishTime)) out.publishTime = r.publishTime;
-  if (text(r.googleMapsUri)) out.googleMapsUri = r.googleMapsUri;
-  return out;
+  if (Number.isFinite(r.rating)) out.rating = r.rating
+  out.text = body.slice(0, REVIEW_TEXT_MAX)
+  const language = text(r.text?.languageCode) ?? text(r.originalText?.languageCode)
+  if (language) out.language = language
+  if (text(r.publishTime)) out.publishTime = r.publishTime
+  if (text(r.googleMapsUri)) out.googleMapsUri = r.googleMapsUri
+  return out
 }
 
 function photoOf(p) {
-  if (!text(p?.name)) return null;
+  if (!text(p?.name)) return null
   return {
     name: p.name,
     ...(Number.isFinite(p.widthPx) ? { widthPx: p.widthPx } : {}),
     ...(Number.isFinite(p.heightPx) ? { heightPx: p.heightPx } : {}),
-    attributions: (Array.isArray(p.authorAttributions) ? p.authorAttributions : []).map(attributionOf).filter(Boolean),
-  };
+    attributions: (Array.isArray(p.authorAttributions) ? p.authorAttributions : [])
+      .map(attributionOf)
+      .filter(Boolean)
+  }
 }
 
 /** Plain facts for the site brief. Absent Google fields stay absent; reviews and photos keep their author attribution. */
 export function placeFactsFromDetails(raw, { now = () => new Date() } = {}) {
-  const amenities = {};
-  for (const k of AMENITIES) if (typeof raw?.[k] === 'boolean') amenities[k] = raw[k];
-  const summaries = {};
-  const editorial = local(raw?.editorialSummary);
-  const generative = local(raw?.generativeSummary?.overview);
-  const reviewsSummary = local(raw?.reviewSummary?.text);
-  if (editorial) summaries.editorial = editorial;
-  if (generative) summaries.generative = generative;
-  if (reviewsSummary) summaries.reviews = reviewsSummary;
-  const hours = (raw?.regularOpeningHours?.weekdayDescriptions ?? []).map(text).filter(Boolean);
-  const website = text(raw?.websiteUri);
+  const amenities = {}
+  for (const k of AMENITIES) if (typeof raw?.[k] === 'boolean') amenities[k] = raw[k]
+  const summaries = {}
+  const editorial = local(raw?.editorialSummary)
+  const generative = local(raw?.generativeSummary?.overview)
+  const reviewsSummary = local(raw?.reviewSummary?.text)
+  if (editorial) summaries.editorial = editorial
+  if (generative) summaries.generative = generative
+  if (reviewsSummary) summaries.reviews = reviewsSummary
+  const hours = (raw?.regularOpeningHours?.weekdayDescriptions ?? []).map(text).filter(Boolean)
+  const website = text(raw?.websiteUri)
   const facts = {
     placeId: raw?.id,
     ...(local(raw?.displayName) ? { name: local(raw.displayName) } : {}),
@@ -184,7 +274,12 @@ export function placeFactsFromDetails(raw, { now = () => new Date() } = {}) {
     // The branch's own address and phone: what a found social page is matched on (`social-search.mjs`).
     ...(text(raw?.formattedAddress) ? { formattedAddress: raw.formattedAddress.trim() } : {}),
     ...(text(raw?.nationalPhoneNumber) ? { nationalPhoneNumber: raw.nationalPhoneNumber.trim() } : {}),
-    ...(text(raw?.internationalPhoneNumber) ? { internationalPhoneNumber: raw.internationalPhoneNumber.trim() } : {}),
+    ...(text(raw?.internationalPhoneNumber)
+      ? { internationalPhoneNumber: raw.internationalPhoneNumber.trim() }
+      : {}),
+    ...(Number.isFinite(raw?.location?.latitude) && Number.isFinite(raw?.location?.longitude)
+      ? { location: { latitude: raw.location.latitude, longitude: raw.location.longitude } }
+      : {}),
     // Google's place types: what decides whether a place is food and drink (`trades.mjs`), and so has a Menu.
     ...(text(raw?.primaryType) ? { primaryType: raw.primaryType.trim() } : {}),
     ...(Array.isArray(raw?.types) && raw.types.some((t) => text(t))
@@ -193,23 +288,26 @@ export function placeFactsFromDetails(raw, { now = () => new Date() } = {}) {
     amenities,
     ...(typeof raw?.reservable === 'boolean' ? { reservable: raw.reservable } : {}),
     summaries,
-    reviews: (Array.isArray(raw?.reviews) ? raw.reviews : []).map(reviewOf).filter(Boolean).slice(0, MAX_REVIEWS),
+    reviews: (Array.isArray(raw?.reviews) ? raw.reviews : [])
+      .map(reviewOf)
+      .filter(Boolean)
+      .slice(0, MAX_REVIEWS),
     ...(hours.length ? { openingHours: hours } : {}),
     ...(text(raw?.priceLevel) ? { priceLevel: raw.priceLevel } : {}),
     photos: (Array.isArray(raw?.photos) ? raw.photos : []).map(photoOf).filter(Boolean).slice(0, MAX_PHOTOS),
     attribution: 'Google',
-    fetchedAt: now().toISOString(),
-  };
-  return facts;
+    fetchedAt: now().toISOString()
+  }
+  return facts
 }
 
 /** The photo media URL that answers JSON (`photoUri`); the caller sends the key as a header. */
 export function placePhotoUrl(photoName, { maxWidthPx = 1600 } = {}) {
   if (typeof photoName !== 'string' || !/^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/.test(photoName)) {
-    throw new Error('invalid photo name');
+    throw new Error('invalid photo name')
   }
-  const w = Math.max(1, Math.min(4800, Math.round(Number(maxWidthPx) || 1600)));
-  return `${API}${photoName}/media?maxWidthPx=${w}&skipHttpRedirect=true`;
+  const w = Math.max(1, Math.min(4800, Math.round(Number(maxWidthPx) || 1600)))
+  return `${API}${photoName}/media?maxWidthPx=${w}&skipHttpRedirect=true`
 }
 
 /**
@@ -217,31 +315,39 @@ export function placePhotoUrl(photoName, { maxWidthPx = 1600 } = {}) {
  * through the URL guard with a byte cap. Returns {bytes, mime, sourceUrl, attributions}.
  */
 export async function fetchPlacePhoto(photoName, deps = {}) {
-  if (!deps.googleKey) throw fail('CREDENTIAL_MISSING', 'no Google key');
-  let url;
+  if (!deps.googleKey) throw fail('CREDENTIAL_MISSING', 'no Google key')
+  let url
   try {
-    url = placePhotoUrl(photoName, { maxWidthPx: deps.maxWidthPx });
+    url = placePhotoUrl(photoName, { maxWidthPx: deps.maxWidthPx })
   } catch (err) {
-    throw fail('PROVIDER_ERROR', err.message);
+    throw fail('PROVIDER_ERROR', err.message)
   }
-  const meta = await placesCall(url, {}, deps);
-  if (!text(meta?.photoUri)) throw fail('PROVIDER_ERROR', 'no photoUri from provider');
-  let got;
+  const meta = await placesCall(url, {}, deps)
+  if (!text(meta?.photoUri)) throw fail('PROVIDER_ERROR', 'no photoUri from provider')
+  let got
   try {
     got = await fetchLimited(meta.photoUri, {
       fetch: deps.fetch,
       resolve: deps.resolve,
       accept: ['image/*'],
       maxBytes: deps.maxBytes ?? PHOTO_MAX_BYTES,
-      timeoutMs: deps.timeoutMs ?? 60_000,
-    });
+      timeoutMs: deps.timeoutMs ?? 60_000
+    })
   } catch (err) {
-    const code = { URL_BLOCKED: 'URL_BLOCKED', TIMEOUT: 'TIMEOUT', MIME_REJECTED: 'NOT_MEDIA' }[err?.code] ?? 'PROVIDER_ERROR';
-    throw fail(code, redactToken(err?.message, deps.googleKey));
+    const code =
+      { URL_BLOCKED: 'URL_BLOCKED', TIMEOUT: 'TIMEOUT', MIME_REJECTED: 'NOT_MEDIA' }[err?.code] ??
+      'PROVIDER_ERROR'
+    throw fail(code, redactToken(err?.message, deps.googleKey))
   }
-  if (got.truncated) throw fail('TOO_LARGE', 'photo larger than the byte cap');
-  if (got.status < 200 || got.status >= 300) throw fail('PROVIDER_ERROR', `HTTP ${got.status}`, { status: got.status });
-  const mime = sniffMime(got.bytes);
-  if (!mime?.startsWith('image/')) throw fail('NOT_MEDIA', `unexpected type ${mime ?? 'unknown'}`);
-  return { bytes: got.bytes, mime, sourceUrl: `google-places:${photoName}`, attributions: Array.isArray(deps.attributions) ? deps.attributions : [] };
+  if (got.truncated) throw fail('TOO_LARGE', 'photo larger than the byte cap')
+  if (got.status < 200 || got.status >= 300)
+    throw fail('PROVIDER_ERROR', `HTTP ${got.status}`, { status: got.status })
+  const mime = sniffMime(got.bytes)
+  if (!mime?.startsWith('image/')) throw fail('NOT_MEDIA', `unexpected type ${mime ?? 'unknown'}`)
+  return {
+    bytes: got.bytes,
+    mime,
+    sourceUrl: `google-places:${photoName}`,
+    attributions: Array.isArray(deps.attributions) ? deps.attributions : []
+  }
 }

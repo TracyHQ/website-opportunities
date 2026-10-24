@@ -1,27 +1,27 @@
 {
- "kind": "youtube#channelListResponse",
- "etag": "WTgL09rYf9ul2vhtHmWUGtqB_gI",
- "pageInfo": {
-  "totalResults": 1,
-  "resultsPerPage": 5
- },
- "items": [
-  {
-   "kind": "youtube#channel",
-   "etag": "mFamyJgXn4x4mhZnBLXdXwepwzo",
-   "id": "UC_x5XG1OV2P6uZZ5FSM9Ttw",
-   "contentDetails": {
-    "relatedPlaylists": {
-     "likes": "",
-     "uploads": "UU_x5XG1OV2P6uZZ5FSM9Ttw"
+  "kind": "youtube#channelListResponse",
+  "etag": "WTgL09rYf9ul2vhtHmWUGtqB_gI",
+  "pageInfo": {
+    "totalResults": 1,
+    "resultsPerPage": 5
+  },
+  "items": [
+    {
+      "kind": "youtube#channel",
+      "etag": "mFamyJgXn4x4mhZnBLXdXwepwzo",
+      "id": "UC_x5XG1OV2P6uZZ5FSM9Ttw",
+      "contentDetails": {
+        "relatedPlaylists": {
+          "likes": "",
+          "uploads": "UU_x5XG1OV2P6uZZ5FSM9Ttw"
+        }
+      },
+      "statistics": {
+        "viewCount": "362200177",
+        "subscriberCount": "2680000",
+        "hiddenSubscriberCount": false,
+        "videoCount": "6118"
+      }
     }
-   },
-   "statistics": {
-    "viewCount": "362200177",
-    "subscriberCount": "2680000",
-    "hiddenSubscriberCount": false,
-    "videoCount": "6118"
-   }
-  }
- ]
+  ]
 }

@@ -28,6 +28,8 @@
  *   acts as, null when they have none yet (the open layer never reads the host's own user table).
  * @property {(pool: any, principalId: string) => Promise<string>} displayNameOf  The name that signs a principal's outreach
  *   drafts; empty when there is none.
+ * @property {(pool: any, principalId: string) => Promise<string | null>} [emailOf]  OPTIONAL: the email of a principal,
+ *   shown to the operator beside the accounts that saved a place (`placeDetail`); without it those rows carry no email.
  * @property {(pool: any, principalId: string) => Promise<string | null>} [hubAccountOf]  OPTIONAL: the hub account a
  *   signed-in principal may manage (`ensureHubAccount` in `hub/tokens.js` makes one), null to refuse. With it the hub
  *   offers that person the token doors `/hub/v1/account/token` (`hub/intake-routes.js`); without it, no such door.
@@ -61,7 +63,13 @@ export const HOST_MEMBERS = Object.freeze([
 ])
 
 /** Members a host MAY have; a door that needs one is mounted only when it is there. */
-export const OPTIONAL_HOST_MEMBERS = Object.freeze(['hubAccountOf', 'requireOperator', 'sealSecret', 'rateCountsOf'])
+export const OPTIONAL_HOST_MEMBERS = Object.freeze([
+  'emailOf',
+  'hubAccountOf',
+  'requireOperator',
+  'sealSecret',
+  'rateCountsOf'
+])
 
 /**
  * `host` itself when it has every member in `names`; otherwise throws naming each one missing.

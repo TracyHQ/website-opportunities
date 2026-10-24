@@ -41,20 +41,28 @@ async function inTransaction(pool, work) {
 }
 
 async function lockPlace(client, placeId) {
-  await client.query('insert into wo_hub_place (place_id) values ($1) on conflict (place_id) do nothing', [placeId])
+  await client.query('insert into wo_hub_place (place_id) values ($1) on conflict (place_id) do nothing', [
+    placeId
+  ])
   return (await client.query('select * from wo_hub_place where place_id = $1 for update', [placeId])).rows[0]
 }
 
 /** The revocation revision a worker reads before it starts research on a place. */
 export async function revocationRevisionOf(db, placeId) {
-  const { rows } = await db.query('select revocation_revision from wo_hub_place where place_id = $1', [placeId])
+  const { rows } = await db.query('select revocation_revision from wo_hub_place where place_id = $1', [
+    placeId
+  ])
   return rows[0] ? Number(rows[0].revocation_revision) : 0
 }
 
 /** Throws `HubRevokedError` when the place is not live, or was revoked after `seenRevision` (when given). */
 export async function assertPublishable(client, place, seenRevision) {
   if (place.state !== 'live') throw new HubRevokedError(place.place_id, place.state)
-  if (seenRevision !== undefined && seenRevision !== null && Number(place.revocation_revision) !== Number(seenRevision)) {
+  if (
+    seenRevision !== undefined &&
+    seenRevision !== null &&
+    Number(place.revocation_revision) !== Number(seenRevision)
+  ) {
     throw new HubRevokedError(place.place_id, 'revoked since the work started')
   }
   if (await identitiesSuppressed(client, place.place_id)) throw new HubRevokedError(place.place_id, 'deleted')
@@ -138,7 +146,8 @@ export function suppressBusiness(pool, { placeId, reason, actor }) {
 
 /** An observation the hub stops trusting: every snapshot showing it is revoked and a tombstone goes out. */
 export function excludeObservation(pool, { observationId, reason, actor }) {
-  if (!['mis_linked', 'revoked'].includes(reason)) throw new Error(`wo hub: unknown exclusion reason ${reason}`)
+  if (!['mis_linked', 'revoked'].includes(reason))
+    throw new Error(`wo hub: unknown exclusion reason ${reason}`)
   return inTransaction(pool, async (client) => {
     const { rows } = await client.query(
       `select i.place_id from wo_hub_observation o
@@ -153,7 +162,11 @@ export function excludeObservation(pool, { observationId, reason, actor }) {
     )
     if (rows[0]) {
       await lockPlace(client, rows[0].place_id)
-      await client.query('select wo_hub_drop_observation($1, $2, $3)', [observationId, rows[0].place_id, reason])
+      await client.query('select wo_hub_drop_observation($1, $2, $3)', [
+        observationId,
+        rows[0].place_id,
+        reason
+      ])
     }
     return { placeId: rows[0]?.place_id ?? null }
   })

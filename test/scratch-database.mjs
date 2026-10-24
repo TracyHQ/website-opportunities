@@ -17,7 +17,10 @@ export async function scratchDatabase() {
       await pool.end()
       // pool.end() resolves before the sockets close; dropping with force then kills them mid-close.
       for (let i = 0; i < 50; i += 1) {
-        const { rows } = await admin.query('select count(*)::int as n from pg_stat_activity where datname = $1', [name])
+        const { rows } = await admin.query(
+          'select count(*)::int as n from pg_stat_activity where datname = $1',
+          [name]
+        )
         if (rows[0].n === 0) break
         await new Promise((r) => setTimeout(r, 20))
       }

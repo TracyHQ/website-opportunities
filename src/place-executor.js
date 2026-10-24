@@ -216,7 +216,9 @@ export function createPlaceRunner(h) {
       if (!(await finish({ state: 'completed' }))) throw new StaleLeaseError(job.id)
       // What this run read from Google itself is offered to the shared hub (only with `HUB_CONTRIBUTE=1`).
       if (h.hub && !prefetch)
-        await h.hub.offer(job.place_id, job.snapshot_id).catch((error) => log.warn(`[opportunities] hub offer: ${error?.message}`))
+        await h.hub
+          .offer(job.place_id, job.snapshot_id)
+          .catch((error) => log.warn(`[opportunities] hub offer: ${error?.message}`))
       // A new snapshot may show this place is a pasted URL's Google place, or the other way round.
       if (h.afterPublish && !prefetch) await h.afterPublish(job.place_id)
     } catch (error) {
@@ -481,22 +483,23 @@ export function createPlaceRunner(h) {
             ? await hub.placeFacts({ namespace: 'google', externalId: identity.external_id })
             : null
           if (fromHub) facts = fromHub.facts
-          else if (keys.google) try {
-            const raw = await charge(
-              ctx,
-              'google',
-              'place-details',
-              ceilingCents('google', 'place-details'),
-              () =>
-                domain.fetchPlaceDetails(identity.external_id, { ...h.domainDeps, googleKey: keys.google })
-            )
-            facts = domain.placeFactsFromDetails(raw, { now: at })
-          } catch (error) {
-            if (error instanceof BudgetExceededError) throw error
-            log.warn(
-              `[opportunities] place ${place.id}: Google place details skipped (${error?.code ?? 'error'})`
-            )
-          }
+          else if (keys.google)
+            try {
+              const raw = await charge(
+                ctx,
+                'google',
+                'place-details',
+                ceilingCents('google', 'place-details'),
+                () =>
+                  domain.fetchPlaceDetails(identity.external_id, { ...h.domainDeps, googleKey: keys.google })
+              )
+              facts = domain.placeFactsFromDetails(raw, { now: at })
+            } catch (error) {
+              if (error instanceof BudgetExceededError) throw error
+              log.warn(
+                `[opportunities] place ${place.id}: Google place details skipped (${error?.code ?? 'error'})`
+              )
+            }
           await fenced(pool, lease, async (db) => {
             if (!facts)
               return tried(
@@ -516,7 +519,13 @@ export function createPlaceRunner(h) {
                 status: 'complete',
                 collected: facts,
                 ...(fromHub
-                  ? { coverage: { provenance: 'hub', hubPlaceId: fromHub.hubPlaceId, hubRevision: fromHub.revision } }
+                  ? {
+                      coverage: {
+                        provenance: 'hub',
+                        hubPlaceId: fromHub.hubPlaceId,
+                        hubRevision: fromHub.revision
+                      }
+                    }
                   : {})
               },
               at(),
@@ -1090,7 +1099,9 @@ export function createPlaceRunner(h) {
     const save = (part, data, version) =>
       fenced(pool, lease, (db) => collected(db, snapshotId, part, { ref: null, ...data }, at(), version))
     const skip = (part, row, reason, coverage) =>
-      fenced(pool, lease, (db) => tried(db, snapshotId, part, row, { status: 'skipped', reason, coverage }, at()))
+      fenced(pool, lease, (db) =>
+        tried(db, snapshotId, part, row, { status: 'skipped', reason, coverage }, at())
+      )
 
     let file = fileRow
     const urls = [...new Set((profile.menus ?? []).map((m) => m?.url).filter(Boolean))].sort()
@@ -1100,13 +1111,18 @@ export function createPlaceRunner(h) {
       // An ordinary run reads links it has not read yet (free); a Research again run never adds a part.
       const changed = !again && urls.join('\n') !== heldUrls.join('\n')
       if (dueNow || changed) {
-        if (!urls.length)
-          await skip(MENU_FILE_PART, fileRow, 'not_found', { version: MENU_FILE_VERSION })
+        if (!urls.length) await skip(MENU_FILE_PART, fileRow, 'not_found', { version: MENU_FILE_VERSION })
         else {
           const docs = await menuItemsForProfile({
             domain: ctx.domain,
             profile,
-            previous: dueNow ? null : { menus: heldUrls.map((url) => ({ url })), menuItems: fileRow?.collected?.items, menuReads: fileRow?.collected?.reads },
+            previous: dueNow
+              ? null
+              : {
+                  menus: heldUrls.map((url) => ({ url })),
+                  menuItems: fileRow?.collected?.items,
+                  menuReads: fileRow?.collected?.reads
+                },
             force: dueNow,
             deps: h.domainDeps,
             now,
@@ -1182,7 +1198,9 @@ export function createPlaceRunner(h) {
     }
 
     // A place researched before the two parts keeps the dishes its profile held until a part reads them.
-    const fileItems = file?.collected_at ? (file.collected?.items ?? []) : legacy.filter((i) => i?.source?.kind !== 'photo')
+    const fileItems = file?.collected_at
+      ? (file.collected?.items ?? [])
+      : legacy.filter((i) => i?.source?.kind !== 'photo')
     const fileReads = file?.collected_at
       ? (file.collected?.reads ?? [])
       : (previous?.menuReads ?? []).filter((r) => r?.kind !== 'photo')

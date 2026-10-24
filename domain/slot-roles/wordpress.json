@@ -12,10 +12,22 @@
       ],
       "about.story": [{ "title": "about.story-chapter.statement", "text": "about.story-chapter.support" }],
       "cards": [
-        { "title": "home-variation.features-intro.card-title.1", "text": "home-variation.features-intro.card-text.1" },
-        { "title": "home-variation.features-intro.card-title.2", "text": "home-variation.features-intro.card-text.2" },
-        { "title": "home-variation.features-intro.card-title.3", "text": "home-variation.features-intro.card-text.3" },
-        { "title": "home-variation.features-intro.card-title.4", "text": "home-variation.features-intro.card-text.4" }
+        {
+          "title": "home-variation.features-intro.card-title.1",
+          "text": "home-variation.features-intro.card-text.1"
+        },
+        {
+          "title": "home-variation.features-intro.card-title.2",
+          "text": "home-variation.features-intro.card-text.2"
+        },
+        {
+          "title": "home-variation.features-intro.card-title.3",
+          "text": "home-variation.features-intro.card-text.3"
+        },
+        {
+          "title": "home-variation.features-intro.card-title.4",
+          "text": "home-variation.features-intro.card-text.4"
+        }
       ]
     },
     "notes": {
@@ -333,10 +345,7 @@
         "nth": 1,
         "unless": "dishes",
         "why": "Discover Our Menu: the menu section, with no dish of the restaurant to show",
-        "slots": [
-          "homepage.tabs.heading",
-          "homepage.tabs.section-bg"
-        ]
+        "slots": ["homepage.tabs.heading", "homepage.tabs.section-bg"]
       },
       {
         "page": "homepage",
@@ -427,9 +436,7 @@
         "nth": 1,
         "unless": "dishes:menu",
         "why": "Our Menu: the menu section, with no dish of the restaurant to show",
-        "slots": [
-          "menu.tabs.heading"
-        ]
+        "slots": ["menu.tabs.heading"]
       },
       {
         "page": "menu",

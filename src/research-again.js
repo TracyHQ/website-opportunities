@@ -200,7 +200,11 @@ export async function placeAgainPlan(
   const parts = []
   const unavailable = {}
   const prices = {}
-  const versions = { ...SOURCE_VERSIONS, 'google-maps': GOOGLE_MAPS_VERSION, tripadvisor: TRIPADVISOR_VERSION }
+  const versions = {
+    ...SOURCE_VERSIONS,
+    'google-maps': GOOGLE_MAPS_VERSION,
+    tripadvisor: TRIPADVISOR_VERSION
+  }
   const connectors = domain?.connectorsFor
     ? domain.connectorsFor(
         { APIFY_TOKEN: keys.apify ?? undefined, SCRAPECREATORS_API_KEY: keys.scrapecreators ?? undefined },
@@ -249,7 +253,17 @@ export async function placeAgainPlan(
     })
   }
   const custom = {}
-  await menuParts(db, snapshot, rows, { now, keys, settings, domain, parts, versions, unavailable, prices, custom })
+  await menuParts(db, snapshot, rows, {
+    now,
+    keys,
+    settings,
+    domain,
+    parts,
+    versions,
+    unavailable,
+    prices,
+    custom
+  })
   const ordered = AGAIN_PARTS.filter((p) => parts.includes(p) && (!onlyParts || onlyParts.includes(p)))
   return {
     ...researchAgainPlan(rows, { now, parts: ordered, versions, unavailable, prices, capCents, custom }),
@@ -263,7 +277,12 @@ export async function placeAgainPlan(
  * preview freezes WHICH photos and reserves each one's vision ceiling). `keys.menuVision` resolves that model
  * (`menuVisionDoorFor`); without it photo reading counts as not configured.
  */
-async function menuParts(db, snapshot, rows, { now, keys, settings, domain, parts, versions, unavailable, prices, custom }) {
+async function menuParts(
+  db,
+  snapshot,
+  rows,
+  { now, keys, settings, domain, parts, versions, unavailable, prices, custom }
+) {
   const profile = (await snapshotProfileOf(db, snapshot.id))?.profile ?? null
   const media = await snapshotMediaOf(db, snapshot.id)
   const candidates = menuPhotoCandidates(media, { graphic: domain?.looksGraphic })

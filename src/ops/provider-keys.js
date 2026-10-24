@@ -22,7 +22,8 @@ export function keyHint(value) {
 }
 
 /** Whether this host can seal keys, so the operator may set them (otherwise they come from the environment). */
-export const keysWritable = (config, host) => typeof host?.sealSecret === 'function' && Boolean(config?.sessionSecret)
+export const keysWritable = (config, host) =>
+  typeof host?.sealSecret === 'function' && Boolean(config?.sessionSecret)
 
 /** Every provider's key for server-side calls: the sealed one wins over the environment fallback. */
 export async function readProviderKeys(pool, config, host) {
@@ -59,7 +60,9 @@ export async function providerKeyFacts(pool, config, host) {
     const col = PROVIDER_COLUMN[provider]
     const cipher = row?.[col] ?? null
     const saved =
-      cipher && config?.sessionSecret && host?.openSecret ? await host.openSecret(cipher, config.sessionSecret) : null
+      cipher && config?.sessionSecret && host?.openSecret
+        ? await host.openSecret(cipher, config.sessionSecret)
+        : null
     if (saved) {
       providers[provider] = {
         configured: true,

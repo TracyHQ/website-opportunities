@@ -60,7 +60,10 @@ test('a key row says where the key comes from and what the operator may do', () 
     tone: 'ok',
     editable: true
   })
-  assert.equal(keyRowView('google', { configured: true, source: 'env', hint: 'AIz… (39 chars)' }, false).status, 'From the environment · AIz… (39 chars)')
+  assert.equal(
+    keyRowView('google', { configured: true, source: 'env', hint: 'AIz… (39 chars)' }, false).status,
+    'From the environment · AIz… (39 chars)'
+  )
   assert.deepEqual(keyRowView('serpapi', { configured: false, source: null, hint: null }, false), {
     label: 'SerpApi',
     status: 'Not set',
@@ -82,7 +85,12 @@ test('order rows list the providers in use first, then the ones left out', () =>
     providers: [
       { id: 'scrapecreators', label: 'ScrapeCreators', state: 'connected' },
       { id: 'rapidapi-scraper3', label: 'Scraper3', state: 'missing_key' },
-      { id: 'apify', label: 'Apify', state: 'error', lastError: { reason: 'credential_invalid', at: '2026-10-23T10:00:00Z' } }
+      {
+        id: 'apify',
+        label: 'Apify',
+        state: 'error',
+        lastError: { reason: 'credential_invalid', at: '2026-10-23T10:00:00Z' }
+      }
     ]
   }
   assert.deepEqual(
@@ -96,10 +104,35 @@ test('order rows list the providers in use first, then the ones left out', () =>
 })
 
 test('queue rows: retry for a stopped job, cancel for a waiting one', () => {
-  const failed = queueRowView({ placeName: 'Cafe B', state: 'failed', stage: 'collection', error: 'X: y', retryable: true, cancellable: false })
-  assert.deepEqual(failed, { title: 'Cafe B', state: 'Failed', tone: 'bad', detail: 'X: y', actions: ['retry'] })
-  const queued = queueRowView({ placeName: null, state: 'queued', stage: 'discovery', retryable: false, cancellable: true })
-  assert.deepEqual(queued, { title: 'Unnamed place', state: 'Waiting', tone: 'busy', detail: null, actions: ['cancel'] })
+  const failed = queueRowView({
+    placeName: 'Cafe B',
+    state: 'failed',
+    stage: 'collection',
+    error: 'X: y',
+    retryable: true,
+    cancellable: false
+  })
+  assert.deepEqual(failed, {
+    title: 'Cafe B',
+    state: 'Failed',
+    tone: 'bad',
+    detail: 'X: y',
+    actions: ['retry']
+  })
+  const queued = queueRowView({
+    placeName: null,
+    state: 'queued',
+    stage: 'discovery',
+    retryable: false,
+    cancellable: true
+  })
+  assert.deepEqual(queued, {
+    title: 'Unnamed place',
+    state: 'Waiting',
+    tone: 'busy',
+    detail: null,
+    actions: ['cancel']
+  })
 })
 
 test('the Hub tab exists only where the server serves the hub', () => {
@@ -109,10 +142,13 @@ test('the Hub tab exists only where the server serves the hub', () => {
 
 test('quota use reads against the limits, with no limit said in words', () => {
   assert.deepEqual(
-    usageView({ read_places: { day: 7, month: 70 }, observations: { day: 1, month: 2 } }, {
-      read_places: { day: 500, month: 10000 },
-      observations: { day: 500, month: null }
-    }),
+    usageView(
+      { read_places: { day: 7, month: 70 }, observations: { day: 1, month: 2 } },
+      {
+        read_places: { day: 500, month: 10000 },
+        observations: { day: 500, month: null }
+      }
+    ),
     [
       { label: 'Place reads', day: '7 / 500', month: '70 / 10000' },
       { label: 'Observations sent', day: '1 / 500', month: '2 / no limit' }

@@ -7,7 +7,8 @@ const TONE_OF_GRADE = { A: 'high', B: 'medium', C: 'low' }
 const points = (p) => (p === null || p === undefined ? t('score.unknownPoints') : p > 0 ? `+${p}` : String(p))
 
 function scoreReasonText([key, , params = {}]) {
-  if (key === 'marketing.lastPost') return t('score.marketing.lastPost', { days: Math.floor(params.days ?? 0) })
+  if (key === 'marketing.lastPost')
+    return t('score.marketing.lastPost', { days: Math.floor(params.days ?? 0) })
   const text = t(`score.${key}`, params)
   return text === `score.${key}` ? t('score.other') : text
 }
@@ -20,7 +21,12 @@ export function scoreView(score) {
     .filter((r) => Array.isArray(r) && typeof r[0] === 'string')
     .map((r) => ({ text: scoreReasonText(r), points: points(r[1]) }))
   if (score.pending === true) return { label: t('score.checking'), tone: 'pending', pending: true, reasons }
-  return { label: `${score.grade} · ${score.score}`, tone: TONE_OF_GRADE[score.grade], pending: false, reasons }
+  return {
+    label: `${score.grade} · ${score.score}`,
+    tone: TONE_OF_GRADE[score.grade],
+    pending: false,
+    reasons
+  }
 }
 
 const PLACE_STATUSES = new Set(['new', 'seen', 'researched', 'demo'])
@@ -87,7 +93,13 @@ export function jobView(job) {
       actions: ['again']
     }
   }
-  return { label, detail: null, tone: state === 'completed' ? 'ok' : 'neutral', moving: false, actions: ['again'] }
+  return {
+    label,
+    detail: null,
+    tone: state === 'completed' ? 'ok' : 'neutral',
+    moving: false,
+    actions: ['again']
+  }
 }
 
 const SOURCE_TONE = { complete: 'ok', partial: 'warn', blocked: 'bad', failed: 'bad', skipped: 'neutral' }
@@ -140,9 +152,11 @@ function contactsOf(candidate = {}, siteCheck = {}) {
   const emails = [candidate.email, ...(Array.isArray(siteCheck?.emails) ? siteCheck.emails : [])].filter(
     (e) => typeof e === 'string' && EMAIL.test(e)
   )
-  for (const email of new Set(emails)) contacts.push({ channel: 'email', value: email, url: `mailto:${email}` })
+  for (const email of new Set(emails))
+    contacts.push({ channel: 'email', value: email, url: `mailto:${email}` })
   for (const [channel, hosts] of Object.entries(CHAT_HOSTS)) {
-    let value = candidate.contacts?.[channel] ?? (channel === 'instagram' ? candidate.socials?.instagram : null)
+    let value =
+      candidate.contacts?.[channel] ?? (channel === 'instagram' ? candidate.socials?.instagram : null)
     if (typeof value !== 'string' || !value.trim()) continue
     value = value.trim()
     if (['zalo', 'whatsapp'].includes(channel) && /^\+?[\d\s()-]+$/.test(value))
@@ -177,7 +191,14 @@ function draftHref(contact, subject, message) {
  * The outreach preview: contact channels and an English draft carrying `demoUrl` (or a visible
  * placeholder). A draft the server already wrote (`GET …/:id/outreach`, a built demo) wins.
  */
-export function outreachPreview({ name, candidate = {}, siteCheck = null, profile = null, demoUrl = '', server = null }) {
+export function outreachPreview({
+  name,
+  candidate = {},
+  siteCheck = null,
+  profile = null,
+  demoUrl = '',
+  server = null
+}) {
   const place = String(name ?? '')
   let subject
   let message
@@ -189,13 +210,17 @@ export function outreachPreview({ name, candidate = {}, siteCheck = null, profil
   } else {
     const url = httpsUrl(String(demoUrl ?? '').trim())?.href ?? t('outreach.urlMissing')
     subject = t('outreach.subjectLine', { place })
-    message = [t('outreach.greeting', { place }), t('outreach.body', { place, url }), t('outreach.closing')].join('\n\n')
+    message = [
+      t('outreach.greeting', { place }),
+      t('outreach.body', { place, url }),
+      t('outreach.closing')
+    ].join('\n\n')
     contacts = contactsOf(
       {
-        ...(profile ?? {}),
+        ...profile,
         ...candidate,
         phone: candidate?.phone || profile?.phone,
-        socials: { ...(profile?.socials ?? {}), ...(candidate?.socials ?? {}) }
+        socials: { ...profile?.socials, ...candidate?.socials }
       },
       siteCheck ?? {}
     )
@@ -234,13 +259,15 @@ export function socialView(social, now) {
     if (Number.isFinite(s.followers)) facts.push(t('social.followers', { count: numberText(s.followers) }))
     const when = daysAgo(s.lastPostAt, now)
     facts.push(when ? t('social.lastPost', { when }) : t('social.noPosts'))
-    if (Number.isFinite(s.postsPerMonth)) facts.push(t('social.perMonth', { count: numberText(s.postsPerMonth) }))
+    if (Number.isFinite(s.postsPerMonth))
+      facts.push(t('social.perMonth', { count: numberText(s.postsPerMonth) }))
     return { network: t(`social.network.${n}`), url: httpsUrl(s.url)?.href ?? null, facts }
   })
 }
 
 const partName = (part) => (part === 'logo' ? 'Logo' : sourceRow({ source: part }).name)
-const money = (cents) => new Intl.NumberFormat('en', { style: 'currency', currency: 'USD' }).format(cents / 100)
+const money = (cents) =>
+  new Intl.NumberFormat('en', { style: 'currency', currency: 'USD' }).format(cents / 100)
 
 /** `GET …/:id/research-again` as a confirm dialog: what runs and why, what is kept, the most it costs. */
 export function againView(answer) {
@@ -252,7 +279,9 @@ export function againView(answer) {
   return {
     run,
     kept,
-    ceiling: run.length ? t('research.again.ceiling', { total: money(plan.ceilingCents ?? 0) }) : t('research.again.nothing'),
+    ceiling: run.length
+      ? t('research.again.ceiling', { total: money(plan.ceilingCents ?? 0) })
+      : t('research.again.nothing'),
     left: left === null ? null : t('research.again.left', { count: left }),
     canRun: run.length > 0 && left !== 0
   }
@@ -288,9 +317,12 @@ export function briefText({ opportunity = {}, profile = null, sources = [], brie
   lines.push('', `## ${t('build.heading.presence')}`)
   const website = text(c.website) ?? text(p.website)
   lines.push(`- ${website ? t('build.line.website', { value: website }) : t('build.line.noWebsite')}`)
-  const socials = { ...(p.socials ?? {}), ...(c.socials ?? {}) }
+  const socials = { ...p.socials, ...c.socials }
   for (const n of NETWORKS)
-    if (text(socials[n])) lines.push(`- ${t('build.line.social', { network: t(`social.network.${n}`), value: socials[n].trim() })}`)
+    if (text(socials[n]))
+      lines.push(
+        `- ${t('build.line.social', { network: t(`social.network.${n}`), value: socials[n].trim() })}`
+      )
   const cuisine = texts(p.cuisine)
   if (cuisine.length) lines.push(`- ${t('build.line.cuisine', { value: cuisine.join(', ') })}`)
   const hours = texts(p.hours)
@@ -320,7 +352,27 @@ export const SITE_CHECK_BATCH = 60
 /** Websites whose score still waits for a site check, each once: what a page asks `POST …/site-checks` for. */
 export function websitesToCheck(rows, batch = SITE_CHECK_BATCH) {
   const urls = new Set()
-  for (const row of rows) if (row?.score?.pending === true && typeof row.website === 'string' && row.website) urls.add(row.website)
+  for (const row of rows)
+    if (row?.score?.pending === true && typeof row.website === 'string' && row.website) urls.add(row.website)
   return [...urls].slice(0, batch)
 }
 
+/** The Find "Kind of business" choices: Any first, then each kind the server can search (`capabilities.trades`). */
+export function findKindChoices(capabilities) {
+  const trades = Array.isArray(capabilities?.trades)
+    ? capabilities.trades.filter((k) => typeof k === 'string')
+    : []
+  if (trades.length === 0) return []
+  return [
+    { value: 'any', label: t('find.kind.any') },
+    ...trades.map((value) => ({ value, label: t(`find.kind.${value}`) }))
+  ]
+}
+
+/** The POST /search body of the Find form: a kind narrows an area search only. */
+export function findSearchBody({ mode, query, lat, lon, radiusKm, kind = 'any' }) {
+  const radiusM = radiusKm * 1000
+  if (mode === 'name') return { query, intent: 'place', radiusM }
+  const where = Number.isFinite(lat) && Number.isFinite(lon) ? { lat, lon } : { query }
+  return { ...where, radiusM, ...(kind && kind !== 'any' ? { trade: kind } : {}) }
+}

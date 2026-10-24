@@ -19,6 +19,7 @@ import { BUDGET_EXCEEDED, withCharge } from '../cost-ledger.js'
 import { ceilingCents } from '../cost-prices.js'
 import { fetchPlaceVerification } from '../../domain/gplaces-details.mjs'
 import { settleContributionStatus } from './contributions.js'
+import { weeklyPeriods } from './observations.js'
 
 /** `pg_try_advisory_lock` id: one verifier at a time, so the verification budget check holds. */
 const VERIFY_LOCK_ID = 7_243_060
@@ -46,19 +47,25 @@ const site = (u) => {
     return null
   }
 }
+/** `Italian Restaurant`, `italian-restaurant` and `italian_restaurant` name one Google place type. */
+const typeKey = (s) => words(s).replace(/ /g, '_')
+const sameList = (a, b) => a.length === b.length && a.every((x, i) => x === b[i])
 const digits = (s) => String(s ?? '').replace(/\D/g, '')
 const metres = (a, b) => {
   const rad = (d) => (d * Math.PI) / 180
   const dLat = rad(b.latitude - a.latitude)
   const dLon = rad(b.longitude - a.longitude)
-  const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.latitude)) * Math.cos(rad(b.latitude)) * Math.sin(dLon / 2) ** 2
+  const h =
+    Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.latitude)) * Math.cos(rad(b.latitude)) * Math.sin(dLon / 2) ** 2
   return 2 * 6_371_000 * Math.asin(Math.sqrt(h))
 }
 /** Two point readings of one place may differ by this much. */
 const SAME_PLACE_METRES = 150
 
 /**
- * Google Places details: identity, name, website, phone, address, location and rating of a Google place.
+ * Google Places details: identity, name, website, phone, address, location, rating, category (the primary type) and
+ * opening hours (normalized weekly periods, or the weekday text word for word) of a Google place. Email, social
+ * profiles and photo references have no Google field to check against: `unsupported_source`.
  * `fetch` is the deployment's pinned, private-address-refusing fetch; `resolve` its DNS check.
  * @param {{ googleKey: () => Promise<string | null | undefined>, fetch?: typeof fetch, resolve?: Function,
  *   read?: typeof fetchPlaceVerification }} deps
@@ -70,7 +77,17 @@ export function createGooglePlacesAdapter({ googleKey, fetch, resolve, read = fe
     provider: 'google',
     operation: 'place-details',
     collectorVersion: 'google-places-details/1',
-    fields: new Set(['identity', 'name', 'website', 'phone', 'address', 'location', 'rating']),
+    fields: new Set([
+      'identity',
+      'name',
+      'website',
+      'phone',
+      'address',
+      'location',
+      'rating',
+      'category',
+      'opening_hours'
+    ]),
     async available() {
       return Boolean(await googleKey())
     },
@@ -93,7 +110,9 @@ export function createGooglePlacesAdapter({ googleKey, fetch, resolve, read = fe
           if (!r.phones?.length) return missing
           const mine = digits(value)
           const tail = (d) => d.slice(-9)
-          return r.phones.some((p) => digits(p) === mine || (mine.length >= 7 && tail(digits(p)) === tail(mine)))
+          return r.phones.some(
+            (p) => digits(p) === mine || (mine.length >= 7 && tail(digits(p)) === tail(mine))
+          )
             ? accepted
             : differs
         }
@@ -102,9 +121,22 @@ export function createGooglePlacesAdapter({ googleKey, fetch, resolve, read = fe
         case 'rating': {
           if (r.rating == null || r.reviewCount == null) return missing
           const slack = Math.max(5, Math.ceil(r.reviewCount * 0.05))
-          return Math.abs(value.rating - r.rating) <= 0.1 && Math.abs(value.reviewCount - r.reviewCount) <= slack
+          return Math.abs(value.rating - r.rating) <= 0.1 &&
+            Math.abs(value.reviewCount - r.reviewCount) <= slack
             ? accepted
             : differs
+        }
+        case 'category':
+          return !r.category ? missing : typeKey(value) === typeKey(r.category) ? accepted : differs
+        case 'opening_hours': {
+          const hours = r.openingHours
+          if (value.periods) {
+            const theirs = weeklyPeriods(hours?.periods ?? [])
+            if (!theirs) return missing
+            return sameList(value.periods, theirs) ? accepted : differs
+          }
+          if (!hours?.weekdayText?.length) return missing
+          return sameList(value.weekdayText.map(words), hours.weekdayText.map(words)) ? accepted : differs
         }
         default:
           return { status: 'rejected', reason: 'unsupported_source' }
@@ -223,10 +255,10 @@ export function createVerifyQueue({
 
   async function wait(rows, reason) {
     if (!rows.length) return
-    await pool.query(`update wo_hub_observation set reason = $2 where id = any($1::uuid[]) and status = 'pending'`, [
-      rows.map((r) => r.id),
-      reason
-    ])
+    await pool.query(
+      `update wo_hub_observation set reason = $2 where id = any($1::uuid[]) and status = 'pending'`,
+      [rows.map((r) => r.id), reason]
+    )
   }
 
   async function freshEvidence(group) {
@@ -266,7 +298,8 @@ export function createVerifyQueue({
       done.decided += await decide(rows, () => unsupported, null)
       return done
     }
-    const subjectOk = (r) => r.subject_namespace === adapter.subjectNamespace && r.subject_external_id === objectId
+    const subjectOk = (r) =>
+      r.subject_namespace === adapter.subjectNamespace && r.subject_external_id === objectId
     const early = rows.filter((r) => !adapter.fields.has(r.field) || !subjectOk(r))
     done.decided += await decide(
       early,
@@ -323,11 +356,12 @@ export function createVerifyQueue({
         result
       }
     }
-    done.decided += await decide(
-      open,
-      (r) => adapter.judge(r.field, r.value, evidence.result),
-      { ...evidence, family, objectId, group }
-    )
+    done.decided += await decide(open, (r) => adapter.judge(r.field, r.value, evidence.result), {
+      ...evidence,
+      family,
+      objectId,
+      group
+    })
     return done
   }
 

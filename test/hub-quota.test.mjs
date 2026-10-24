@@ -20,14 +20,19 @@ const account = async () => {
   return (await ensureHubAccount(db.pool, p)).accountId
 }
 
-test('without set limits, an account researches five places a day and the sixth is refused', opts, async () => {
-  // Five a day is the council's pilot number (decided 24/10), until a price is set.
-  const now = Date.parse('2026-10-24T10:00:00Z')
-  const quota = createHubQuota({ pool: db.pool, now: () => now })
-  const a = await account()
-  for (let i = 0; i < 5; i += 1) assert.equal((await quota.charge(a, 'research', 1)).ok, true, `research ${i + 1}`)
-  assert.equal((await quota.charge(a, 'research', 1)).ok, false)
-})
+test(
+  'without set limits, an account researches five places a day and the sixth is refused',
+  opts,
+  async () => {
+    // Five a day is the council's pilot number (decided 24/10), until a price is set.
+    const now = Date.parse('2026-10-24T10:00:00Z')
+    const quota = createHubQuota({ pool: db.pool, now: () => now })
+    const a = await account()
+    for (let i = 0; i < 5; i += 1)
+      assert.equal((await quota.charge(a, 'research', 1)).ok, true, `research ${i + 1}`)
+    assert.equal((await quota.charge(a, 'research', 1)).ok, false)
+  }
+)
 
 test('day and month limits apply together, and a refused charge counts nothing', opts, async () => {
   let now = Date.parse('2026-10-24T10:00:00Z')

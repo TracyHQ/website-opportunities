@@ -129,7 +129,10 @@ export function decodeSpendCursor(cursor) {
  * @param {{state?: string | null, provider?: string | null, purpose?: string | null,
  *   cursor?: {at: Date, id: string} | null, limit?: number}} filter
  */
-export async function spendRows(pool, { state = null, provider = null, purpose = null, cursor = null, limit = 50 } = {}) {
+export async function spendRows(
+  pool,
+  { state = null, provider = null, purpose = null, cursor = null, limit = 50 } = {}
+) {
   const take = Math.max(1, Math.min(ROWS_MAX, limit))
   const { rows } = await pool.query(
     `select id, budget_day::text as budget_day, created_at, settled_at, provider, operation, purpose, payer, state, reserved_cents,

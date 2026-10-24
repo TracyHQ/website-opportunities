@@ -24,13 +24,19 @@ const DISCOVERY = 'map-discovery'
 export function defineSource(source) {
   if (!source || typeof source !== 'object') throw new TypeError('a source is an object')
   const { id, label, credential = null, groups } = source
-  if (typeof id !== 'string' || !ID.test(id)) throw new TypeError(`source id must be kebab-case: ${String(id)}`)
+  if (typeof id !== 'string' || !ID.test(id))
+    throw new TypeError(`source id must be kebab-case: ${String(id)}`)
   if (typeof label !== 'string' || !label.trim()) throw new TypeError(`source ${id}: label is missing`)
-  if (credential !== null && (typeof credential !== 'string' || !credential)) throw new TypeError(`source ${id}: credential is a name or null`)
-  if (!Array.isArray(groups) || groups.length === 0) throw new TypeError(`source ${id}: groups is a non-empty list`)
-  for (const g of groups) if (!CAPABILITY_GROUP_IDS.includes(g)) throw new TypeError(`source ${id}: ${g} is not a capability group`)
-  if (groups.includes(DISCOVERY) && typeof source.discover !== 'function') throw new TypeError(`source ${id}: ${DISCOVERY} needs discover(area, deps)`)
-  if (groups.some((g) => g !== DISCOVERY) && typeof source.collect !== 'function') throw new TypeError(`source ${id}: an evidence group needs collect(place, deps)`)
+  if (credential !== null && (typeof credential !== 'string' || !credential))
+    throw new TypeError(`source ${id}: credential is a name or null`)
+  if (!Array.isArray(groups) || groups.length === 0)
+    throw new TypeError(`source ${id}: groups is a non-empty list`)
+  for (const g of groups)
+    if (!CAPABILITY_GROUP_IDS.includes(g)) throw new TypeError(`source ${id}: ${g} is not a capability group`)
+  if (groups.includes(DISCOVERY) && typeof source.discover !== 'function')
+    throw new TypeError(`source ${id}: ${DISCOVERY} needs discover(area, deps)`)
+  if (groups.some((g) => g !== DISCOVERY) && typeof source.collect !== 'function')
+    throw new TypeError(`source ${id}: an evidence group needs collect(place, deps)`)
   return Object.freeze({
     id,
     label,

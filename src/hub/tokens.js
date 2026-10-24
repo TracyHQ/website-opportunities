@@ -55,9 +55,10 @@ export function createHubTokens({ pool }) {
     return inTransaction(async (db) => {
       const { accountId } = await ensureHubAccount(db, principalId)
       await db.query('select 1 from wo_hub_account where id = $1 for update', [accountId])
-      const active = await db.query('select 1 from wo_hub_token where account_id = $1 and revoked_at is null', [
-        accountId
-      ])
+      const active = await db.query(
+        'select 1 from wo_hub_token where account_id = $1 and revoked_at is null',
+        [accountId]
+      )
       if (active.rowCount)
         throw Object.assign(new Error('this account already has a token; rotate it instead'), {
           code: 'TOKEN_EXISTS'
@@ -71,9 +72,10 @@ export function createHubTokens({ pool }) {
     return inTransaction(async (db) => {
       const { accountId } = await ensureHubAccount(db, principalId)
       await db.query('select 1 from wo_hub_account where id = $1 for update', [accountId])
-      await db.query('update wo_hub_token set revoked_at = now() where account_id = $1 and revoked_at is null', [
-        accountId
-      ])
+      await db.query(
+        'update wo_hub_token set revoked_at = now() where account_id = $1 and revoked_at is null',
+        [accountId]
+      )
       return insertToken(db, accountId)
     })
   }

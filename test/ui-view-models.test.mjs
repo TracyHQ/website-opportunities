@@ -2,7 +2,19 @@
 // a status and an outreach draft, independent of the DOM.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { againView, briefText, jobView, outreachPreview, placeStatus, socialView, sourceRow, scoreView, websitesToCheck } from '../ui/public/view-models.js'
+import {
+  againView,
+  briefText,
+  findKindChoices,
+  findSearchBody,
+  jobView,
+  outreachPreview,
+  placeStatus,
+  socialView,
+  sourceRow,
+  scoreView,
+  websitesToCheck
+} from '../ui/public/view-models.js'
 
 test('a scored place reads as its grade and number, with the reasons in words', () => {
   const view = scoreView({
@@ -70,7 +82,10 @@ test('a stopped research says why, with an unknown reason shown as not available
   assert.equal(failed.label, 'Failed')
   assert.equal(failed.detail, 'Quota reached')
   assert.equal(failed.tone, 'bad')
-  assert.equal(jobView({ id: 'j1', state: 'blocked', lastError: { code: 'SOMETHING_NEW' } }).detail, 'Not available')
+  assert.equal(
+    jobView({ id: 'j1', state: 'blocked', lastError: { code: 'SOMETHING_NEW' } }).detail,
+    'Not available'
+  )
 })
 
 test('a source row never reads partial or blocked as complete', () => {
@@ -81,7 +96,12 @@ test('a source row never reads partial or blocked as complete', () => {
     reason: null,
     coverage: '6 of 6'
   })
-  const partial = sourceRow({ source: 'facebook', status: 'partial', reason: 'rate_limited', coverage: { fetched: 3 } })
+  const partial = sourceRow({
+    source: 'facebook',
+    status: 'partial',
+    reason: 'rate_limited',
+    coverage: { fetched: 3 }
+  })
   assert.equal(partial.status, 'Partial')
   assert.equal(partial.tone, 'warn')
   assert.equal(partial.reason, 'The source is limiting requests. Try again later.')
@@ -117,7 +137,10 @@ test('an outreach preview drafts the English message with the demo link and open
     ]
   )
   const email = preview.contacts.find((c) => c.channel === 'Email')
-  assert.match(email.draftHref, /^mailto:hello%40rosa\.example\?subject=A%20demo%20website%20for%20Rosa%20Bakery&body=Hello%20Rosa/)
+  assert.match(
+    email.draftHref,
+    /^mailto:hello%40rosa\.example\?subject=A%20demo%20website%20for%20Rosa%20Bakery&body=Hello%20Rosa/
+  )
   const whatsapp = preview.contacts.find((c) => c.channel === 'WhatsApp')
   assert.match(whatsapp.draftHref, /^https:\/\/wa\.me\/351910000000\?text=Hello\+Rosa/)
   assert.equal(preview.contacts.find((c) => c.channel === 'Phone').draftHref, 'tel:+351210000000')
@@ -137,7 +160,10 @@ test('an outreach preview without a demo link leaves a visible placeholder, and 
   })
   assert.equal(fromServer.message, 'Olá…')
   assert.equal(fromServer.subject, 'Demo')
-  assert.deepEqual(fromServer.contacts.map((c) => c.value), ['a@b.example'])
+  assert.deepEqual(
+    fromServer.contacts.map((c) => c.value),
+    ['a@b.example']
+  )
 })
 
 test('a contact link that is not https on its own host is dropped, never opened', () => {
@@ -151,14 +177,23 @@ test('a contact link that is not https on its own host is dropped, never opened'
 test('social stats read per network with followers and the last post in days', () => {
   const rows = socialView(
     {
-      instagram: { followers: 1520, lastPostAt: '2026-10-20T00:00:00Z', postsPerMonth: 6, url: 'https://instagram.com/rosa' },
+      instagram: {
+        followers: 1520,
+        lastPostAt: '2026-10-20T00:00:00Z',
+        postsPerMonth: 6,
+        url: 'https://instagram.com/rosa'
+      },
       facebook: { followers: null, lastPostAt: null, url: 'https://facebook.com/rosa' }
     },
     Date.parse('2026-10-24T00:00:00Z')
   )
   assert.deepEqual(rows, [
     { network: 'Facebook', url: 'https://facebook.com/rosa', facts: ['no recent post known'] },
-    { network: 'Instagram', url: 'https://instagram.com/rosa', facts: ['1,520 followers', 'last post 4 days ago', '6 posts a month'] }
+    {
+      network: 'Instagram',
+      url: 'https://instagram.com/rosa',
+      facts: ['1,520 followers', 'last post 4 days ago', '6 posts a month']
+    }
   ])
   assert.deepEqual(socialView(null, 0), [])
 })
@@ -177,13 +212,23 @@ test('the Research again plan lists what runs and why, with its cost ceiling', (
   assert.equal(view.ceiling, 'Costs at most $0.04 in provider fees, on your keys.')
   assert.equal(view.left, 'Research again runs left today: 3')
   assert.equal(view.canRun, true)
-  assert.equal(againView({ plan: { run: [], kept: [], ceilingCents: 0 }, limit: { perDay: 5, usedToday: 5 } }).canRun, false)
+  assert.equal(
+    againView({ plan: { run: [], kept: [], ceilingCents: 0 }, limit: { perDay: 5, usedToday: 5 } }).canRun,
+    false
+  )
 })
 
 test('the manual brief is plain text built only from what research found, marked as untrusted', () => {
   const text = briefText({
-    opportunity: { name: 'Rosa Bakery', candidate: { address: 'Rua A 1, Porto', rating: 4.6, reviews: 412, phone: '+351 1', category: 'Bakery' } },
-    profile: { bio: { value: 'Family bakery since 1980.', sources: ['website'] }, hours: ['Mon–Sat 7:00–19:00'], socials: { instagram: 'https://instagram.com/rosa' } },
+    opportunity: {
+      name: 'Rosa Bakery',
+      candidate: { address: 'Rua A 1, Porto', rating: 4.6, reviews: 412, phone: '+351 1', category: 'Bakery' }
+    },
+    profile: {
+      bio: { value: 'Family bakery since 1980.', sources: ['website'] },
+      hours: ['Mon–Sat 7:00–19:00'],
+      socials: { instagram: 'https://instagram.com/rosa' }
+    },
     sources: [{ source: 'website', status: 'complete', ref: 'https://rosa.example' }]
   })
   assert.match(text, /^# Rosa Bakery\n/)
@@ -215,4 +260,38 @@ test('a page asks a site check only for the websites whose score still waits for
   assert.deepEqual(websitesToCheck(rows), ['https://a.example/', 'https://c.example/'])
   assert.deepEqual(websitesToCheck(rows, 1), ['https://a.example/'])
   assert.deepEqual(websitesToCheck([]), [])
+})
+
+test('the Find kind select starts at any local business, then each kind the server searches, in words', () => {
+  const choices = findKindChoices({ trades: ['food', 'beauty', 'home'] })
+  assert.deepEqual(choices, [
+    { value: 'any', label: 'Any local business' },
+    { value: 'food', label: 'Food and drink' },
+    { value: 'beauty', label: 'Beauty and wellness' },
+    { value: 'home', label: 'Trades and home services' }
+  ])
+  assert.deepEqual(findKindChoices({}), [], 'a food-only server shows no select')
+})
+
+test('an area search sends the chosen kind; any sends none; a name search never sends one', () => {
+  assert.deepEqual(findSearchBody({ mode: 'area', query: 'Porto', radiusKm: 2, kind: 'beauty' }), {
+    query: 'Porto',
+    radiusM: 2000,
+    trade: 'beauty'
+  })
+  assert.deepEqual(findSearchBody({ mode: 'area', query: 'Porto', radiusKm: 2, kind: 'any' }), {
+    query: 'Porto',
+    radiusM: 2000
+  })
+  assert.deepEqual(findSearchBody({ mode: 'name', query: 'Rosa, Porto', radiusKm: 2, kind: 'beauty' }), {
+    query: 'Rosa, Porto',
+    intent: 'place',
+    radiusM: 2000
+  })
+  assert.deepEqual(findSearchBody({ mode: 'area', lat: 1, lon: 2, radiusKm: 1, kind: 'auto' }), {
+    lat: 1,
+    lon: 2,
+    radiusM: 1000,
+    trade: 'auto'
+  })
 })

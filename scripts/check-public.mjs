@@ -25,12 +25,33 @@ const w = (...parts) => parts.join('')
 
 // Letters only Vietnamese uses: a-breve, d-stroke, o-horn, u-horn and the tone-marked block U+1EA0-U+1EF9. Accents
 // shared with French, Spanish or German (é, à, ñ, ü) are left alone so third-party names in other languages pass.
-const VIETNAMESE = new RegExp('[\\u0102\\u0103\\u0110\\u0111\\u01A0\\u01A1\\u01AF\\u01B0\\u1EA0-\\u1EF9]', 'g')
+const VIETNAMESE = new RegExp(
+  '[\\u0102\\u0103\\u0110\\u0111\\u01A0\\u01A1\\u01AF\\u01B0\\u1EA0-\\u1EF9]',
+  'g'
+)
 
-const PEOPLE = ['Le' + 'e', 'Bri' + 'an', 'Da' + 'vid', 'Ha' + 'no', 'Ak' + 'emi', 'Lu' + 'cas', 'Vin' + 'cent']
+const PEOPLE = [
+  'Le' + 'e',
+  'Bri' + 'an',
+  'Da' + 'vid',
+  'Ha' + 'no',
+  'Ak' + 'emi',
+  'Lu' + 'cas',
+  'Vin' + 'cent'
+]
 const HANDLES = ['davidd' + '-lgtm', 'akemi' + '0x', 'obfine' + 'tune', 'lee' + 'knows[a-z]*']
 const HOSTS = ['mac' + 'studio', 'mac' + 'mini', 'i' + 'mac']
-const J_ALIASES = ['general-demo', 'newsletter', 'download', 'general', 'static', 'shape5', 'ja-demo', 'misc', 'ecosys']
+const J_ALIASES = [
+  'general-demo',
+  'newsletter',
+  'download',
+  'general',
+  'static',
+  'shape5',
+  'ja-demo',
+  'misc',
+  'ecosys'
+]
 
 /** @type {{ rule: string, re: RegExp, keep?: (m: RegExpExecArray) => boolean, message: string }[]} */
 const RULES = [
@@ -41,9 +62,21 @@ const RULES = [
     re: new RegExp(w('\\btracy\\.', 'test\\b|\\b(?:[a-z0-9-]+\\.)*tracy\\.', 'site\\b'), 'gi'),
     message: 'internal Tracy domain (only tracy.ai is public)'
   },
-  { rule: 'internal-name', re: new RegExp(w('\\btracy', 'hq/tch(?![\\w-])'), 'gi'), message: 'private repository' },
-  { rule: 'internal-name', re: new RegExp(w('(?<![\\w./-])ta', 'sks/[\\w.-]+'), 'g'), message: 'internal tasks/ path' },
-  { rule: 'internal-name', re: new RegExp(w('/Us', 'ers/[A-Za-z][\\w.-]*'), 'g'), message: 'a machine home path' },
+  {
+    rule: 'internal-name',
+    re: new RegExp(w('\\btracy', 'hq/tch(?![\\w-])'), 'gi'),
+    message: 'private repository'
+  },
+  {
+    rule: 'internal-name',
+    re: new RegExp(w('(?<![\\w./-])ta', 'sks/[\\w.-]+'), 'g'),
+    message: 'internal tasks/ path'
+  },
+  {
+    rule: 'internal-name',
+    re: new RegExp(w('/Us', 'ers/[A-Za-z][\\w.-]*'), 'g'),
+    message: 'a machine home path'
+  },
   {
     rule: 'internal-host',
     re: new RegExp(`\\b(?:${HOSTS.join('|')})(?:-wifi)?\\b`, 'gi'),
@@ -51,7 +84,10 @@ const RULES = [
   },
   {
     rule: 'internal-host',
-    re: new RegExp(`\\bj-(?:${J_ALIASES.join('|')})\\b|\\bcon${'tabo'}\\d\\b|\\btracy-${'fleet'}-\\d+\\b`, 'g'),
+    re: new RegExp(
+      `\\bj-(?:${J_ALIASES.join('|')})\\b|\\bcon${'tabo'}\\d\\b|\\btracy-${'fleet'}-\\d+\\b`,
+      'g'
+    ),
     message: 'internal server alias'
   },
   { rule: 'person', re: new RegExp(`\\b(?:${PEOPLE.join('|')})\\b`, 'g'), message: 'a team member name' },
@@ -87,7 +123,8 @@ const RULES = [
   }
 ]
 
-const SECRET_FILE = /(?:^|\/)(?:\.env(?:\.(?!example$|sample$|template$)[\w.-]+)?|id_(?:rsa|dsa|ecdsa|ed25519)|[^/]+\.(?:pem|p12|pfx|key))$/
+const SECRET_FILE =
+  /(?:^|\/)(?:\.env(?:\.(?!example$|sample$|template$)[\w.-]+)?|id_(?:rsa|dsa|ecdsa|ed25519)|[^/]+\.(?:pem|p12|pfx|key))$/
 
 /** Shannon entropy in bits per character. */
 function entropy(s) {
@@ -112,12 +149,21 @@ function looksRandom(s) {
 function ipKind(ip) {
   const [a, b, c] = ip.split('.').map(Number)
   if (ip.endsWith('.0.0')) return null // a network or a version number (Chrome/141.0.0.0), not a host
-  if (a === 10 || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || (a === 100 && b >= 64 && b <= 127))
+  if (
+    a === 10 ||
+    (a === 172 && b >= 16 && b <= 31) ||
+    (a === 192 && b === 168) ||
+    (a === 100 && b >= 64 && b <= 127)
+  )
     return 'private-ip'
   if (a === 0 || a === 127 || a >= 224 || (a === 169 && b === 254)) return null
   if ((a === 192 && b === 0 && c === 0) || (a === 198 && (b === 18 || b === 19))) return null // special-purpose blocks
   if (ip === '93.184.216.34') return null // example.com
-  if ((a === 192 && b === 0 && c === 2) || (a === 198 && b === 51 && c === 100) || (a === 203 && b === 0 && c === 113))
+  if (
+    (a === 192 && b === 0 && c === 2) ||
+    (a === 198 && b === 51 && c === 100) ||
+    (a === 203 && b === 0 && c === 113)
+  )
     return null // documentation ranges
   if (['1.1.1.1', '1.0.0.1', '8.8.8.8', '8.8.4.4', '9.9.9.9'].includes(ip)) return null // public resolvers
   return 'public-ip'
@@ -136,7 +182,8 @@ const LOCK_INTEGRITY = /^\s*"integrity": "sha(?:1|256|384|512)-[A-Za-z0-9+/]+={0
  */
 export function scanText(path, text, line0 = 1) {
   const findings = []
-  if (SECRET_FILE.test(path)) findings.push({ path, line: 0, rule: 'secret-file', match: path, message: 'a secret file is tracked' })
+  if (SECRET_FILE.test(path))
+    findings.push({ path, line: 0, rule: 'secret-file', match: path, message: 'a secret file is tracked' })
   const lines = text.split('\n')
   lines.forEach((lineText, i) => {
     for (const { rule, re, keep, message } of RULES) {
@@ -146,7 +193,14 @@ export function scanText(path, text, line0 = 1) {
         if (rule === 'high-entropy' && LOCK_INTEGRITY.test(lineText)) continue
         if (rule === 'ip') {
           const kind = ipKind(m[0])
-          if (kind) findings.push({ path, line: line0 + i, rule: kind, match: m[0], message: `${kind === 'private-ip' ? 'a private' : 'a server'} IP address` })
+          if (kind)
+            findings.push({
+              path,
+              line: line0 + i,
+              rule: kind,
+              match: m[0],
+              message: `${kind === 'private-ip' ? 'a private' : 'a server'} IP address`
+            })
           continue
         }
         findings.push({ path, line: line0 + i, rule, match: m[0], message })
@@ -161,7 +215,12 @@ export function scanText(path, text, line0 = 1) {
 function globToRegExp(glob) {
   const body = glob
     .split('**')
-    .map((part) => part.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '[^/]*').replace(/\?/g, '[^/]'))
+    .map((part) =>
+      part
+        .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+        .replace(/\*/g, '[^/]*')
+        .replace(/\?/g, '[^/]')
+    )
     .join('.*')
   return new RegExp(`^${body}$`)
 }
@@ -179,7 +238,9 @@ export function readAllow(file) {
       const parts = text.split(' | ').map((p) => p.trim())
       const [path, rule, match, reason] = parts
       if (parts.length !== 4 || !path || !rule || !match || !reason) {
-        errors.push(`${file}:${i + 1} allowlist entry needs "<path> | <rule> | <match> | <reason>" with a reason`)
+        errors.push(
+          `${file}:${i + 1} allowlist entry needs "<path> | <rule> | <match> | <reason>" with a reason`
+        )
         return
       }
       entries.push({ line: i + 1, path, rule, match, reason, re: globToRegExp(path), used: 0 })
@@ -189,7 +250,8 @@ export function readAllow(file) {
 
 function allowed(entries, f) {
   const hit = entries.find(
-    (e) => e.re.test(f.path) && (e.rule === '*' || e.rule === f.rule) && (e.match === '*' || e.match === f.match)
+    (e) =>
+      e.re.test(f.path) && (e.rule === '*' || e.rule === f.rule) && (e.match === '*' || e.match === f.match)
   )
   if (hit) hit.used += 1
   return Boolean(hit)
@@ -217,7 +279,9 @@ function maskAllow(text) {
     .split('\n')
     .map((line) => {
       const parts = line.split(' | ')
-      return line.trim().startsWith('#') || parts.length !== 4 ? line : [parts[0], parts[1], '*', parts[3]].join(' | ')
+      return line.trim().startsWith('#') || parts.length !== 4
+        ? line
+        : [parts[0], parts[1], '*', parts[3]].join(' | ')
     })
     .join('\n')
 }
@@ -260,7 +324,21 @@ function scanHistory(root, range) {
     const short = sha.slice(0, 10)
     const message = git(root, ['log', '-1', '--format=%B', sha])
     for (const f of scanText(`${short} commit message`, message)) findings.push({ ...f, line: null })
-    const patch = git(root, ['diff-tree', '-p', '-U0', '--no-color', '--no-renames', '--relative', '--root', '-m', '--first-parent', '-r', sha, '--', '.'])
+    const patch = git(root, [
+      'diff-tree',
+      '-p',
+      '-U0',
+      '--no-color',
+      '--no-renames',
+      '--relative',
+      '--root',
+      '-m',
+      '--first-parent',
+      '-r',
+      sha,
+      '--',
+      '.'
+    ])
     let file = null
     let next = 0
     for (const line of patch.split('\n')) {
@@ -276,7 +354,8 @@ function scanHistory(root, range) {
       }
       if (file && line.startsWith('+')) {
         const added = file === ALLOW_PATH ? maskAllow(line.slice(1)) : line.slice(1)
-        for (const f of scanText(file, added, next)) if (f.rule !== 'secret-file') findings.push({ ...f, sha: short })
+        for (const f of scanText(file, added, next))
+          if (f.rule !== 'secret-file') findings.push({ ...f, sha: short })
         next += 1
       }
     }
@@ -301,7 +380,8 @@ export function main(argv = process.argv.slice(2)) {
   const dir = option(argv, '--dir')
   const root = resolve(option(argv, '--root') ?? PACKAGE_ROOT)
   const range = option(argv, '--history')
-  const allowFile = option(argv, '--allow') ?? join(dir ? PACKAGE_ROOT : root, 'scripts', 'check-public.allow')
+  const allowFile =
+    option(argv, '--allow') ?? join(dir ? PACKAGE_ROOT : root, 'scripts', 'check-public.allow')
   const { entries, errors } = readAllow(allowFile)
 
   const all = dir ? scanDir(resolve(dir)) : range ? scanHistory(root, range) : scanTree(root)
@@ -311,13 +391,21 @@ export function main(argv = process.argv.slice(2)) {
   for (const f of findings) process.stdout.write(`${format(f)}\n`)
   if (!dir && !range) {
     for (const e of entries.filter((x) => x.used === 0))
-      errors.push(`${relative(process.cwd(), allowFile) || allowFile}:${e.line} stale allowlist entry matches nothing: ${e.path} | ${e.rule} | ${e.match}`)
+      errors.push(
+        `${relative(process.cwd(), allowFile) || allowFile}:${e.line} stale allowlist entry matches nothing: ${e.path} | ${e.rule} | ${e.match}`
+      )
   }
   for (const e of errors) process.stdout.write(`${e}\n`)
 
-  const what = dir ? `folder ${dir}` : range ? `history ${range}` : `tree ${relative(process.cwd(), root) || '.'}`
+  const what = dir
+    ? `folder ${dir}`
+    : range
+      ? `history ${range}`
+      : `tree ${relative(process.cwd(), root) || '.'}`
   if (findings.length || errors.length) {
-    process.stdout.write(`check-public: ${findings.length} finding(s), ${errors.length} allowlist error(s) in ${what}\n`)
+    process.stdout.write(
+      `check-public: ${findings.length} finding(s), ${errors.length} allowlist error(s) in ${what}\n`
+    )
     return 1
   }
   process.stdout.write(`check-public: clean (${what})\n`)

@@ -18,7 +18,7 @@ export async function pictureFeatures(bytes) {
     for (let x = 0; x < 8; x += 1) hash = (hash << 1n) | (tiny[y * 9 + x] > tiny[y * 9 + x + 1] ? 1n : 0n)
   const size = 64
   const grey = await open(bytes).greyscale().resize(size, size, { fit: 'fill' }).raw().toBuffer()
-  const bins = new Array(16).fill(0)
+  const bins = Array.from({ length: 16 }, () => 0)
   for (const v of grey) bins[v >> 4] += 1
   bins.sort((a, b) => b - a)
   let edges = 0

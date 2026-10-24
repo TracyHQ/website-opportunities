@@ -61,14 +61,18 @@ export function createHubClient({
         lastError = new HubError(`hub answered ${res.status}`, { status: res.status, code: json?.code })
         continue
       }
-      if (res.status === 401) throw new HubError('the hub refused the token', { status: 401, code: 'invalid_token' })
+      if (res.status === 401)
+        throw new HubError('the hub refused the token', { status: 401, code: 'invalid_token' })
       return { status: res.status, json, headers: res.headers }
     }
     throw lastError
   }
 
   async function lookup(identities) {
-    const { status, json } = await send('/places/lookup', { method: 'POST', body: { items: [{ identities }] } })
+    const { status, json } = await send('/places/lookup', {
+      method: 'POST',
+      body: { items: [{ identities }] }
+    })
     if (status === 429) return { status: 'quota', code: json?.code }
     if (status !== 200) throw new HubError(`lookup answered ${status}`, { status, code: json?.code })
     return json.results[0]
@@ -80,7 +84,8 @@ export function createHubClient({
     })
     if (status === 304) return { status: 'not_modified' }
     if (status === 200) return { status: 'ok', dto: json, etag: headers.get('etag') }
-    if (status === 410 || status === 301) return { status: 'gone', code: json?.code, mergedInto: json?.mergedInto }
+    if (status === 410 || status === 301)
+      return { status: 'gone', code: json?.code, mergedInto: json?.mergedInto }
     if (status === 404) return { status: 'not_found' }
     if (status === 429) return { status: 'quota', code: json?.code }
     throw new HubError(`place answered ${status}`, { status, code: json?.code })

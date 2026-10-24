@@ -7,7 +7,7 @@
  *   offer(placeId, snapId)   after a local research: its Google facts queued as a contribution (`HUB_CONTRIBUTE=1`)
  *   tick()                   sends queued contributions, then follows `/revocations` and `/changes` from stored cursors
  *
- * What leaves this server is the closed field list of `wo-contribution/v1` (identity, name, website, phone, address),
+ * What leaves this server is the closed field list of `wo-contribution/v1` (identity, name, website, phone, address, location),
  * read from Google's own record of the place. Opportunities, notes, briefs, demos and outreach never do.
  *
  * A revocation empties the cached copy, takes away the website link it gave, marks the snapshot sources that used it
@@ -37,7 +37,9 @@ export function factsFromHubPlace(dto, identity) {
     ...(typeof name === 'string' ? { name } : {}),
     ...(typeof website === 'string' && /^https?:\/\//i.test(website) ? { website } : {}),
     ...(typeof address === 'string' ? { formattedAddress: address } : {}),
-    ...(typeof phone === 'string' ? { [phone.startsWith('+') ? 'internationalPhoneNumber' : 'nationalPhoneNumber']: phone } : {}),
+    ...(typeof phone === 'string'
+      ? { [phone.startsWith('+') ? 'internationalPhoneNumber' : 'nationalPhoneNumber']: phone }
+      : {}),
     amenities: {},
     summaries: {},
     reviews: [],
@@ -64,9 +66,30 @@ export function contributionFromFacts(facts, { observedAt } = {}) {
       ...(facts.name ? [obs('name', facts.name)] : []),
       ...(facts.website ? [obs('website', facts.website)] : []),
       ...(phone ? [obs('phone', phone)] : []),
-      ...(facts.formattedAddress ? [obs('address', facts.formattedAddress)] : [])
+      ...(facts.formattedAddress ? [obs('address', facts.formattedAddress)] : []),
+      ...(Number.isFinite(facts.location?.latitude) && Number.isFinite(facts.location?.longitude)
+        ? [obs('location', { latitude: facts.location.latitude, longitude: facts.location.longitude })]
+        : [])
     ]
   }
+}
+
+/**
+ * The hub place a per-account copy of Google facts came from, when this server has since dropped it (revoked or
+ * removed): `{hubPlaceId, revokedAt}`, else null. Per-account facts have no snapshot to mark, so they are checked
+ * when read. Null where no hub was ever read (the table is absent on such a host).
+ */
+export async function revokedHubCopy(db, facts) {
+  if (facts?.via !== 'hub' || typeof facts.hubPlaceId !== 'string') return null
+  const { rows } = await db.query(`select to_regclass('wo_hub_client_place') is not null as present`)
+  if (!rows[0].present) return null
+  const hit = (
+    await db.query(
+      'select revoked_at from wo_hub_client_place where hub_place_id = $1 and revoked_at is not null',
+      [facts.hubPlaceId]
+    )
+  ).rows[0]
+  return hit ? { hubPlaceId: facts.hubPlaceId, revokedAt: hit.revoked_at.toISOString() } : null
 }
 
 async function inTransaction(pool, work) {
@@ -88,7 +111,14 @@ async function inTransaction(pool, work) {
  * @param {{ pool: import('pg').Pool, client: ReturnType<typeof import('./client.js').createHubClient>,
  *   contribute?: boolean, freshMs?: number, now?: () => number, log?: Console }} deps
  */
-export function createHubLink({ pool, client, contribute = false, freshMs = SOURCE_MAX_AGE_MS, now = Date.now, log = console }) {
+export function createHubLink({
+  pool,
+  client,
+  contribute = false,
+  freshMs = SOURCE_MAX_AGE_MS,
+  now = Date.now,
+  log = console
+}) {
   /** Feeds start at the hub's head before the first place is cached, so nothing revoked after that is missed. */
   async function ensureCursors() {
     const { rows } = await pool.query('select feed from wo_hub_client_cursor')
@@ -129,7 +159,9 @@ export function createHubLink({ pool, client, contribute = false, freshMs = SOUR
       const found = await client.lookup([identity])
       if (found?.status !== 'found') return null
       const held = (
-        await pool.query('select revision, etag, dto from wo_hub_client_place where hub_place_id = $1', [found.id])
+        await pool.query('select revision, etag, dto from wo_hub_client_place where hub_place_id = $1', [
+          found.id
+        ])
       ).rows[0]
       let dto = held?.dto && Number(held.revision) === found.revision ? held.dto : null
       if (!dto) {
@@ -148,7 +180,9 @@ export function createHubLink({ pool, client, contribute = false, freshMs = SOUR
       if (!facts.fetchedAt || now() - Date.parse(facts.fetchedAt) > freshMs || !facts.name) return null
       return { facts, hubPlaceId: dto.id, revision: dto.revision }
     } catch (error) {
-      log.warn?.(`[wo hub] lookup of ${identity.namespace}:${identity.externalId} failed: ${error?.code ?? error?.message}`)
+      log.warn?.(
+        `[wo hub] lookup of ${identity.namespace}:${identity.externalId} failed: ${error?.code ?? error?.message}`
+      )
       return null
     }
   }
@@ -175,7 +209,10 @@ export function createHubLink({ pool, client, contribute = false, freshMs = SOUR
     const facts = row?.collected
     if (!facts?.placeId || facts.via === 'hub') return false
     const body = contributionFromFacts(facts, { observedAt: row.collected_at?.toISOString() })
-    await pool.query('insert into wo_hub_client_outbox (place_id, body) values ($1, $2::jsonb)', [placeId, JSON.stringify(body)])
+    await pool.query('insert into wo_hub_client_outbox (place_id, body) values ($1, $2::jsonb)', [
+      placeId,
+      JSON.stringify(body)
+    ])
     return true
   }
 
@@ -194,15 +231,15 @@ export function createHubLink({ pool, client, contribute = false, freshMs = SOUR
       }
       if (answer.status === 'accepted') {
         sent++
-        await pool.query('update wo_hub_client_outbox set sent_at = $2, receipt_id = $3, last_error = null where id = $1', [
-          r.id,
-          new Date(now()),
-          answer.receipt.id
-        ])
+        await pool.query(
+          'update wo_hub_client_outbox set sent_at = $2, receipt_id = $3, last_error = null where id = $1',
+          [r.id, new Date(now()), answer.receipt.id]
+        )
         continue
       }
       // A refusal of the payload itself (4xx but quota and rate) will not get better: stop retrying it.
-      const final = !answer.retry && answer.httpStatus !== 429 && answer.httpStatus >= 400 && answer.httpStatus < 500
+      const final =
+        !answer.retry && answer.httpStatus !== 429 && answer.httpStatus >= 400 && answer.httpStatus < 500
       await pool.query(
         `update wo_hub_client_outbox set attempts = attempts + 1, last_error = $2,
            next_at = case when $3 then 'infinity'::timestamptz else $4 end where id = $1`,
@@ -234,18 +271,26 @@ export function createHubLink({ pool, client, contribute = false, freshMs = SOUR
           [u.snapshot_id, u.source]
         )
       }
-      await db.query(`delete from wo_place_link where verified_by = 'hub' and evidence->>'hubPlaceId' = $1`, [hubPlaceId])
+      await db.query(`delete from wo_place_link where verified_by = 'hub' and evidence->>'hubPlaceId' = $1`, [
+        hubPlaceId
+      ])
       return hit.rowCount > 0 || uses.rowCount > 0
     })
   }
 
   async function cachedIds() {
-    return new Set((await pool.query('select hub_place_id from wo_hub_client_place where dto is not null')).rows.map((r) => r.hub_place_id))
+    return new Set(
+      (await pool.query('select hub_place_id from wo_hub_client_place where dto is not null')).rows.map(
+        (r) => r.hub_place_id
+      )
+    )
   }
 
   /** After an expired cursor: every cached place is checked again; one the hub no longer serves is dropped. */
   async function revalidate() {
-    const { rows } = await pool.query('select hub_place_id, etag from wo_hub_client_place where dto is not null')
+    const { rows } = await pool.query(
+      'select hub_place_id, etag from wo_hub_client_place where dto is not null'
+    )
     let dropped = 0
     for (const r of rows) {
       const answer = await client.place(r.hub_place_id, { etag: r.etag })
@@ -258,14 +303,17 @@ export function createHubLink({ pool, client, contribute = false, freshMs = SOUR
         )
       } else if (answer.status === 'quota') {
         // Not checkable now: not used either, until a lookup reads it again.
-        await pool.query('update wo_hub_client_place set dto = null, etag = null where hub_place_id = $1', [r.hub_place_id])
+        await pool.query('update wo_hub_client_place set dto = null, etag = null where hub_place_id = $1', [
+          r.hub_place_id
+        ])
       }
     }
     return dropped
   }
 
   async function follow(feed, tally) {
-    const stored = (await pool.query('select cursor from wo_hub_client_cursor where feed = $1', [feed])).rows[0]?.cursor
+    const stored = (await pool.query('select cursor from wo_hub_client_cursor where feed = $1', [feed]))
+      .rows[0]?.cursor
     if (!stored) return
     let cursor = stored
     for (let page = 0; page < 50; page++) {

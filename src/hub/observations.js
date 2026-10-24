@@ -18,7 +18,17 @@ const OBSERVATION_KEYS = new Set(['field', 'value', 'source', 'observedAtClaimed
 const NAMESPACE_RE = /^[a-z][a-z0-9_]{1,31}$/
 const SOCIAL_NETWORKS = new Set(['facebook', 'instagram', 'tiktok', 'youtube', 'x', 'linkedin', 'pinterest'])
 // Key fragments of a seller's own pipeline; compared on the key lower-cased with only letters and digits kept.
-const PRIVATE_FRAGMENTS = ['deal', 'pipeline', 'note', 'brief', 'demo', 'outreach', 'draft', 'private', 'assignee']
+const PRIVATE_FRAGMENTS = [
+  'deal',
+  'pipeline',
+  'note',
+  'brief',
+  'demo',
+  'outreach',
+  'draft',
+  'private',
+  'assignee'
+]
 
 const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v)
 const text = (v, max) => (typeof v === 'string' && v.trim() && v.trim().length <= max ? v.trim() : null)
@@ -27,7 +37,9 @@ const exactKeys = (v, required, optional = []) =>
   required.every((k) => k in v) &&
   Object.keys(v).every((k) => required.includes(k) || optional.includes(k))
 const isPrivateKey = (key) => {
-  const k = String(key).toLowerCase().replace(/[^a-z0-9]/g, '')
+  const k = String(key)
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '')
   return PRIVATE_FRAGMENTS.some((f) => k.includes(f))
 }
 
@@ -65,6 +77,33 @@ function httpUrl(v) {
   return url.href
 }
 
+const weekTime = (t) =>
+  exactKeys(t, ['day', 'hour', 'minute']) &&
+  [t.day, t.hour, t.minute].every(Number.isInteger) &&
+  t.day >= 0 &&
+  t.day <= 6 &&
+  t.hour >= 0 &&
+  t.hour <= 24 &&
+  t.minute >= 0 &&
+  t.minute <= 59
+const weekTimeKey = (t) => `${t.day}:${String(t.hour).padStart(2, '0')}${String(t.minute).padStart(2, '0')}`
+
+/**
+ * Google-style weekly periods (`{open: {day, hour, minute}, close?}`, day 0 = Sunday) as sorted, de-duplicated
+ * `"D:HHMM-D:HHMM"` keys (`"D:HHMM-"` when open with no close), so two readings of one week compare equal.
+ * Undefined when the list is not a valid week.
+ */
+export function weeklyPeriods(list) {
+  if (!Array.isArray(list) || list.length < 1 || list.length > 28) return undefined
+  const keys = []
+  for (const p of list) {
+    if (!exactKeys(p, ['open'], ['close']) || !weekTime(p.open)) return undefined
+    if (p.close !== undefined && !weekTime(p.close)) return undefined
+    keys.push(`${weekTimeKey(p.open)}-${p.close ? weekTimeKey(p.close) : ''}`)
+  }
+  return [...new Set(keys)].sort()
+}
+
 const finite = (v, min, max) => typeof v === 'number' && Number.isFinite(v) && v >= min && v <= max
 
 /** Each field's value check: the normalized value, or undefined when it is not a valid value of that field. */
@@ -77,7 +116,7 @@ export const HUB_FIELDS = Object.freeze({
   website: (v) => httpUrl(v) ?? undefined,
   phone: (v) => {
     const s = text(v, 40)
-    if (!s || !/^\+?[0-9 ().\/-]+$/.test(s)) return undefined
+    if (!s || !/^\+?[0-9 ()./-]+$/.test(s)) return undefined
     const digits = s.replace(/\D/g, '')
     if (digits.length < 6 || digits.length > 15) return undefined
     return s.startsWith('+') ? `+${digits}` : digits
@@ -109,14 +148,21 @@ export const HUB_FIELDS = Object.freeze({
     exactKeys(v, ['network', 'url']) && SOCIAL_NETWORKS.has(v.network) && httpUrl(v.url)
       ? { network: v.network, url: httpUrl(v.url) }
       : undefined,
-  opening_hours: (v) =>
-    exactKeys(v, ['weekdayText']) &&
-    Array.isArray(v.weekdayText) &&
-    v.weekdayText.length >= 1 &&
-    v.weekdayText.length <= 7 &&
-    v.weekdayText.every((d) => text(d, 200))
-      ? { weekdayText: v.weekdayText.map((d) => d.trim()) }
-      : undefined,
+  opening_hours: (v) => {
+    if (!exactKeys(v, [], ['weekdayText', 'periods'])) return undefined
+    const weekdayText =
+      Array.isArray(v.weekdayText) &&
+      v.weekdayText.length >= 1 &&
+      v.weekdayText.length <= 7 &&
+      v.weekdayText.every((d) => text(d, 200))
+        ? v.weekdayText.map((d) => d.trim())
+        : undefined
+    const periods = v.periods === undefined ? undefined : weeklyPeriods(v.periods)
+    if ((v.weekdayText !== undefined && !weekdayText) || (v.periods !== undefined && !periods))
+      return undefined
+    if (!weekdayText && !periods) return undefined
+    return { ...(weekdayText ? { weekdayText } : {}), ...(periods ? { periods } : {}) }
+  },
   category: (v) => text(v, 100) ?? undefined,
   // A reference only: the hub fetches the picture itself, never takes uploaded bytes.
   photo_ref: (v) => (exactKeys(v, ['url']) && httpUrl(v.url) ? { url: httpUrl(v.url) } : undefined)
@@ -170,7 +216,9 @@ export function parseContribution(body, { now = Date.now() } = {}) {
   if (leak) return { ok: false, code: 'private_field', path: leak }
   if (Object.keys(body).some((k) => !ENVELOPE_KEYS.has(k))) return { ok: false, code: 'unknown_key' }
   if (body.schema !== CONTRIBUTION_SCHEMA) return { ok: false, code: 'unsupported_schema' }
-  const identity = exactKeys(body.subject, ['identity']) ? HUB_FIELDS.identity(body.subject.identity) : undefined
+  const identity = exactKeys(body.subject, ['identity'])
+    ? HUB_FIELDS.identity(body.subject.identity)
+    : undefined
   if (!identity) return { ok: false, code: 'invalid_subject' }
   if (!Array.isArray(list) || list.length === 0) return { ok: false, code: 'no_observations' }
   if (list.length > MAX_OBSERVATIONS) return { ok: false, code: 'too_many_observations' }

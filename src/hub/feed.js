@@ -31,7 +31,8 @@ export function encodeCursor(feed, seq) {
 /** The position in `feed` a cursor names; throws `CursorError('bad_cursor')` for anything else. */
 export function decodeCursor(feed, text) {
   const [version, body, extra] = String(text).split('.')
-  if (version !== CURSOR_VERSION || !body || extra !== undefined) throw new CursorError('bad_cursor', 'unknown cursor')
+  if (version !== CURSOR_VERSION || !body || extra !== undefined)
+    throw new CursorError('bad_cursor', 'unknown cursor')
   let parsed
   try {
     parsed = JSON.parse(Buffer.from(body, 'base64url').toString('utf8'))
@@ -82,7 +83,8 @@ export async function readFeed(pool, feed, { cursor, limit = 100 } = {}) {
     return { events: [], cursor: encodeCursor(feed, state.seq), more: false }
   }
   const after = decodeCursor(feed, cursor)
-  if (after < BigInt(state.floor)) throw new CursorError('cursor_expired', 'the cursor is older than the feed keeps')
+  if (after < BigInt(state.floor))
+    throw new CursorError('cursor_expired', 'the cursor is older than the feed keeps')
   const { rows } = await pool.query(
     `select seq, kind, place_id, revision, detail, created_at from wo_hub_change
       where seq > $1 ${spec.kinds ? 'and kind = any($3)' : ''} order by seq limit $2`,

@@ -69,7 +69,9 @@ async function runCommand(pool, noun, verb, id, reason) {
     if (!known.rowCount) throw new Refused('no such place')
     const act = verb === 'suppress' ? suppressBusiness : revokePlace
     const done = await act(pool, { placeId: id, reason, actor: ACTOR })
-    return { note: done.already ? 'already done' : verb === 'suppress' ? 'business removed' : 'place revoked' }
+    return {
+      note: done.already ? 'already done' : verb === 'suppress' ? 'business removed' : 'place revoked'
+    }
   }
   const done = await revokeMedia(pool, { mediaId: id, reason })
   if (!done.revoked) throw new Refused('no such picture, or already revoked')
@@ -98,7 +100,8 @@ export async function main(argv, { env = process.env, out = process.stdout, err 
     return 0
   } catch (error) {
     // 23503: the principal named does not exist.
-    const message = error instanceof Refused ? error.message : error?.code === '23503' ? 'no such principal' : error.message
+    const message =
+      error instanceof Refused ? error.message : error?.code === '23503' ? 'no such principal' : error.message
     err.write(`${message}\n`)
     return 1
   } finally {

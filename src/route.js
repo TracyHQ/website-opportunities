@@ -245,6 +245,7 @@ export function websiteOpportunitiesRoutes(deps) {
       sources,
       discovery: { 'google-places': Boolean(keys.google), 'google-maps': Boolean(keys.apify), osm: true },
       kinds: kindsOf(domain),
+      trades: tradesOf(domain),
       cuisines: cuisinesOf(domain),
       // The Build form's choices; no builder, no CMS to build on.
       templates: builder ? await builder.templateChoicesOf(settings) : {},
@@ -309,7 +310,7 @@ export function websiteOpportunitiesRoutes(deps) {
         c,
         400,
         'INVALID_SEARCH',
-        `${options.error}: "kinds" ⊆ ${kindsOf(domain).join('|') || '(none)'}, "cuisines" ⊆ the capabilities list, "minRating" 0–5, "priceLevels" ⊆ 0–4, "openNow" and "includeChains" booleans, "depth" quick|standard.`
+        `${options.error}: "trade" any|${tradesOf(domain).join('|') || 'food'} (a cuisine or kind means food), "kinds" ⊆ ${kindsOf(domain).join('|') || '(none)'}, "cuisines" ⊆ the capabilities list, "minRating" 0–5, "priceLevels" ⊆ 0–4, "openNow" and "includeChains" booleans, "depth" quick|standard.`
       )
     if (await overLimitOrClosed(pool, `wo:search:${who.accountId}`, SEARCHES_PER_HOUR, now()))
       return refuse(c, 429, 'RATE_LIMITED', 'Wait for the next hour before searching again.')
@@ -333,7 +334,9 @@ export function websiteOpportunitiesRoutes(deps) {
                 placeId: b.placeId,
                 sessionToken: b.sessionToken,
                 limit: Math.min(limit, 20),
-                ...options.filters
+                ...options.filters,
+                // Any kind of business by name, unless the search is a food one (a cuisine or a food kind).
+                anyKind: options.filters.trade !== 'food'
               },
               { ...domainDeps(), googleKey: keys.google }
             )
@@ -1445,6 +1448,11 @@ function kindsOf(domain) {
   return Array.isArray(domain.KINDS) ? domain.KINDS.filter((k) => typeof k === 'string') : []
 }
 
+/** The kinds of business an area search can be narrowed to (`trade-search.mjs`); empty on a food-only domain. */
+function tradesOf(domain) {
+  return Array.isArray(domain.SEARCH_TRADES) ? domain.SEARCH_TRADES.filter((k) => typeof k === 'string') : []
+}
+
 function cuisinesOf(domain) {
   return Array.isArray(domain.CUISINES) ? domain.CUISINES.filter((k) => typeof k === 'string') : []
 }
@@ -1486,7 +1494,13 @@ function searchOptions(b, domain, radiusM) {
   if (typeof includeChains !== 'boolean') return { error: 'includeChains' }
   const depth = b?.depth === undefined ? (radiusM <= QUICK_RADIUS_M ? 'quick' : 'standard') : b.depth
   if (!(depth in DEPTH_LIMITS)) return { error: 'depth' }
-  return { filters: { kinds, cuisines, minRating, priceLevels, openNow }, depth, includeChains }
+  // A cuisine or a narrower set of kinds is a food search; otherwise every kind of business unless one is sent.
+  const foodOnly = cuisines.length > 0 || (b?.kinds !== undefined && kinds.length < kindsOf(domain).length)
+  const trades = tradesOf(domain)
+  const trade = !trades.length ? 'food' : b?.trade === undefined ? (foodOnly ? 'food' : 'any') : b.trade
+  if (trade !== 'food' && !(trade === 'any' || trades.includes(trade))) return { error: 'trade' }
+  if (foodOnly && trade !== 'food') return { error: 'trade' }
+  return { filters: { trade, kinds, cuisines, minRating, priceLevels, openNow }, depth, includeChains }
 }
 
 /** A candidate as the client sent it, reduced to the fields a candidate has; null when it is not one. */
@@ -1554,6 +1568,8 @@ function candidateFields(raw) {
     priceLevel: PRICE_LEVELS.includes(raw.priceLevel) ? raw.priceLevel : null,
     openNow: typeof raw.openNow === 'boolean' ? raw.openNow : null,
     chain: raw.chain === true,
+    // What the brief and the template choice read (`trades.mjs`); absent = food, as before.
+    ...(TRADE_NAMES.has(raw.trade) ? { trade: raw.trade } : {}),
     photo: PHOTO_NAME.test(raw.photo?.name ?? '')
       ? { name: raw.photo.name, credit: text(raw.photo.credit, 200) ?? '' }
       : null
@@ -1563,6 +1579,24 @@ function candidateFields(raw) {
 
 /** The six kinds of the find screen; the domain's `KINDS` says the same list (gated by the search). */
 const KIND_NAMES = new Set(['restaurants', 'cafes', 'fast-food', 'bakeries', 'bars', 'nightlife'])
+/** The domain's `TRADES` (`trades.mjs`); a candidate's trade is kept only from this list. */
+const TRADE_NAMES = new Set([
+  'food',
+  'beauty',
+  'health',
+  'fitness',
+  'hospitality',
+  'travel',
+  'professional',
+  'creative',
+  'education',
+  'retail',
+  'auto',
+  'home',
+  'events',
+  'nonprofit',
+  'other'
+])
 const PHOTO_NAME = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/
 
 const BULK_MAX = 500

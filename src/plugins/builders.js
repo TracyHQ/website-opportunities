@@ -35,11 +35,13 @@ const ID = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/
 /** The builder, checked and frozen; a TypeError names the missing member. */
 export function defineBuilder(builder) {
   if (!builder || typeof builder !== 'object') throw new TypeError('a builder is an object')
-  if (typeof builder.id !== 'string' || !ID.test(builder.id)) throw new TypeError(`builder id must be kebab-case: ${String(builder.id)}`)
+  if (typeof builder.id !== 'string' || !ID.test(builder.id))
+    throw new TypeError(`builder id must be kebab-case: ${String(builder.id)}`)
   for (const m of BUILDER_METHODS)
     if (typeof builder[m] !== 'function') throw new TypeError(`builder ${builder.id}: ${m} is missing`)
   const journey = builder.demoJourneySql ?? null
-  if (journey !== null && typeof journey !== 'function') throw new TypeError(`builder ${builder.id}: demoJourneySql is a function or null`)
+  if (journey !== null && typeof journey !== 'function')
+    throw new TypeError(`builder ${builder.id}: demoJourneySql is a function or null`)
   return Object.freeze({ ...builder, demoJourneySql: journey })
 }
 
@@ -50,7 +52,8 @@ export function defineBuilder(builder) {
 export async function loadBuilderFactories(dir) {
   const out = {}
   for (const { file, plugin } of await loadPluginFiles(dir)) {
-    if (typeof plugin !== 'function') throw new TypeError(`builder file ${file}: the default export is a factory (deps) => builder`)
+    if (typeof plugin !== 'function')
+      throw new TypeError(`builder file ${file}: the default export is a factory (deps) => builder`)
     out[file.replace(/^.*[\\/]/, '').replace(/\.m?js$/, '')] = (deps) => defineBuilder(plugin(deps))
   }
   return out

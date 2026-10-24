@@ -2,6 +2,7 @@
  * The research a site brief reads: a place's shared snapshot with the account's overlay, or the per-account rows of
  * an opportunity not researched as a place yet. Shared by every builder, so a brief reads the same whoever builds it.
  */
+import { revokedHubCopy } from './hub/local-cache.js'
 import { mediaJunk } from './media-junk.js'
 import { addReviewSources } from './review-sources.js'
 import { placeViewOf } from './place-view.js'
@@ -178,7 +179,11 @@ function withoutRevoked(read, revoked) {
 /** What a brief of this opportunity reads now: `{read, view}`, `view` null without a place. */
 export async function briefResearchOf(db, opp) {
   const view = opp.place_id ? await placeViewOf(db, opp) : null
-  if (!view) return { read: await fromOpportunity(db, opp), view }
+  if (!view) {
+    const read = await fromOpportunity(db, opp)
+    const revoked = await revokedHubCopy(db, read.profile?.googlePlace)
+    return { read: revoked ? withoutRevoked(read, [{ ...revoked, source: 'google-places' }]) : read, view }
+  }
   const revoked = await revokedHubUses(db, opp.place_id)
   return { read: revoked.length ? withoutRevoked(fromPlace(view), revoked) : fromPlace(view), view }
 }

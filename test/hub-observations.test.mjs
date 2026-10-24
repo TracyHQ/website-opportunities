@@ -84,7 +84,9 @@ test('a pipeline or private field nested anywhere in an observation is refused',
 
 test('a private field outside the observations refuses the whole contribution', () => {
   const out = parseContribution(
-    contribution([{ field: 'name', value: 'Cafe', source: google }], { context: { deal: { status: 'won' } } }),
+    contribution([{ field: 'name', value: 'Cafe', source: google }], {
+      context: { deal: { status: 'won' } }
+    }),
     { now: NOW }
   )
   assert.deepEqual(out, { ok: false, code: 'private_field', path: 'context.deal' })
@@ -98,8 +100,14 @@ test('a private field outside the observations refuses the whole contribution', 
 test('the envelope is checked: schema, subject, 1 to 50 observations', () => {
   const one = { field: 'name', value: 'Cafe', source: google }
   assert.equal(parseContribution(null, { now: NOW }).code, 'invalid_contribution')
-  assert.equal(parseContribution({ ...contribution([one]), schema: 'v0' }, { now: NOW }).code, 'unsupported_schema')
-  assert.equal(parseContribution({ ...contribution([one]), subject: {} }, { now: NOW }).code, 'invalid_subject')
+  assert.equal(
+    parseContribution({ ...contribution([one]), schema: 'v0' }, { now: NOW }).code,
+    'unsupported_schema'
+  )
+  assert.equal(
+    parseContribution({ ...contribution([one]), subject: {} }, { now: NOW }).code,
+    'invalid_subject'
+  )
   assert.equal(parseContribution(contribution([]), { now: NOW }).code, 'no_observations')
   assert.equal(
     parseContribution(contribution(Array.from({ length: 51 }, () => one)), { now: NOW }).code,
@@ -126,18 +134,40 @@ test('the field list is closed and every field has a value check', () => {
   ])
   const ok = (field, value) =>
     parseContribution(contribution([{ field, value, source: google }]), { now: NOW }).observations[0]
-  assert.deepEqual(ok('location', { latitude: 52.37, longitude: 4.89 }).value, { latitude: 52.37, longitude: 4.89 })
+  assert.deepEqual(ok('location', { latitude: 52.37, longitude: 4.89 }).value, {
+    latitude: 52.37,
+    longitude: 4.89
+  })
   assert.equal(ok('location', { latitude: 91, longitude: 0 }).reason, 'invalid_value')
   assert.equal(ok('email', 'Hello@Cafe.Example').value, 'hello@cafe.example')
   assert.equal(ok('website', 'javascript:alert(1)').reason, 'invalid_value')
   assert.equal(ok('identity', { namespace: 'tripadvisor', externalId: 'd123' }).status, 'pending')
-  assert.equal(ok('social_profile', { network: 'myspace', url: 'https://x.example/' }).reason, 'invalid_value')
+  assert.equal(
+    ok('social_profile', { network: 'myspace', url: 'https://x.example/' }).reason,
+    'invalid_value'
+  )
   assert.equal(ok('phone', '12').reason, 'invalid_value')
+  const at = (day, hour, minute) => ({ day, hour, minute })
+  assert.deepEqual(
+    ok('opening_hours', {
+      periods: [
+        { open: at(2, 8, 0), close: at(2, 17, 30) },
+        { open: at(0, 0, 0) },
+        { open: at(2, 8, 0), close: at(2, 17, 30) }
+      ]
+    }).value,
+    { periods: ['0:0000-', '2:0800-2:1730'] }
+  )
+  assert.equal(ok('opening_hours', { periods: [{ open: at(7, 8, 0) }] }).reason, 'invalid_value')
+  assert.equal(ok('opening_hours', { periods: [] }).reason, 'invalid_value')
+  assert.equal(ok('opening_hours', {}).reason, 'invalid_value')
 })
 
 test('a claimed observation time far in the future is refused', () => {
   const out = parseContribution(
-    contribution([{ field: 'name', value: 'Cafe', source: google, observedAtClaimed: '2027-01-01T00:00:00Z' }]),
+    contribution([
+      { field: 'name', value: 'Cafe', source: google, observedAtClaimed: '2027-01-01T00:00:00Z' }
+    ]),
     { now: NOW }
   )
   assert.equal(out.observations[0].reason, 'invalid_observed_at')

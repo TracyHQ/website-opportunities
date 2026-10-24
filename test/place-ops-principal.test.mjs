@@ -4,7 +4,7 @@ import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { after, before, test } from 'node:test'
 import { migrate } from '../src/schema/index.js'
-import { refreshPlace, researchAgainPlace } from '../src/wo-places-store.js'
+import { placeDetail, refreshPlace, researchAgainPlace } from '../src/wo-places-store.js'
 import { scratchDatabase } from './scratch-database.mjs'
 
 const opts = { skip: process.env.TEST_DATABASE_URL ? false : 'set TEST_DATABASE_URL' }
@@ -38,8 +38,9 @@ async function researchedPlace() {
   const client = await db.pool.connect()
   try {
     await client.query('begin')
-    const place = (await client.query('insert into wo_place (display_name) values ($1) returning id', ['Cafe']))
-      .rows[0].id
+    const place = (
+      await client.query('insert into wo_place (display_name) values ($1) returning id', ['Cafe'])
+    ).rows[0].id
     const old = new Date(NOW - 60 * 24 * 3_600_000)
     const snapshot = (
       await client.query(
@@ -61,11 +62,17 @@ async function researchedPlace() {
 }
 
 const startedBy = async (jobId) =>
-  (await db.pool.query('select started_by, started_by_account_id from wo_place_job where id = $1', [jobId])).rows[0]
+  (await db.pool.query('select started_by, started_by_account_id from wo_place_job where id = $1', [jobId]))
+    .rows[0]
 
 test('Refresh pressed on /ops is paid by the operator the host names', opts, async () => {
   const place = await researchedPlace()
-  const out = await refreshPlace(db.pool, place, { actor: 'ops@example.com', caps: null, nowMs: NOW, principalOf })
+  const out = await refreshPlace(db.pool, place, {
+    actor: 'ops@example.com',
+    caps: null,
+    nowMs: NOW,
+    principalOf
+  })
   assert.deepEqual(await startedBy(out.job.id), { started_by: 'operator', started_by_account_id: operator })
   assert.ok(asked.includes('ops@example.com'))
 })
@@ -87,6 +94,43 @@ test('Research again pressed on /ops is paid by the operator the host names', op
 
 test('an operator the host does not know is recorded without a principal', opts, async () => {
   const place = await researchedPlace()
-  const out = await refreshPlace(db.pool, place, { actor: 'new@example.com', caps: null, nowMs: NOW, principalOf })
+  const out = await refreshPlace(db.pool, place, {
+    actor: 'new@example.com',
+    caps: null,
+    nowMs: NOW,
+    principalOf
+  })
   assert.deepEqual(await startedBy(out.job.id), { started_by: 'operator', started_by_account_id: null })
 })
+
+test(
+  'the place detail names its accounts through the host, on a database with no user table',
+  opts,
+  async () => {
+    const place = await researchedPlace()
+    const seller = (
+      await db.pool.query(
+        `insert into wo_principal (kind, external_ref) values ('test', 'seller@example.com') returning id`
+      )
+    ).rows[0].id
+    for (const id of ['ChIJ-a', 'ChIJ-b'])
+      await db.pool.query(
+        `insert into wo_opportunity (account_id, name, provider, provider_id, place_id) values ($1, 'Cafe', 'google-places', $2, $3)`,
+        [seller, id, place]
+      )
+    const named = await placeDetail(db.pool, place, NOW, {
+      emailOf: async (_pool, id) => (id === seller ? 'seller@example.com' : null),
+      displayNameOf: async (_pool, id) => (id === seller ? 'Mai' : '')
+    })
+    assert.deepEqual(
+      named.accounts.map((a) => [a.accountId, a.email, a.name, a.opportunities]),
+      [[seller, 'seller@example.com', 'Mai', 2]]
+    )
+    // A host that names nobody: the rows stay, without an email or a name.
+    const plain = await placeDetail(db.pool, place, NOW)
+    assert.deepEqual(
+      plain.accounts.map((a) => [a.accountId, a.email, a.name, a.opportunities]),
+      [[seller, null, null, 2]]
+    )
+  }
+)

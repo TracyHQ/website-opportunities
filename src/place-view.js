@@ -171,7 +171,12 @@ function fileName(url) {
  */
 export function menuViewOf({ file = null, photos = null, profile = {}, menuPhotos = 0, ops = false }) {
   const dishes = Array.isArray(profile?.menuItems) ? profile.menuItems : []
-  const applicable = menuApplicable({ google: profile?.googlePlace ?? null, profile, items: dishes, menuPhotos })
+  const applicable = menuApplicable({
+    google: profile?.googlePlace ?? null,
+    profile,
+    items: dishes,
+    menuPhotos
+  })
   if (!applicable) return null
   const items = dishes.map((i) => {
     const photo = i?.source?.kind === 'photo'

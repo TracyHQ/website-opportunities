@@ -18,7 +18,10 @@ before(async () => {
 after(async () => db?.close())
 
 const run = (...args) =>
-  spawnSync(process.execPath, [CLI, ...args], { env: { ...process.env, DATABASE_URL: db.url }, encoding: 'utf8' })
+  spawnSync(process.execPath, [CLI, ...args], {
+    env: { ...process.env, DATABASE_URL: db.url },
+    encoding: 'utf8'
+  })
 
 test('issue prints a token once; rotate replaces it; revoke stops it', opts, async () => {
   const p = (await db.pool.query(`insert into wo_principal (kind) values ('test') returning id`)).rows[0].id
@@ -53,37 +56,50 @@ test('an operator blocks and unblocks an account: its token stops and starts wor
   assert.equal(run('account', 'block', '--account', '00000000-0000-0000-0000-000000000000').status, 1)
 })
 
-test('an operator withdraws a contribution, revokes or removes a place and revokes a picture', opts, async () => {
-  const { makePlace, observe } = await import('./hub-fixtures.mjs')
-  const { placeId, identities } = await makePlace(db.pool)
-  const observation = await observe(db.pool, { subject: identities[0], field: 'name', value: 'Cafe Cli' })
-  const contribution = (
-    await db.pool.query('select contribution_id from wo_hub_observation where id = $1', [observation])
-  ).rows[0].contribution_id
-  const withdrawn = run('contribution', 'withdraw', '--id', contribution)
-  assert.equal(withdrawn.status, 0, withdrawn.stderr)
-  const status = (await db.pool.query('select status from wo_hub_observation where id = $1', [observation])).rows[0].status
-  assert.equal(status, 'withdrawn')
+test(
+  'an operator withdraws a contribution, revokes or removes a place and revokes a picture',
+  opts,
+  async () => {
+    const { makePlace, observe } = await import('./hub-fixtures.mjs')
+    const { placeId, identities } = await makePlace(db.pool)
+    const observation = await observe(db.pool, { subject: identities[0], field: 'name', value: 'Cafe Cli' })
+    const contribution = (
+      await db.pool.query('select contribution_id from wo_hub_observation where id = $1', [observation])
+    ).rows[0].contribution_id
+    const withdrawn = run('contribution', 'withdraw', '--id', contribution)
+    assert.equal(withdrawn.status, 0, withdrawn.stderr)
+    const status = (await db.pool.query('select status from wo_hub_observation where id = $1', [observation]))
+      .rows[0].status
+    assert.equal(status, 'withdrawn')
 
-  assert.equal(run('place', 'revoke', '--place', placeId).status, 2, 'a revocation needs a reason')
-  const revoked = run('place', 'revoke', '--place', placeId, '--reason', 'wrong data')
-  assert.equal(revoked.status, 0, revoked.stderr)
-  assert.equal((await db.pool.query('select state from wo_hub_place where place_id = $1', [placeId])).rows[0].state, 'revoked')
-
-  const other = await makePlace(db.pool)
-  const media = (
-    await db.pool.query(
-      `insert into wo_place_media (place_id, sha256, kind, source, source_url) values ($1, $2, 'image', 'website', 'https://cafe.example/a.jpg')
-       returning id`,
-      [other.placeId, 'b'.repeat(64)]
+    assert.equal(run('place', 'revoke', '--place', placeId).status, 2, 'a revocation needs a reason')
+    const revoked = run('place', 'revoke', '--place', placeId, '--reason', 'wrong data')
+    assert.equal(revoked.status, 0, revoked.stderr)
+    assert.equal(
+      (await db.pool.query('select state from wo_hub_place where place_id = $1', [placeId])).rows[0].state,
+      'revoked'
     )
-  ).rows[0].id
-  const pic = run('media', 'revoke', '--media', media, '--reason', 'not theirs')
-  assert.equal(pic.status, 0, pic.stderr)
-  assert.ok((await db.pool.query('select revoked_at from wo_place_media where id = $1', [media])).rows[0].revoked_at)
 
-  const removed = run('place', 'suppress', '--place', other.placeId, '--reason', 'owner asked')
-  assert.equal(removed.status, 0, removed.stderr)
-  const suppressed = await db.pool.query('select 1 from wo_hub_suppressed_identity where external_id = $1', [other.identities[0].externalId])
-  assert.equal(suppressed.rowCount, 1)
-})
+    const other = await makePlace(db.pool)
+    const media = (
+      await db.pool.query(
+        `insert into wo_place_media (place_id, sha256, kind, source, source_url) values ($1, $2, 'image', 'website', 'https://cafe.example/a.jpg')
+       returning id`,
+        [other.placeId, 'b'.repeat(64)]
+      )
+    ).rows[0].id
+    const pic = run('media', 'revoke', '--media', media, '--reason', 'not theirs')
+    assert.equal(pic.status, 0, pic.stderr)
+    assert.ok(
+      (await db.pool.query('select revoked_at from wo_place_media where id = $1', [media])).rows[0].revoked_at
+    )
+
+    const removed = run('place', 'suppress', '--place', other.placeId, '--reason', 'owner asked')
+    assert.equal(removed.status, 0, removed.stderr)
+    const suppressed = await db.pool.query(
+      'select 1 from wo_hub_suppressed_identity where external_id = $1',
+      [other.identities[0].externalId]
+    )
+    assert.equal(suppressed.rowCount, 1)
+  }
+)

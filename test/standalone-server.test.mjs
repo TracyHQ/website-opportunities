@@ -30,14 +30,17 @@ let scratch
 let dataDir
 let running
 const fetched = []
+const askedGoogle = []
 const quiet = { info() {}, warn() {}, error() {}, log() {} }
 
 const start = () =>
   startStandaloneServer({
     env: { DATABASE_URL: scratch.url, PORT: '0', GOOGLE_PLACES_API_KEY: 'fake-key', DATA_DIR: dataDir },
-    fetchImpl: async (input) => {
+    fetchImpl: async (input, init) => {
       const href = String(input instanceof Request ? input.url : input)
       fetched.push(href)
+      if (href.startsWith('https://places.googleapis.com/'))
+        askedGoogle.push({ href, body: JSON.parse(init?.body ?? '{}') })
       if (href.startsWith('https://places.googleapis.com/')) return Response.json(PLACES)
       return new Response('not found', { status: 404 })
     },
@@ -125,7 +128,10 @@ test('the manual builder answers its brief door for a saved opportunity', opts, 
   assert.ok(id, JSON.stringify(saved.body))
   const { status, body } = await call('POST', `${BASE}/${id}/manual/brief`)
   // An unresearched place may not make a valid brief yet; either way the door is the builder's, not a 404.
-  assert.ok(status === 200 || (status === 422 && body.code === 'BRIEF_INVALID'), JSON.stringify({ status, body }))
+  assert.ok(
+    status === 200 || (status === 422 && body.code === 'BRIEF_INVALID'),
+    JSON.stringify({ status, body })
+  )
 })
 
 test('a search finds the places Google answers', opts, async () => {
@@ -187,20 +193,92 @@ test('a request naming another host is not the operator', opts, async () => {
   assert.equal(answer.body.code, 'UNAUTHENTICATED')
 })
 
-test('the operator doors answer the local operator; keys come from the environment, read-only', opts, async () => {
-  const me = await call('GET', `${BASE}/operator/me`)
-  assert.deepEqual(me, {
-    status: 200,
-    body: { operator: true, email: 'operator@localhost', hub: false, keysWritable: false }
+test(
+  'the operator doors answer the local operator; keys come from the environment, read-only',
+  opts,
+  async () => {
+    const me = await call('GET', `${BASE}/operator/me`)
+    assert.deepEqual(me, {
+      status: 200,
+      body: { operator: true, email: 'operator@localhost', hub: false, keysWritable: false }
+    })
+    const { status, body } = await call('GET', `${BASE}/operator/settings`)
+    assert.equal(status, 200)
+    assert.deepEqual(body.keys.providers.google, { configured: true, source: 'env', hint: 'fak… (8 chars)' })
+    assert.equal(body.keysWritable, false)
+    const spend = await call('GET', `${BASE}/operator/spend`)
+    assert.equal(spend.status, 200)
+    assert.equal(spend.body.days, 30)
+    const queue = await call('GET', `${BASE}/operator/queue`)
+    assert.equal(queue.status, 200)
+    assert.equal((await call('PUT', `${BASE}/operator/keys/google`, { body: { apiKey: 'x' } })).status, 409)
+  }
+)
+
+test('an area search finds every kind of local business unless one kind is asked for', opts, async () => {
+  const caps = await call('GET', `${BASE}/capabilities`)
+  assert.ok(caps.body.trades.includes('beauty') && caps.body.trades.includes('food'))
+  assert.ok(!caps.body.trades.includes('other'))
+
+  // Away from the other tests' point: the places cache would answer their request without asking Google.
+  askedGoogle.length = 0
+  const any = await call('POST', `${BASE}/search`, { body: { lat: 52.374, lon: 4.89, radiusM: 1000 } })
+  assert.equal(any.status, 200, JSON.stringify(any.body))
+  assert.ok(askedGoogle[0].href.endsWith('places:searchNearby'))
+  assert.ok(askedGoogle[0].body.includedTypes.includes('plumber'))
+  assert.equal(any.body.candidates[0].trade, 'food')
+
+  askedGoogle.length = 0
+  await call('POST', `${BASE}/search`, { body: { lat: 52.374, lon: 4.89, radiusM: 1000, trade: 'beauty' } })
+  assert.ok(askedGoogle[0].body.includedTypes.includes('nail_salon'))
+  assert.ok(!askedGoogle[0].body.includedTypes.includes('restaurant'))
+
+  askedGoogle.length = 0
+  await call('POST', `${BASE}/search`, {
+    body: { lat: 52.374, lon: 4.89, radiusM: 1000, cuisines: ['italian'] }
   })
-  const { status, body } = await call('GET', `${BASE}/operator/settings`)
-  assert.equal(status, 200)
-  assert.deepEqual(body.keys.providers.google, { configured: true, source: 'env', hint: 'fak… (8 chars)' })
-  assert.equal(body.keysWritable, false)
-  const spend = await call('GET', `${BASE}/operator/spend`)
-  assert.equal(spend.status, 200)
-  assert.equal(spend.body.days, 30)
-  const queue = await call('GET', `${BASE}/operator/queue`)
-  assert.equal(queue.status, 200)
-  assert.equal((await call('PUT', `${BASE}/operator/keys/google`, { body: { apiKey: 'x' } })).status, 409)
+  assert.ok(askedGoogle[0].href.endsWith('places:searchText'), 'a cuisine is a food search')
+
+  const bad = await call('POST', `${BASE}/search`, {
+    body: { lat: 52.374, lon: 4.89, radiusM: 1000, trade: 'government' }
+  })
+  assert.equal(bad.status, 400)
+  assert.match(bad.body.next, /"trade"/)
+  const mixed = await call('POST', `${BASE}/search`, {
+    body: { lat: 52.374, lon: 4.89, radiusM: 1000, trade: 'auto', cuisines: ['italian'] }
+  })
+  assert.equal(mixed.status, 400, 'a cuisine is only a food filter')
+})
+
+test('a saved place keeps the kind of business it was found as', opts, async () => {
+  const candidate = {
+    provider: 'google-places',
+    providerId: 'ChIJ-salon',
+    name: 'Salon Rosa',
+    primaryType: 'hair_salon',
+    trade: 'beauty'
+  }
+  const saved = await call('POST', BASE, { body: { candidate } })
+  assert.ok([200, 201].includes(saved.status), JSON.stringify(saved.body))
+  const { rows } = await scratch.pool.query(
+    "select candidate->>'trade' as trade from wo_opportunity where provider_id = 'ChIJ-salon'"
+  )
+  assert.equal(rows[0].trade, 'beauty')
+  const forged = await call('POST', BASE, {
+    body: { candidate: { ...candidate, providerId: 'ChIJ-x', trade: 'spaceship' } }
+  })
+  assert.ok([200, 201].includes(forged.status))
+  const again = await scratch.pool.query(
+    "select candidate ? 'trade' as has from wo_opportunity where provider_id = 'ChIJ-x'"
+  )
+  assert.equal(again.rows[0].has, false, 'an unknown trade is not kept')
+})
+
+test('a name search keeps a business of any kind, not only food and drink', opts, async () => {
+  const found = await call('POST', `${BASE}/search`, {
+    body: { query: 'Cafe 0, Amsterdam', intent: 'place', radiusM: 1000 }
+  })
+  assert.equal(found.status, 200, JSON.stringify(found.body))
+  assert.ok(askedGoogle.at(-1).href.endsWith('places:searchText'))
+  assert.equal(found.body.candidates[0]?.trade, 'food', 'each place says its kind of business')
 })

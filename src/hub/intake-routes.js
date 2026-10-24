@@ -24,14 +24,16 @@ const RATE_PER_MINUTE = 60
 
 const NEXT = {
   invalid_token: 'Send a valid hub token as "Authorization: Bearer <token>".',
-  missing_idempotency_key: 'Send an Idempotency-Key header (1 to 200 visible ASCII characters) and retry with the same one.',
+  missing_idempotency_key:
+    'Send an Idempotency-Key header (1 to 200 visible ASCII characters) and retry with the same one.',
   invalid_json: 'Send the contribution as a JSON object.',
   payload_too_large: `Send at most ${MAX_CONTRIBUTION_BYTES} bytes per contribution; split the observations.`,
   idempotency_key_reused: 'This key was used for a different payload. Use a new key for new data.',
   quota_exceeded: 'Wait for the quota period to end.',
   pending_limit: 'Wait until your pending observations are verified.',
   rate_limited: 'Slow down and retry in a minute.',
-  private_field: 'Send only public business facts: deal status, notes, briefs, demos and outreach stay with you.',
+  private_field:
+    'Send only public business facts: deal status, notes, briefs, demos and outreach stay with you.',
   not_found: 'No such contribution on this account.',
   forbidden_origin: 'Use this page from its own site.',
   no_account: 'This sign-in has no hub account here.',

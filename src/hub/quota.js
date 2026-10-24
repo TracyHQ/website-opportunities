@@ -45,7 +45,8 @@ export function createHubQuota({ pool, limits = {}, now = Date.now }) {
    */
   async function charge(accountId, category, amount, { db } = {}) {
     const limit = limitsOf(category)
-    if (!Number.isInteger(amount) || amount < 0) throw new TypeError('hub quota: amount must be a whole number >= 0')
+    if (!Number.isInteger(amount) || amount < 0)
+      throw new TypeError('hub quota: amount must be a whole number >= 0')
     if (!db) {
       const client = await pool.connect()
       try {

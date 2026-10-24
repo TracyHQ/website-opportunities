@@ -35,7 +35,9 @@ export async function makePlace(pool, { name = 'Cafe', identities = [] } = {}) {
 
 export async function makeAccount(pool) {
   const p = await pool.query(`insert into wo_principal (kind) values ('test') returning id`)
-  const { rows } = await pool.query('insert into wo_hub_account (principal_id) values ($1) returning id', [p.rows[0].id])
+  const { rows } = await pool.query('insert into wo_hub_account (principal_id) values ($1) returning id', [
+    p.rows[0].id
+  ])
   return rows[0].id
 }
 
@@ -45,7 +47,16 @@ export async function makeAccount(pool) {
  */
 export async function observe(
   pool,
-  { subject, field, value, family = 'google_maps', objectId = subject.externalId, fetchedAt = '2026-10-20T10:00:00Z', account, status = 'accepted' }
+  {
+    subject,
+    field,
+    value,
+    family = 'google_maps',
+    objectId = subject.externalId,
+    fetchedAt = '2026-10-20T10:00:00Z',
+    account,
+    status = 'accepted'
+  }
 ) {
   const accountId = account ?? (await makeAccount(pool))
   const key = `k-${++n}`
@@ -58,17 +69,37 @@ export async function observe(
     `insert into wo_hub_observation (contribution_id, ordinal, subject_namespace, subject_external_id, field, value,
        claimed_source_family, claimed_source_object_id, observed_at_claimed, status, decided_at, policy_version)
      values ($1, 0, $2, $3, $4, $5::jsonb, $6, $7, $8, $9, now(), 'intake/1') returning id`,
-    [c.rows[0].id, subject.namespace, subject.externalId, field, JSON.stringify(value), family, objectId, fetchedAt, status]
+    [
+      c.rows[0].id,
+      subject.namespace,
+      subject.externalId,
+      field,
+      JSON.stringify(value),
+      family,
+      objectId,
+      fetchedAt,
+      status
+    ]
   )
   await pool.query(
     `insert into wo_hub_evidence (observation_id, source_family, source_object_id, source_group, fetch_id, fetched_at,
        content_hash, collector_version, result) values ($1, $2, $3, $4, $5, $6, $7, 'fixture/1', '{}')`,
-    [o.rows[0].id, family, objectId, `${family}:${objectId}`, randomUUID(), fetchedAt, hex(`${family}${objectId}${fetchedAt}`)]
+    [
+      o.rows[0].id,
+      family,
+      objectId,
+      `${family}:${objectId}`,
+      randomUUID(),
+      fetchedAt,
+      hex(`${family}${objectId}${fetchedAt}`)
+    ]
   )
   return o.rows[0].id
 }
 
 export async function evidenceRevisionOf(pool, placeId) {
-  const { rows } = await pool.query('select evidence_revision from wo_hub_place where place_id = $1', [placeId])
+  const { rows } = await pool.query('select evidence_revision from wo_hub_place where place_id = $1', [
+    placeId
+  ])
   return rows[0] ? Number(rows[0].evidence_revision) : 0
 }

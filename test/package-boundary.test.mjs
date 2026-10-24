@@ -25,7 +25,8 @@ function specifiers(source) {
   const walk = (node) => {
     if (!node || typeof node.type !== 'string') return
     if (/^(Import|Export(All|Named)?)Declaration$|^ImportExpression$/.test(node.type)) {
-      if (node.source?.type === 'Literal' && typeof node.source.value === 'string') found.push(node.source.value)
+      if (node.source?.type === 'Literal' && typeof node.source.value === 'string')
+        found.push(node.source.value)
     }
     for (const value of Object.values(node)) {
       if (Array.isArray(value)) value.forEach(walk)
@@ -37,7 +38,11 @@ function specifiers(source) {
 }
 
 /** The package name of a bare specifier: `hono/body-limit` → `hono`, `@a/b/c` → `@a/b`. */
-const packageOf = (spec) => spec.split('/').slice(0, spec.startsWith('@') ? 2 : 1).join('/')
+const packageOf = (spec) =>
+  spec
+    .split('/')
+    .slice(0, spec.startsWith('@') ? 2 : 1)
+    .join('/')
 
 test('no module under src/ or domain/ imports outside the package or an undeclared npm package', () => {
   const bad = []

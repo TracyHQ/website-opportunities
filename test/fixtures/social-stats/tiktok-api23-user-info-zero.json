@@ -1,33 +1,33 @@
 {
- "statusCode": 0,
- "status_code": 0,
- "status_msg": "",
- "userInfo": {
-  "user": {
-   "id": "7125734702652572677",
-   "uniqueId": "phin.coffee",
-   "secUid": "MS4wLjABAAAACEiQEhcNuLtQ9UHRcdvdgh4fjwOtJLUJ5zOcNBWMQR60tRVg4MjQwvp0GVNHJveh",
-   "nickname": "phin.coffee",
-   "privateAccount": false,
-   "verified": false
-  },
-  "stats": {
-   "followerCount": 0,
-   "followingCount": 0,
-   "heart": 0,
-   "heartCount": 0,
-   "videoCount": 0,
-   "diggCount": 0,
-   "friendCount": 0
-  },
-  "statsV2": {
-   "followerCount": "0",
-   "followingCount": "0",
-   "heart": "0",
-   "heartCount": "0",
-   "videoCount": "0",
-   "diggCount": "0",
-   "friendCount": "0"
+  "statusCode": 0,
+  "status_code": 0,
+  "status_msg": "",
+  "userInfo": {
+    "user": {
+      "id": "7125734702652572677",
+      "uniqueId": "phin.coffee",
+      "secUid": "MS4wLjABAAAACEiQEhcNuLtQ9UHRcdvdgh4fjwOtJLUJ5zOcNBWMQR60tRVg4MjQwvp0GVNHJveh",
+      "nickname": "phin.coffee",
+      "privateAccount": false,
+      "verified": false
+    },
+    "stats": {
+      "followerCount": 0,
+      "followingCount": 0,
+      "heart": 0,
+      "heartCount": 0,
+      "videoCount": 0,
+      "diggCount": 0,
+      "friendCount": 0
+    },
+    "statsV2": {
+      "followerCount": "0",
+      "followingCount": "0",
+      "heart": "0",
+      "heartCount": "0",
+      "videoCount": "0",
+      "diggCount": "0",
+      "friendCount": "0"
+    }
   }
- }
 }

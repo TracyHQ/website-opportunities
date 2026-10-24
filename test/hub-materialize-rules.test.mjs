@@ -26,8 +26,14 @@ test('within one source object the newest hub fetch wins', () => {
   const fields = selectFields(
     [
       obs('phone', '+31 20 111', 'google_maps', { fetchedAt: '2026-10-01T00:00:00Z', objectId: 'X' }),
-      obs('website', 'https://old.example/', 'google_maps', { fetchedAt: '2026-10-01T00:00:00Z', objectId: 'X' }),
-      obs('website', 'https://new.example/', 'google_maps', { fetchedAt: '2026-10-10T00:00:00Z', objectId: 'X' })
+      obs('website', 'https://old.example/', 'google_maps', {
+        fetchedAt: '2026-10-01T00:00:00Z',
+        objectId: 'X'
+      }),
+      obs('website', 'https://new.example/', 'google_maps', {
+        fetchedAt: '2026-10-10T00:00:00Z',
+        objectId: 'X'
+      })
     ],
     POLICY_VERSION
   )
@@ -37,25 +43,40 @@ test('within one source object the newest hub fetch wins', () => {
 })
 
 test('twenty copies of the same Google data are one source family, not twenty votes', () => {
-  const google = Array.from({ length: 20 }, () => obs('website', 'https://a.example/', 'google_maps', { objectId: 'G' }))
+  const google = Array.from({ length: 20 }, () =>
+    obs('website', 'https://a.example/', 'google_maps', { objectId: 'G' })
+  )
   const fields = selectFields(
-    [...google, obs('website', 'https://b.example/', 'tripadvisor'), obs('website', 'https://b.example/', 'facebook')],
+    [
+      ...google,
+      obs('website', 'https://b.example/', 'tripadvisor'),
+      obs('website', 'https://b.example/', 'facebook')
+    ],
     POLICY_VERSION
   )
   assert.equal(fields.website.status, 'conflicted')
   assert.equal(fields.website.value, null)
   assert.equal(fields.website.blocksBrief, true)
-  assert.deepEqual(fields.website.alternatives.map((a) => a.sources).sort(), [['facebook', 'tripadvisor'], ['google_maps']])
+  assert.deepEqual(fields.website.alternatives.map((a) => a.sources).sort(), [
+    ['facebook', 'tripadvisor'],
+    ['google_maps']
+  ])
 })
 
 test('a higher-priority source outranks one lower source without a conflict', () => {
   const fields = selectFields(
-    [obs('website', 'https://a.example/', 'google_maps'), obs('website', 'https://b.example/', 'tripadvisor')],
+    [
+      obs('website', 'https://a.example/', 'google_maps'),
+      obs('website', 'https://b.example/', 'tripadvisor')
+    ],
     POLICY_VERSION
   )
   assert.equal(fields.website.status, 'chosen')
   assert.equal(fields.website.value, 'https://a.example/')
-  assert.deepEqual(fields.website.alternatives.map((a) => a.value), ['https://b.example/'])
+  assert.deepEqual(
+    fields.website.alternatives.map((a) => a.value),
+    ['https://b.example/']
+  )
 })
 
 test('two equally ranked sources that disagree are conflicted', () => {
@@ -77,13 +98,21 @@ test('URLs that differ only in scheme, www or trailing slash agree', () => {
 
 test('a low-impact field keeps a conflicted value but reports it', () => {
   const fields = selectFields(
-    [obs('description', 'Coffee', 'business_website'), obs('description', 'Tea', 'business_website', { objectId: 'other' })],
+    [
+      obs('description', 'Coffee', 'business_website'),
+      obs('description', 'Tea', 'business_website', { objectId: 'other' })
+    ],
     POLICY_VERSION
   )
   // one family: the newest object wins, no conflict
   assert.equal(fields.description.status, 'chosen')
   const conflicted = selectFields(
-    [obs('category', 'cafe', 'google_maps'), obs('category', 'bar', 'google_maps', { objectId: 'g2', fetchedAt: '2026-10-01T00:00:00Z' }), obs('category', 'bar', 'osm'), obs('category', 'bar', 'tripadvisor')],
+    [
+      obs('category', 'cafe', 'google_maps'),
+      obs('category', 'bar', 'google_maps', { objectId: 'g2', fetchedAt: '2026-10-01T00:00:00Z' }),
+      obs('category', 'bar', 'osm'),
+      obs('category', 'bar', 'tripadvisor')
+    ],
     POLICY_VERSION
   )
   assert.equal(conflicted.category.status, 'conflicted')
@@ -93,13 +122,19 @@ test('a low-impact field keeps a conflicted value but reports it', () => {
 
 test('locations within 150 m agree; farther apart they conflict and are never averaged', () => {
   const near = selectFields(
-    [obs('location', { latitude: 52.37, longitude: 4.89 }, 'google_maps'), obs('location', { latitude: 52.3705, longitude: 4.89 }, 'osm')],
+    [
+      obs('location', { latitude: 52.37, longitude: 4.89 }, 'google_maps'),
+      obs('location', { latitude: 52.3705, longitude: 4.89 }, 'osm')
+    ],
     POLICY_VERSION
   )
   assert.equal(near.location.status, 'chosen')
   assert.deepEqual(near.location.value, { latitude: 52.37, longitude: 4.89 })
   const far = selectFields(
-    [obs('location', { latitude: 52.37, longitude: 4.89 }, 'google_maps'), obs('location', { latitude: 52.38, longitude: 4.89 }, 'osm')],
+    [
+      obs('location', { latitude: 52.37, longitude: 4.89 }, 'google_maps'),
+      obs('location', { latitude: 52.38, longitude: 4.89 }, 'osm')
+    ],
     POLICY_VERSION
   )
   assert.equal(far.location.status, 'conflicted')
@@ -145,7 +180,10 @@ test('an unknown policy version is refused', () => {
 })
 
 test('no website is "not found in sources X, Y at T", never "no website"', () => {
-  const list = [obs('name', 'Cafe', 'google_maps', { fetchedAt: '2026-10-20T10:00:00.000Z' }), obs('phone', '+1', 'osm', { fetchedAt: '2026-10-21T10:00:00.000Z' })]
+  const list = [
+    obs('name', 'Cafe', 'google_maps', { fetchedAt: '2026-10-20T10:00:00.000Z' }),
+    obs('phone', '+1', 'osm', { fetchedAt: '2026-10-21T10:00:00.000Z' })
+  ]
   const { content, provenance } = deriveContent(selectFields(list, POLICY_VERSION), list)
   assert.deepEqual(content.websiteVerdict, { state: 'not_found', checkedSources: ['google_maps', 'osm'] })
   assert.equal(provenance.websiteVerdict.checkedAt, '2026-10-21T10:00:00.000Z')
@@ -153,7 +191,10 @@ test('no website is "not found in sources X, Y at T", never "no website"', () =>
 })
 
 test('a conflicted website holds the score instead of scoring "no website"', () => {
-  const list = [obs('website', 'https://a.example/', 'google_maps'), obs('website', 'https://b.example/', 'osm')]
+  const list = [
+    obs('website', 'https://a.example/', 'google_maps'),
+    obs('website', 'https://b.example/', 'osm')
+  ]
   const { content } = deriveContent(selectFields(list, POLICY_VERSION), list)
   assert.equal(content.websiteVerdict.state, 'conflicted')
   assert.equal(content.score.pending, true)

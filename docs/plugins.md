@@ -93,6 +93,24 @@ Moving the Find search and research onto the registry is the next step; until th
 used by code that calls `discoverInOrder` or the registry directly. For the operator to order a new
 provider on the settings page, add it to its group in `domain/capabilities.mjs` too.
 
+### Kinds of business an area search finds (`domain/trade-search.mjs`)
+
+An area search finds every kind of local business unless the person picks one (`trade` in
+`POST /search`; `GET /capabilities` lists them as `trades`). What each kind asks the map providers for
+is data in `domain/trade-search.mjs`, one row per kind:
+
+- `google`: Google Places (New) Table A types, sent as Nearby `includedTypes` (at most 50).
+- `osm`: OpenStreetMap tags, `[key, [values]]`, or `[key, null, [except]]` for "any value but these".
+- `phrase`: the words a Google Maps (Apify) search uses.
+
+"Any local business" is `ANY_GOOGLE_TYPES` on Google (one call, at most 50 types), every row's OSM tags
+in one Overpass query, and one phrase per kind on Apify with the place budget split between them. To
+add a type, put it in its row and in the same trade in `domain/trades.mjs`, which files a found place
+under its trade; `test/domain-trade-search.test.mjs` checks that the two agree and that no row passes
+50 types. Only businesses that sell to the public belong here: no government office, school,
+hospital, place of worship, ATM, parking, mall or department store. Food and drink keeps its own
+search (`domain/place-kinds.mjs`), with cuisines and the six Find tabs.
+
 ## 2. Scoring rules (`domain/scoring/`)
 
 The opportunity score runs from 0 to 100 with a grade (A from 75, B from 50, else C) and the list of

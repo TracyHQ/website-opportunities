@@ -16,6 +16,9 @@ loader and one example in the repository. Details and skeletons: [docs/plugins.m
 | **Outreach template** | `src/plugins/outreach/<lang>/` | `demo.json` with the strings for one language: `greeting`, `body`, `expiry`, `kept`, `subject`, with the placeholders `{place}`, `{url}` and `{expires}`. | `en/demo.json` |
 | **Builder** | `src/plugins/builders/` | A factory returning the members the router calls: `routes`, `settingsOf`, `saveSettings`, `templateChoicesOf`, `listedDemoOf`, `detailOf`, `demoFactsOf`, `demoJourneySql`. | `manual.js` (export the brief, record a demo built elsewhere); `tracy.js` is planned |
 
+A new kind of business for the Find search is data, not a plugin: one row in `domain/trade-search.mjs`
+(see [docs/plugins.md](docs/plugins.md#kinds-of-business-an-area-search-finds-domaintrade-searchmjs)).
+
 Data contributions to the shared research hub are a different thing and are not plugins: they go
 through the hub's checked submission flow (planned). A data contribution never runs code from the
 person who sent it.

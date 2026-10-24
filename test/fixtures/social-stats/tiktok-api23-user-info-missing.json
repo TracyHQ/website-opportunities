@@ -1,8 +1,8 @@
 {
- "statusCode": 10221,
- "status_code": 0,
- "status_msg": "",
- "userInfo": {
-  "user": {}
- }
+  "statusCode": 10221,
+  "status_code": 0,
+  "status_msg": "",
+  "userInfo": {
+    "user": {}
+  }
 }

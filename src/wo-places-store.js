@@ -261,8 +261,14 @@ async function lockPlace(client, placeId) {
   return row
 }
 
-/** Everything `/ops/wo` shows of one place. Account emails are for staff only: this door is behind `admit`. */
-export async function placeDetail(db, placeId, nowMs) {
+/**
+ * Everything `/ops/wo` shows of one place. Each account that saved it is a principal; its email and name come from the
+ * host (`host.emailOf`, `host.displayNameOf`), never from a user table here, and stay null without them. Emails are for
+ * staff only: this door is behind the operator check.
+ * @param {{ emailOf?: (db: any, principalId: string) => Promise<string | null>,
+ *   displayNameOf?: (db: any, principalId: string) => Promise<string> }} [names]
+ */
+export async function placeDetail(db, placeId, nowMs, { emailOf, displayNameOf } = {}) {
   const now = new Date(nowMs).toISOString()
   const fact = (await db.query(`${FACTS_SQL} select * from graded`, [now, null, placeId])).rows[0]
   if (!fact) throw new PlaceOpsError(404, 'PLACE_NOT_FOUND', 'Place not found.')
@@ -293,9 +299,8 @@ export async function placeDetail(db, placeId, nowMs) {
         [placeId]
       ),
       db.query(
-        `select a.id, a.email, a.display_name, count(o.id)::int as opportunities, max(o.updated_at) as last_seen
-           from wo_opportunity o join account a on a.id = o.account_id
-          where o.place_id = $1 group by a.id order by last_seen desc`,
+        `select o.account_id as id, count(o.id)::int as opportunities, max(o.updated_at) as last_seen
+           from wo_opportunity o where o.place_id = $1 group by o.account_id order by last_seen desc`,
         [placeId]
       ),
       db.query(
@@ -333,6 +338,13 @@ export async function placeDetail(db, placeId, nowMs) {
       )
     ])
   const pagesOf = new Map(searched.rows.map((r) => [r.source, Array.isArray(r.pages) ? r.pages : []]))
+  const accountRows = await Promise.all(
+    accounts.rows.map(async (a) => ({
+      ...a,
+      email: emailOf ? ((await emailOf(db, a.id)) ?? null) : null,
+      name: displayNameOf ? (await displayNameOf(db, a.id)) || null : null
+    }))
+  )
   const summary = rowOf(fact, costs.get(placeId))
   summary.sources = summary.sources.map((s) =>
     pagesOf.has(s.source) ? { ...s, pages: pagesOf.get(s.source) } : s
@@ -392,10 +404,10 @@ export async function placeDetail(db, placeId, nowMs) {
       createdAt: iso(j.created_at),
       updatedAt: iso(j.updated_at)
     })),
-    accounts: accounts.rows.map((a) => ({
+    accounts: accountRows.map((a) => ({
       accountId: a.id,
       email: a.email,
-      name: a.display_name ?? null,
+      name: a.name,
       opportunities: a.opportunities,
       lastSeenAt: iso(a.last_seen)
     })),
@@ -426,7 +438,14 @@ export async function placeDetail(db, placeId, nowMs) {
  * again with its waiting requests. `outcome` says which, for the event and the answer.
  * @returns {Promise<{job: object, outcome: 'joined' | 'after-running' | 'requeued' | 'queued'}>}
  */
-async function queueForcedRun(client, placeId, force = true, actor = null, starter = null, principalOf = null) {
+async function queueForcedRun(
+  client,
+  placeId,
+  force = true,
+  actor = null,
+  starter = null,
+  principalOf = null
+) {
   const { rows } = await client.query(
     `select state from wo_place_job where place_id = $1 and state in ('queued', 'running', 'paused', 'blocked')`,
     [placeId]
@@ -657,11 +676,10 @@ export async function addSocialPage(pool, placeId, { url, actor, resolve }) {
   const link = { kind: network, url: normalizeUrl(url) }
   return inTx(pool, async (client) => {
     await lockPlace(client, placeId)
-    const known = await client.query('select 1 from wo_place_link where place_id = $1 and kind = $2 and url = $3', [
-      placeId,
-      link.kind,
-      link.url
-    ])
+    const known = await client.query(
+      'select 1 from wo_place_link where place_id = $1 and kind = $2 and url = $3',
+      [placeId, link.kind, link.url]
+    )
     if (known.rows.length) return { link, added: false }
     await addLink(client, placeId, link.kind, link.url, 'operator', { from: 'operator', addedBy: actor })
     await nameOnSnapshot(client, placeId, link.kind, link.url)

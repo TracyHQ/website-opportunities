@@ -45,10 +45,10 @@ export async function linkVerifiedSubjects(pool, { limit = 100 } = {}) {
       await client.query('select pg_advisory_xact_lock(hashtextextended($1, 0))', [
         `wo_place:${r.namespace}:${r.external_id}`
       ])
-      const known = await client.query('select 1 from wo_place_identity where namespace = $1 and external_id = $2', [
-        r.namespace,
-        r.external_id
-      ])
+      const known = await client.query(
+        'select 1 from wo_place_identity where namespace = $1 and external_id = $2',
+        [r.namespace, r.external_id]
+      )
       if (!known.rowCount) {
         const placeId = (
           await client.query('insert into wo_place (display_name) values ($1) returning id', [r.name ?? null])
@@ -57,7 +57,10 @@ export async function linkVerifiedSubjects(pool, { limit = 100 } = {}) {
           `insert into wo_place_identity (namespace, external_id, place_id, source) values ($1, $2, $3, 'hub')`,
           [r.namespace, r.external_id, placeId]
         )
-        await client.query('insert into wo_hub_place (place_id) values ($1) on conflict (place_id) do nothing', [placeId])
+        await client.query(
+          'insert into wo_hub_place (place_id) values ($1) on conflict (place_id) do nothing',
+          [placeId]
+        )
         made++
       }
       await client.query('commit')
@@ -78,7 +81,19 @@ export async function linkVerifiedSubjects(pool, { limit = 100 } = {}) {
  *   now?: () => number, log?: Console }} deps
  * @returns {{ routes: Hono, ticks: { ms: number, name: string, run: () => Promise<object> }[] }}
  */
-export function createHubService({ pool, host, config, ledger, googleKey, fetchImpl, resolve, objects, quotaLimits, now = Date.now, log = console }) {
+export function createHubService({
+  pool,
+  host,
+  config,
+  ledger,
+  googleKey,
+  fetchImpl,
+  resolve,
+  objects,
+  quotaLimits,
+  now = Date.now,
+  log = console
+}) {
   const tokens = createHubTokens({ pool })
   const quota = createHubQuota({ pool, limits: quotaLimits, now })
   const routes = new Hono()

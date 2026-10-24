@@ -29,7 +29,9 @@ export interface ScoringRule {
   id: string
   weight: number
   holdsScore?: boolean
-  score(evidence: ScoringEvidence): { points: number | null; reason: string; params?: Record<string, unknown> } | null
+  score(
+    evidence: ScoringEvidence
+  ): { points: number | null; reason: string; params?: Record<string, unknown> } | null
 }
 export const BUILT_IN_SCORING_RULES: readonly ScoringRule[]
 export function defineScoringRule(rule: ScoringRule): Readonly<ScoringRule>

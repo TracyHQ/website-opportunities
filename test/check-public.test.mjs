@@ -76,7 +76,18 @@ for (const text of MUST_PASS) {
 }
 
 test('an npm lockfile integrity hash is not a key, but a key elsewhere in the lockfile still is', () => {
-  const hash = 'sha512-' + ['Ka7FkPn3Qx9L', 'z2Rb8Wm4Tc6Y', 'v1Hs5Ju0Ge7D', 'd3Aa2Bb9Cc4E', 'e8Ff1Gg6Hh5I', 'i0Jj7Kk2Ll3M', 'm'].join('') + '=='
+  const hash =
+    'sha512-' +
+    [
+      'Ka7FkPn3Qx9L',
+      'z2Rb8Wm4Tc6Y',
+      'v1Hs5Ju0Ge7D',
+      'd3Aa2Bb9Cc4E',
+      'e8Ff1Gg6Hh5I',
+      'i0Jj7Kk2Ll3M',
+      'm'
+    ].join('') +
+    '=='
   const lock = `{\n  "node_modules/x": {\n    "integrity": "${hash}"\n  }\n}\n`
   assert.deepEqual(scanText('package-lock.json', lock), [])
   const key = ['Zx8Qw2Er5', 'Ty7Ui1Op3', 'As6Df9Gh4', 'Jk0Lz'].join('')
@@ -220,7 +231,9 @@ test('cli: the allowlist quotes what it allows without flagging itself, but its 
     'scripts/check-public.allow': `src/guard.js | private-ip | ${ip} | the guard test\n`
   })
   assert.equal(run(dir, '--root', dir).code, 0)
-  write(dir, { 'scripts/check-public.allow': `src/guard.js | private-ip | ${ip} | ${j('Bri', 'an')} asked\n` })
+  write(dir, {
+    'scripts/check-public.allow': `src/guard.js | private-ip | ${ip} | ${j('Bri', 'an')} asked\n`
+  })
   const r = run(dir, '--root', dir)
   assert.equal(r.code, 1)
   assert.match(r.out, /check-public\.allow:1 person/)

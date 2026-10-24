@@ -17,11 +17,23 @@
  */
 import { Hono } from 'hono'
 import { requireHost } from '../host.js'
-import { parseWoOpsSettingsInput, readWoOpsSettings, saveWoOpsSettings, WO_PROVIDERS } from '../wo-settings.js'
+import {
+  parseWoOpsSettingsInput,
+  readWoOpsSettings,
+  saveWoOpsSettings,
+  WO_PROVIDERS
+} from '../wo-settings.js'
 import { keysWritable, providerKeyFacts, saveProviderKey, testProviderKey } from './provider-keys.js'
 import { capabilityGroups } from './provider-states.js'
 import { cancelPlaceJob, PLACE_JOB_STATES, researchQueue, retryPlaceJob } from './research-queue.js'
-import { decodeSpendCursor, LEDGER_STATES, MAX_SPEND_DAYS, spendCaps, spendRows, spendSummary } from './spend.js'
+import {
+  decodeSpendCursor,
+  LEDGER_STATES,
+  MAX_SPEND_DAYS,
+  spendCaps,
+  spendRows,
+  spendSummary
+} from './spend.js'
 
 export const OPERATOR_BASE = '/api/website-opportunities/operator'
 const KEY_MAX = 512
@@ -31,7 +43,10 @@ const REFUSALS = Object.freeze({
   JSON_REQUIRED: [415, 'Send the body as application/json.'],
   INVALID_BODY: [400, 'Send a JSON object.'],
   UNKNOWN_PROVIDER: [400, 'Name a provider this deployment knows.'],
-  INVALID_API_KEY: [400, 'Send apiKey as one string without spaces, at most 512 characters; an empty string clears it.'],
+  INVALID_API_KEY: [
+    400,
+    'Send apiKey as one string without spaces, at most 512 characters; an empty string clears it.'
+  ],
   KEYS_READ_ONLY: [409, 'This server reads provider keys from its environment; set them there and restart.'],
   INVALID_DAYS: [400, `Ask for 1 to ${MAX_SPEND_DAYS} days.`],
   INVALID_FILTER: [400, 'Use a known state and a provider or purpose name.'],
@@ -49,7 +64,15 @@ const REFUSALS = Object.freeze({
  *   fetchImpl?: typeof fetch, hub?: boolean, now?: () => number, log?: {log: Function} }} deps
  *   `hub`: the hub admin doors are mounted beside these, so the page shows a Hub tab.
  */
-export function operatorRoutes({ pool, config, host: given, fetchImpl = fetch, hub = false, now = Date.now, log = console }) {
+export function operatorRoutes({
+  pool,
+  config,
+  host: given,
+  fetchImpl = fetch,
+  hub = false,
+  now = Date.now,
+  log = console
+}) {
   const host = requireHost(given, ['json', 'requireOperator', 'openSecret'])
   const app = new Hono()
 
@@ -92,7 +115,12 @@ export function operatorRoutes({ pool, config, host: given, fetchImpl = fetch, h
   app.get(`${B}/me`, async (c) => {
     const who = await host.requireOperator(c, { write: false })
     if (typeof who !== 'string') return who
-    return answer(c, { operator: true, email: who, hub: Boolean(hub), keysWritable: keysWritable(config, host) })
+    return answer(c, {
+      operator: true,
+      email: who,
+      hub: Boolean(hub),
+      keysWritable: keysWritable(config, host)
+    })
   })
 
   app.get(`${B}/settings`, async (c) => {
@@ -127,7 +155,9 @@ export function operatorRoutes({ pool, config, host: given, fetchImpl = fetch, h
     if (typeof body?.apiKey !== 'string' || body.apiKey.length > KEY_MAX || /\s/.test(body.apiKey.trim()))
       return refuse(c, 'INVALID_API_KEY')
     await saveProviderKey(pool, config, host, provider, body.apiKey, g.email)
-    log.log?.(`[wo operator] ${provider} key ${body.apiKey.trim() === '' ? 'cleared' : 'saved'} by ${g.email}`)
+    log.log?.(
+      `[wo operator] ${provider} key ${body.apiKey.trim() === '' ? 'cleared' : 'saved'} by ${g.email}`
+    )
     return answer(c, await settingsDocument())
   })
 
@@ -144,7 +174,10 @@ export function operatorRoutes({ pool, config, host: given, fetchImpl = fetch, h
     if (g.deny) return g.deny
     const days = Number(c.req.query('days') ?? 30)
     if (!Number.isInteger(days) || days < 1 || days > MAX_SPEND_DAYS) return refuse(c, 'INVALID_DAYS')
-    const [summary, { settings }] = await Promise.all([spendSummary(pool, { days, now }), readWoOpsSettings(pool)])
+    const [summary, { settings }] = await Promise.all([
+      spendSummary(pool, { days, now }),
+      readWoOpsSettings(pool)
+    ])
     return answer(c, { ...summary, caps: spendCaps(settings) })
   })
 

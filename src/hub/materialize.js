@@ -34,7 +34,12 @@ const FAMILY_ALIASES = Object.freeze({
 
 const urlKey = (v) =>
   typeof v === 'string'
-    ? v.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/+$/, '')
+    ? v
+        .trim()
+        .toLowerCase()
+        .replace(/^https?:\/\//, '')
+        .replace(/^www\./, '')
+        .replace(/\/+$/, '')
     : canonicalJson(v)
 const phoneKey = (v) => (typeof v === 'string' ? v.replace(/[^\d+]/g, '') : canonicalJson(v))
 
@@ -43,11 +48,15 @@ function metresApart(a, b) {
   const rad = Math.PI / 180
   const dLat = (b.latitude - a.latitude) * rad
   const dLon = (b.longitude - a.longitude) * rad
-  const h = Math.sin(dLat / 2) ** 2 + Math.cos(a.latitude * rad) * Math.cos(b.latitude * rad) * Math.sin(dLon / 2) ** 2
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(a.latitude * rad) * Math.cos(b.latitude * rad) * Math.sin(dLon / 2) ** 2
   return 2 * 6_371_000 * Math.asin(Math.sqrt(h))
 }
 const sameSpot = (a, b) =>
-  Number.isFinite(a?.latitude) && Number.isFinite(b?.latitude) ? metresApart(a, b) <= SAME_SPOT_M : canonicalJson(a) === canonicalJson(b)
+  Number.isFinite(a?.latitude) && Number.isFinite(b?.latitude)
+    ? metresApart(a, b) <= SAME_SPOT_M
+    : canonicalJson(a) === canonicalJson(b)
 
 const byKey = (key) => (a, b) => key(a) === key(b)
 const sameJson = byKey(canonicalJson)
@@ -64,14 +73,34 @@ const POLICIES = Object.freeze({
   [POLICY_VERSION]: Object.freeze({
     name: { kind: 'single', guard: 'identity', tiers: [TOP, ['business_website'], SOCIAL] },
     closed: { kind: 'single', guard: 'identity', tiers: [['google_maps'], ['osm', ...SOCIAL]] },
-    website: { kind: 'single', guard: 'website', tiers: [[...TOP, 'business_website'], SOCIAL], same: byKey(urlKey) },
-    phone: { kind: 'set', guard: 'contact', tiers: [['business_website', 'google_maps'], ['osm', ...SOCIAL]], same: byKey(phoneKey) },
+    website: {
+      kind: 'single',
+      guard: 'website',
+      tiers: [[...TOP, 'business_website'], SOCIAL],
+      same: byKey(urlKey)
+    },
+    phone: {
+      kind: 'set',
+      guard: 'contact',
+      tiers: [
+        ['business_website', 'google_maps'],
+        ['osm', ...SOCIAL]
+      ],
+      same: byKey(phoneKey)
+    },
     email: { kind: 'set', guard: 'contact', tiers: [['business_website'], ['osm', ...SOCIAL]] },
     social_profile: { kind: 'set', guard: 'contact', tiers: [['business_website', 'google_maps'], SOCIAL] },
     address: { kind: 'single', guard: 'location', tiers: [TOP, ['business_website', ...SOCIAL]] },
     location: { kind: 'single', guard: 'location', tiers: [TOP, SOCIAL], same: sameSpot },
     category: { kind: 'single', guard: null, tiers: [['google_maps'], ['osm', 'tripadvisor']] },
-    opening_hours: { kind: 'single', guard: null, tiers: [['google_maps', 'business_website'], ['osm', ...SOCIAL]] },
+    opening_hours: {
+      kind: 'single',
+      guard: null,
+      tiers: [
+        ['google_maps', 'business_website'],
+        ['osm', ...SOCIAL]
+      ]
+    },
     description: { kind: 'single', guard: null, tiers: [['business_website'], ['google_maps', ...SOCIAL]] },
     site_check: { kind: 'single', guard: null, tiers: [['hub_site_check']] },
     rating: { kind: 'per_source' },
@@ -90,7 +119,8 @@ export function policyOf(version) {
 export const fieldNamesOf = (version) => Object.keys(policyOf(version)).sort()
 
 const time = (iso) => Date.parse(iso) || 0
-const newer = (a, b) => (time(a.fetchedAt) - time(b.fetchedAt) || (a.id > b.id ? 1 : a.id < b.id ? -1 : 0)) > 0
+const newer = (a, b) =>
+  (time(a.fetchedAt) - time(b.fetchedAt) || (a.id > b.id ? 1 : a.id < b.id ? -1 : 0)) > 0
 const iso = (ms) => (ms ? new Date(ms).toISOString() : null)
 
 /** One claim per family: newest per source object, then newest object of the family. */
@@ -142,7 +172,9 @@ function clustersOf(claims, rule) {
 }
 
 function provenanceOf(claims) {
-  const sorted = [...claims].sort((a, b) => (a.family < b.family ? -1 : a.family > b.family ? 1 : a.objectId < b.objectId ? -1 : 1))
+  const sorted = [...claims].sort((a, b) =>
+    a.family < b.family ? -1 : a.family > b.family ? 1 : a.objectId < b.objectId ? -1 : 1
+  )
   return {
     sources: [...new Set(sorted.map((c) => c.family))].sort(),
     sourceObjects: sorted.map((c) => ({ family: c.family, objectId: c.objectId })),
@@ -152,7 +184,11 @@ function provenanceOf(claims) {
   }
 }
 
-const alternativeOf = (k) => ({ value: k.value, sources: k.sources, observationIds: k.provenance.observationIds })
+const alternativeOf = (k) => ({
+  value: k.value,
+  sources: k.sources,
+  observationIds: k.provenance.observationIds
+})
 
 function selectSingle(clusters, rule) {
   const [winner, ...rest] = clusters
@@ -198,7 +234,7 @@ function mergeProvenance(list) {
   const sourceObjects = objects
     .filter((o) => {
       // The hub's source group (`<family>:<object id>`) names one source object, whoever sent it.
-    const key = o.group ?? `${o.family}:${o.objectId}`
+      const key = o.group ?? `${o.family}:${o.objectId}`
       return seen.has(key) ? false : (seen.add(key), true)
     })
     .sort((a, b) => (a.family < b.family ? -1 : a.family > b.family ? 1 : a.objectId < b.objectId ? -1 : 1))
@@ -281,7 +317,7 @@ export function deriveContent(fields, observations) {
       .map((s) => [s.network, s.url])
   )
   const candidate = {
-    website: website?.status === 'conflicted' ? DISPUTED_WEBSITE : website?.value ?? undefined,
+    website: website?.status === 'conflicted' ? DISPUTED_WEBSITE : (website?.value ?? undefined),
     phone: usable(fields.phone) ? fields.phone.value[0] : undefined,
     emails: usable(fields.email) ? fields.email.value : [],
     socials,
@@ -289,26 +325,41 @@ export function deriveContent(fields, observations) {
     reviews: Number.isFinite(ratingOf.reviewCount) ? ratingOf.reviewCount : undefined,
     temporarilyClosed: fields.closed?.value === 'temporarily'
   }
-  const siteCheck = website?.status === 'conflicted' ? null : fields.site_check?.value ?? null
+  const siteCheck = website?.status === 'conflicted' ? null : (fields.site_check?.value ?? null)
   const scored = scoreOpportunity({
     candidate,
     siteCheck,
     social: activity.length ? { lastPostAt: activity.at(-1) } : null,
     now: new Date(time(checkedAt))
   })
-  const score = { score: scored.score, grade: scored.grade, pending: scored.pending, reasons: scored.reasons.map((r) => r[0]) }
+  const score = {
+    score: scored.score,
+    grade: scored.grade,
+    pending: scored.pending,
+    reasons: scored.reasons.map((r) => r[0])
+  }
   const content = {
     fields: Object.fromEntries(
       Object.entries(fields).map(([k, f]) => [
         k,
-        { status: f.status, value: f.value, blocksBrief: f.blocksBrief, alternatives: f.alternatives.map(({ value, sources }) => ({ value, sources })) }
+        {
+          status: f.status,
+          value: f.value,
+          blocksBrief: f.blocksBrief,
+          alternatives: f.alternatives.map(({ value, sources }) => ({ value, sources }))
+        }
       ])
     ),
     websiteVerdict,
     score
   }
   const provenance = {
-    fields: Object.fromEntries(Object.entries(fields).map(([k, f]) => [k, { ...f.provenance, alternatives: f.alternatives.map((a) => a.observationIds) }])),
+    fields: Object.fromEntries(
+      Object.entries(fields).map(([k, f]) => [
+        k,
+        { ...f.provenance, alternatives: f.alternatives.map((a) => a.observationIds) }
+      ])
+    ),
     websiteVerdict: { checkedSources, checkedAt }
   }
   return { content, provenance }
@@ -383,13 +434,22 @@ export async function liveObservationsOf(db, placeId) {
  * @returns {Promise<{ status: 'published' | 'unchanged', revision: number, snapshotId: string, contentChanged?: boolean }>}
  * @throws {StaleEvidenceError | import('./revocations.js').HubRevokedError}
  */
-export async function materialize(pool, placeId, evidenceRevision, policyVersion, { revocationRevision } = {}) {
+export async function materialize(
+  pool,
+  placeId,
+  evidenceRevision,
+  policyVersion,
+  { revocationRevision } = {}
+) {
   policyOf(policyVersion)
   const client = await pool.connect()
   try {
     await client.query('begin')
-    await client.query('insert into wo_hub_place (place_id) values ($1) on conflict (place_id) do nothing', [placeId])
-    const place = (await client.query('select * from wo_hub_place where place_id = $1 for update', [placeId])).rows[0]
+    await client.query('insert into wo_hub_place (place_id) values ($1) on conflict (place_id) do nothing', [
+      placeId
+    ])
+    const place = (await client.query('select * from wo_hub_place where place_id = $1 for update', [placeId]))
+      .rows[0]
     await assertPublishable(client, place, revocationRevision)
     if (Number(place.evidence_revision) !== Number(evidenceRevision)) {
       throw new StaleEvidenceError(placeId, evidenceRevision, Number(place.evidence_revision))
@@ -400,10 +460,22 @@ export async function materialize(pool, placeId, evidenceRevision, policyVersion
     const contentHash = hashOf({ policyVersion, content })
     const provenanceHash = hashOf({ policyVersion, provenance })
     const current = place.current_snapshot_id
-      ? (await client.query('select revoked_at from wo_hub_snapshot where snapshot_id = $1', [place.current_snapshot_id])).rows[0]
+      ? (
+          await client.query('select revoked_at from wo_hub_snapshot where snapshot_id = $1', [
+            place.current_snapshot_id
+          ])
+        ).rows[0]
       : null
-    if (current && !current.revoked_at && place.content_hash === contentHash && place.provenance_hash === provenanceHash) {
-      await client.query('update wo_hub_place set built_evidence_revision = $2 where place_id = $1', [placeId, evidenceRevision])
+    if (
+      current &&
+      !current.revoked_at &&
+      place.content_hash === contentHash &&
+      place.provenance_hash === provenanceHash
+    ) {
+      await client.query('update wo_hub_place set built_evidence_revision = $2 where place_id = $1', [
+        placeId,
+        evidenceRevision
+      ])
       await client.query('commit')
       return { status: 'unchanged', revision: Number(place.revision), snapshotId: place.current_snapshot_id }
     }
@@ -414,13 +486,16 @@ export async function materialize(pool, placeId, evidenceRevision, policyVersion
         [placeId]
       )
     ).rows[0].id
-    await client.query('insert into wo_place_snapshot_profile (snapshot_id, profile) values ($1, $2::jsonb)', [
-      snapshotId,
-      JSON.stringify({ hub: { policyVersion, revision, ...content } })
-    ])
+    await client.query(
+      'insert into wo_place_snapshot_profile (snapshot_id, profile) values ($1, $2::jsonb)',
+      [snapshotId, JSON.stringify({ hub: { policyVersion, revision, ...content } })]
+    )
     const observationIds = [
       ...new Set(
-        Object.values(fields).flatMap((f) => [...f.provenance.observationIds, ...f.alternatives.flatMap((a) => a.observationIds)])
+        Object.values(fields).flatMap((f) => [
+          ...f.provenance.observationIds,
+          ...f.alternatives.flatMap((a) => a.observationIds)
+        ])
       )
     ].sort()
     await client.query(
@@ -443,19 +518,36 @@ export async function materialize(pool, placeId, evidenceRevision, policyVersion
       await client.query(
         `insert into wo_hub_snapshot_field (snapshot_id, field, status, value, blocks_brief, provenance, alternatives)
          values ($1, $2, $3, $4::jsonb, $5, $6::jsonb, $7::jsonb)`,
-        [snapshotId, field, f.status, JSON.stringify(f.value), f.blocksBrief, JSON.stringify(f.provenance), JSON.stringify(f.alternatives)]
+        [
+          snapshotId,
+          field,
+          f.status,
+          JSON.stringify(f.value),
+          f.blocksBrief,
+          JSON.stringify(f.provenance),
+          JSON.stringify(f.alternatives)
+        ]
       )
     }
     if (place.current_snapshot_id) {
-      await client.query(`update wo_place_snapshot set state = 'superseded' where id = $1 and state = 'published'`, [
-        place.current_snapshot_id
-      ])
+      await client.query(
+        `update wo_place_snapshot set state = 'superseded' where id = $1 and state = 'published'`,
+        [place.current_snapshot_id]
+      )
     }
     const location = fields.location
     await client.query(
       `update wo_hub_place set revision = $2, current_snapshot_id = $3, content_hash = $4, provenance_hash = $5,
          cell = $6, built_evidence_revision = $7, updated_at = now() where place_id = $1`,
-      [placeId, revision, snapshotId, contentHash, provenanceHash, usable(location) ? cellOf(location.value) : null, evidenceRevision]
+      [
+        placeId,
+        revision,
+        snapshotId,
+        contentHash,
+        provenanceHash,
+        usable(location) ? cellOf(location.value) : null,
+        evidenceRevision
+      ]
     )
     const contentChanged = place.content_hash !== contentHash
     await appendChange(client, { kind: 'upsert', placeId, revision, detail: { contentHash, contentChanged } })
@@ -500,7 +592,16 @@ export async function snapshotFieldsOf(db, snapshotId) {
     [snapshotId]
   )
   return Object.fromEntries(
-    rows.map((r) => [r.field, { status: r.status, value: r.value, blocksBrief: r.blocks_brief, provenance: r.provenance, alternatives: r.alternatives }])
+    rows.map((r) => [
+      r.field,
+      {
+        status: r.status,
+        value: r.value,
+        blocksBrief: r.blocks_brief,
+        provenance: r.provenance,
+        alternatives: r.alternatives
+      }
+    ])
   )
 }
 
@@ -516,5 +617,8 @@ export async function hubBriefFactsOf(db, placeId) {
     [placeId]
   )
   if (!rows[0]) return null
-  return { revision: Number(rows[0].revision), ...briefFactsOf(await snapshotFieldsOf(db, rows[0].current_snapshot_id)) }
+  return {
+    revision: Number(rows[0].revision),
+    ...briefFactsOf(await snapshotFieldsOf(db, rows[0].current_snapshot_id))
+  }
 }

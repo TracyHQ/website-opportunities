@@ -24,7 +24,10 @@
 export const TRACY_BUILDER_STATUS = 'planned'
 
 export default function createTracyBuilder() {
-  throw Object.assign(new Error('The Tracy builder is planned and not available yet; use the manual builder.'), {
-    code: 'BUILDER_PLANNED'
-  })
+  throw Object.assign(
+    new Error('The Tracy builder is planned and not available yet; use the manual builder.'),
+    {
+      code: 'BUILDER_PLANNED'
+    }
+  )
 }

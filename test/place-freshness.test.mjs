@@ -31,7 +31,12 @@ test('a source collected long ago whose retry just failed is stale data, though 
 
 test('a recent collection is fresh and not due', () => {
   const snapshot = published([
-    { source: 'website', status: 'complete', collected_at: at(2 * 24 * HOUR), attempted_at: at(2 * 24 * HOUR) }
+    {
+      source: 'website',
+      status: 'complete',
+      collected_at: at(2 * 24 * HOUR),
+      attempted_at: at(2 * 24 * HOUR)
+    }
   ])
   assert.equal(snapshotFresh(snapshot, NOW), true)
   assert.equal(snapshotDue(snapshot, NOW), false)
@@ -39,7 +44,12 @@ test('a recent collection is fresh and not due', () => {
 
 test('a settled "the place has nothing there" answer is fresh within the max age, stale after', () => {
   const snapshot = published([
-    { source: 'facebook', status: 'failed', attempted_at: at(3 * 24 * HOUR), last_error: { reason: 'not_found' } }
+    {
+      source: 'facebook',
+      status: 'failed',
+      attempted_at: at(3 * 24 * HOUR),
+      last_error: { reason: 'not_found' }
+    }
   ])
   assert.equal(snapshotFresh(snapshot, NOW), true)
   assert.equal(snapshotFresh(snapshot, NOW + SOURCE_MAX_AGE_MS), false)

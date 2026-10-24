@@ -29,7 +29,17 @@ const siteChecks = [
   { status: 'done', copyrightYear: 2021 },
   { status: 'done', copyrightYear: 2022, performance: null }
 ]
-const socials = [undefined, null, {}, { lastPostAt: 'not a date' }, { lastPostAt: ago(0.6) }, { lastPostAt: ago(30) }, { lastPostAt: ago(31) }, { lastPostAt: ago(90) }, { lastPostAt: ago(91) }]
+const socials = [
+  undefined,
+  null,
+  {},
+  { lastPostAt: 'not a date' },
+  { lastPostAt: ago(0.6) },
+  { lastPostAt: ago(30) },
+  { lastPostAt: ago(31) },
+  { lastPostAt: ago(90) },
+  { lastPostAt: ago(91) }
+]
 const thresholds = [undefined, 40, 75, Number.NaN]
 
 export function scoreInputs() {
@@ -48,7 +58,22 @@ export function scoreInputs() {
   return out
 }
 
-export const OUTREACH_LANGUAGES = ['en', 'vi', 'de', 'it', 'fr', 'nl', 'zh', 'es', 'th', 'ja', 'ko', 'id', 'pt', undefined]
+export const OUTREACH_LANGUAGES = [
+  'en',
+  'vi',
+  'de',
+  'it',
+  'fr',
+  'nl',
+  'zh',
+  'es',
+  'th',
+  'ja',
+  'ko',
+  'id',
+  'pt',
+  undefined
+]
 
 export function outreachInputs() {
   const out = []

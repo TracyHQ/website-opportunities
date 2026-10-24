@@ -49,7 +49,10 @@ before(async () => {
   if (!process.env.TEST_DATABASE_URL) return
   db = await hubDatabase()
   app = new Hono()
-  app.route('/', hubAdminRoutes({ pool: db.pool, host, now: () => NOW, verifyDailyCapCents: 300, log: { log() {} } }))
+  app.route(
+    '/',
+    hubAdminRoutes({ pool: db.pool, host, now: () => NOW, verifyDailyCapCents: 300, log: { log() {} } })
+  )
 })
 after(async () => db?.close())
 
@@ -78,9 +81,15 @@ test('block stops the token at once, unblock lets it back in', opts, async () =>
   const tokens = createHubTokens({ pool: db.pool })
   assert.equal((await call(`/accounts/${holder.accountId}/block`, { method: 'POST', body: {} })).status, 200)
   assert.equal(await tokens.authenticate(holder.token), null)
-  assert.equal((await call(`/accounts/${holder.accountId}/unblock`, { method: 'POST', body: {} })).status, 200)
+  assert.equal(
+    (await call(`/accounts/${holder.accountId}/unblock`, { method: 'POST', body: {} })).status,
+    200
+  )
   assert.equal((await tokens.authenticate(holder.token))?.accountId, holder.accountId)
-  assert.equal((await call('/accounts/00000000-0000-4000-8000-000000000000/block', { method: 'POST', body: {} })).status, 404)
+  assert.equal(
+    (await call('/accounts/00000000-0000-4000-8000-000000000000/block', { method: 'POST', body: {} })).status,
+    404
+  )
 })
 
 test('revoke token: the token stops, the account and its quota stay', opts, async () => {
@@ -89,32 +98,53 @@ test('revoke token: the token stops, the account and its quota stay', opts, asyn
   assert.equal(res.status, 200)
   assert.deepEqual(await res.json(), { ok: true, revoked: true })
   assert.equal(await createHubTokens({ pool: db.pool }).authenticate(holder.token), null)
-  const again = await (await call(`/accounts/${holder.accountId}/revoke-token`, { method: 'POST', body: {} })).json()
+  const again = await (
+    await call(`/accounts/${holder.accountId}/revoke-token`, { method: 'POST', body: {} })
+  ).json()
   assert.equal(again.revoked, false)
 })
 
 test('withdraw a contribution on its account behalf; the receipt says withdrawn', opts, async () => {
   const holder = await makeTokenHolder(db.pool)
   const { identities } = await makePlace(db.pool)
-  const obs = await observe(db.pool, { subject: identities[0], field: 'name', value: 'Cafe', account: holder.accountId })
+  const obs = await observe(db.pool, {
+    subject: identities[0],
+    field: 'name',
+    value: 'Cafe',
+    account: holder.accountId
+  })
   const { rows } = await db.pool.query('select contribution_id from wo_hub_observation where id = $1', [obs])
   const id = rows[0].contribution_id
   const listed = await (await call(`/accounts/${holder.accountId}/contributions`)).json()
-  assert.deepEqual(listed.contributions.map((c) => c.id), [id])
+  assert.deepEqual(
+    listed.contributions.map((c) => c.id),
+    [id]
+  )
   const res = await call(`/contributions/${id}/withdraw`, { method: 'POST', body: {} })
   assert.equal(res.status, 200)
   assert.equal((await res.json()).receipt.status, 'withdrawn')
-  assert.equal((await call('/contributions/00000000-0000-4000-8000-000000000000/withdraw', { method: 'POST', body: {} })).status, 404)
+  assert.equal(
+    (await call('/contributions/00000000-0000-4000-8000-000000000000/withdraw', { method: 'POST', body: {} }))
+      .status,
+    404
+  )
 })
 
 test('revoke a place, remove a business, revoke a picture: each needs a reason', opts, async () => {
   const a = await makePlace(db.pool)
   const b = await makePlace(db.pool)
   assert.equal((await call(`/places/${a.placeId}/revoke`, { method: 'POST', body: {} })).status, 400)
-  assert.equal((await call(`/places/${a.placeId}/revoke`, { method: 'POST', body: { reason: 'wrong data' } })).status, 200)
-  const state = async (id) => (await db.pool.query('select state from wo_hub_place where place_id = $1', [id])).rows[0].state
+  assert.equal(
+    (await call(`/places/${a.placeId}/revoke`, { method: 'POST', body: { reason: 'wrong data' } })).status,
+    200
+  )
+  const state = async (id) =>
+    (await db.pool.query('select state from wo_hub_place where place_id = $1', [id])).rows[0].state
   assert.equal(await state(a.placeId), 'revoked')
-  assert.equal((await call(`/places/${b.placeId}/suppress`, { method: 'POST', body: { reason: 'owner asked' } })).status, 200)
+  assert.equal(
+    (await call(`/places/${b.placeId}/suppress`, { method: 'POST', body: { reason: 'owner asked' } })).status,
+    200
+  )
   assert.equal(await state(b.placeId), 'deleted')
   const suppressed = await db.pool.query('select count(*)::int as n from wo_hub_suppressed_identity')
   assert.equal(suppressed.rows[0].n, 1)
@@ -128,8 +158,19 @@ test('revoke a place, remove a business, revoke a picture: each needs a reason',
   const res = await call(`/media/${media}/revoke`, { method: 'POST', body: { reason: 'not the business' } })
   assert.equal(res.status, 200)
   assert.deepEqual(await res.json(), { ok: true, revoked: true })
-  assert.equal((await call('/media/00000000-0000-4000-8000-000000000000/revoke', { method: 'POST', body: { reason: 'x' } })).status, 404)
-  assert.equal((await call('/places/not-a-uuid/revoke', { method: 'POST', body: { reason: 'x' } })).status, 404)
+  assert.equal(
+    (
+      await call('/media/00000000-0000-4000-8000-000000000000/revoke', {
+        method: 'POST',
+        body: { reason: 'x' }
+      })
+    ).status,
+    404
+  )
+  assert.equal(
+    (await call('/places/not-a-uuid/revoke', { method: 'POST', body: { reason: 'x' } })).status,
+    404
+  )
 })
 
 test('verify backlog counts pending work and today’s verification spend against its cap', opts, async () => {
@@ -137,8 +178,17 @@ test('verify backlog counts pending work and today’s verification spend agains
   const { identities } = await makePlace(db.pool)
   const o = await pendingObservation(db.pool, holder.accountId, identities[0], 'website', 'https://a.example')
   await db.pool.query(`update wo_hub_observation set reason = 'deferred_budget' where id = $1`, [o])
-  const ledger = createCostLedger({ pool: db.pool, now: () => NOW, caps: async () => ({ dailyCapCents: 1e6, jobCapCents: 1e6 }) })
-  const r = await ledger.reserve({ provider: 'google', operation: 'place-details', maxCents: 4, purpose: VERIFY_PURPOSE })
+  const ledger = createCostLedger({
+    pool: db.pool,
+    now: () => NOW,
+    caps: async () => ({ dailyCapCents: 1e6, jobCapCents: 1e6 })
+  })
+  const r = await ledger.reserve({
+    provider: 'google',
+    operation: 'place-details',
+    maxCents: 4,
+    purpose: VERIFY_PURPOSE
+  })
   await ledger.settle(r.reservation, 3)
   const v = await (await call('/verify')).json()
   assert.ok(v.backlog.pendingObservations >= 1)

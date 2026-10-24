@@ -53,9 +53,15 @@ export function breakdownRows(list, key) {
 /** A provider key row: where the key comes from (never the key), and whether the operator may change it here. */
 export function keyRowView(provider, fact, writable) {
   const label = providerLabel(provider)
-  if (!fact?.configured) return { label, status: t('op.keys.none'), tone: 'neutral', editable: Boolean(writable) }
+  if (!fact?.configured)
+    return { label, status: t('op.keys.none'), tone: 'neutral', editable: Boolean(writable) }
   const where = fact.source === 'ops' ? t('op.keys.ops') : t('op.keys.env')
-  return { label, status: fact.hint ? `${where} · ${fact.hint}` : where, tone: 'ok', editable: Boolean(writable) }
+  return {
+    label,
+    status: fact.hint ? `${where} · ${fact.hint}` : where,
+    tone: 'ok',
+    editable: Boolean(writable)
+  }
 }
 
 /** `order` with the item at `index` moved by `delta` (-1 up, +1 down); unchanged at either end. */
@@ -85,7 +91,15 @@ export function orderRows(group, order = group.order) {
   ]
 }
 
-const QUEUE_TONE = { queued: 'busy', running: 'busy', paused: 'warn', blocked: 'bad', failed: 'bad', cancelled: 'neutral', completed: 'ok' }
+const QUEUE_TONE = {
+  queued: 'busy',
+  running: 'busy',
+  paused: 'warn',
+  blocked: 'bad',
+  failed: 'bad',
+  cancelled: 'neutral',
+  completed: 'ok'
+}
 
 /** One research job of the Queue tab. */
 export function queueRowView(job) {

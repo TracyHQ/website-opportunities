@@ -22,15 +22,19 @@ const REQUIRED_PLACEHOLDER = { body: '{url}', expiry: '{expires}' }
 export function checkOutreachTemplate(language, kind, template) {
   const where = `outreach template ${language}/${kind}`
   if (!LANGUAGE.test(language)) throw new TypeError(`${where}: ${language} is not a language code`)
-  if (!MESSAGE_KINDS.includes(kind)) throw new TypeError(`${where}: the kinds are ${MESSAGE_KINDS.join(', ')}`)
-  if (!template || typeof template !== 'object' || Array.isArray(template)) throw new TypeError(`${where}: not an object`)
+  if (!MESSAGE_KINDS.includes(kind))
+    throw new TypeError(`${where}: the kinds are ${MESSAGE_KINDS.join(', ')}`)
+  if (!template || typeof template !== 'object' || Array.isArray(template))
+    throw new TypeError(`${where}: not an object`)
   const keys = Object.keys(template)
   const unknown = keys.filter((k) => !TEMPLATE_KEYS.includes(k))
   if (unknown.length) throw new TypeError(`${where}: unknown keys ${unknown.join(', ')}`)
   for (const key of TEMPLATE_KEYS) {
-    if (typeof template[key] !== 'string' || !template[key].trim()) throw new TypeError(`${where}: ${key} is missing`)
+    if (typeof template[key] !== 'string' || !template[key].trim())
+      throw new TypeError(`${where}: ${key} is missing`)
     const needed = REQUIRED_PLACEHOLDER[key]
-    if (needed && !template[key].includes(needed)) throw new TypeError(`${where}: ${key} must contain ${needed}`)
+    if (needed && !template[key].includes(needed))
+      throw new TypeError(`${where}: ${key} must contain ${needed}`)
   }
   return Object.freeze(Object.fromEntries(TEMPLATE_KEYS.map((k) => [k, template[k]])))
 }
@@ -40,9 +44,14 @@ const readJson = (file) => JSON.parse(readFileSync(file, 'utf8'))
 /** `{ [kind]: template }` of each `outreach/<lang>/` folder in `dir`, by language. */
 function readFolders(dir) {
   const out = {}
-  const languages = readdirSync(dir, { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name).sort()
+  const languages = readdirSync(dir, { withFileTypes: true })
+    .filter((e) => e.isDirectory())
+    .map((e) => e.name)
+    .sort()
   for (const language of languages) {
-    const files = readdirSync(join(dir, language)).filter((f) => f.endsWith('.json')).sort()
+    const files = readdirSync(join(dir, language))
+      .filter((f) => f.endsWith('.json'))
+      .sort()
     out[language] = Object.fromEntries(
       files.map((f) => {
         const kind = f.slice(0, -'.json'.length)
@@ -61,13 +70,16 @@ function readFolders(dir) {
 export function readOutreachTemplates({ builtInFile = BUILT_IN_TEMPLATES_FILE, dirs = [OUTREACH_DIR] } = {}) {
   const all = {}
   const add = (language, kinds, from) => {
-    if (Object.hasOwn(all, language)) throw new TypeError(`outreach templates for ${language} are defined twice (${from})`)
+    if (Object.hasOwn(all, language))
+      throw new TypeError(`outreach templates for ${language} are defined twice (${from})`)
     all[language] = Object.freeze(kinds)
   }
   for (const [language, template] of Object.entries(builtInFile ? readJson(builtInFile) : {}))
     add(language, { demo: checkOutreachTemplate(language, 'demo', template) }, builtInFile)
-  for (const dir of dirs) for (const [language, kinds] of Object.entries(readFolders(dir))) add(language, kinds, dir)
-  if (!all.en?.demo) throw new TypeError('outreach templates: English (en/demo) is required, it is the fallback')
+  for (const dir of dirs)
+    for (const [language, kinds] of Object.entries(readFolders(dir))) add(language, kinds, dir)
+  if (!all.en?.demo)
+    throw new TypeError('outreach templates: English (en/demo) is required, it is the fallback')
   return Object.freeze(all)
 }
 

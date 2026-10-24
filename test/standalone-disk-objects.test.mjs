@@ -37,7 +37,15 @@ test('put, head, get and delete one object at its key', async () => {
 
 test('a key that could leave the folder is refused, never written or read', async () => {
   const objects = createDiskObjects({ dir: join(dir, 'fenced') })
-  for (const key of ['../escape.jpg', 'places/../../escape.jpg', '/etc/passwd', 'a//b.jpg', '', 'a/./b', '.hidden']) {
+  for (const key of [
+    '../escape.jpg',
+    'places/../../escape.jpg',
+    '/etc/passwd',
+    'a//b.jpg',
+    '',
+    'a/./b',
+    '.hidden'
+  ]) {
     assert.equal(await objects.put(key, Buffer.from('x'), 'text/plain'), false, key)
     assert.equal(await objects.get(key), null, key)
     assert.equal(await objects.head(key), null, key)

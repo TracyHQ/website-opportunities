@@ -51,7 +51,8 @@ export function createHubContributions({
     const existing = await findByKey(pool, accountId, idempotencyKey)
     if (existing) return existing.payload_hash === hash ? replay(existing.id) : { kind: 'conflict' }
     const parsed = parseContribution(body, { now: now() })
-    if (!parsed.ok) return { kind: 'invalid', code: parsed.code, ...(parsed.path ? { path: parsed.path } : {}) }
+    if (!parsed.ok)
+      return { kind: 'invalid', code: parsed.code, ...(parsed.path ? { path: parsed.path } : {}) }
 
     const out = await inTransaction(async (db) => {
       const at = new Date(now()).toISOString()
@@ -190,7 +191,9 @@ export async function receiptOf(db, id) {
     status: c.status,
     receivedAt: c.received_at.toISOString(),
     withdrawnAt: c.withdrawn_at?.toISOString() ?? null,
-    subject: rows[0] ? { namespace: rows[0].subject_namespace, externalId: rows[0].subject_external_id } : null,
+    subject: rows[0]
+      ? { namespace: rows[0].subject_namespace, externalId: rows[0].subject_external_id }
+      : null,
     observations: rows.map((o) => ({
       ordinal: o.ordinal,
       field: o.field,

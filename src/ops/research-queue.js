@@ -6,7 +6,15 @@
  */
 import { joinPlace, releasePlaceJob } from '../place-jobs.js'
 
-export const PLACE_JOB_STATES = Object.freeze(['queued', 'running', 'paused', 'blocked', 'failed', 'cancelled', 'completed'])
+export const PLACE_JOB_STATES = Object.freeze([
+  'queued',
+  'running',
+  'paused',
+  'blocked',
+  'failed',
+  'cancelled',
+  'completed'
+])
 /** What the queue shows when no state is asked for: work not done yet, and work that failed. */
 const NEEDS_AN_EYE = ['queued', 'running', 'paused', 'blocked', 'failed']
 const ACTIVE = ['queued', 'running', 'paused', 'blocked']
@@ -71,7 +79,9 @@ export async function researchQueue(pool, { state = null, limit = 50 } = {}) {
 }
 
 const jobById = async (db, id, lock = '') =>
-  UUID.test(id) ? (await db.query(`select * from wo_place_job where id = $1 ${lock}`, [id])).rows[0] : undefined
+  UUID.test(id)
+    ? (await db.query(`select * from wo_place_job where id = $1 ${lock}`, [id])).rows[0]
+    : undefined
 
 /**
  * Queue a stopped or finished job's place again. `{job}` (the job that will run), or `{error: 'NOT_FOUND' |

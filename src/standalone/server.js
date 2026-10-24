@@ -59,7 +59,17 @@ async function request(path) {
  *   private addresses, and provider APIs through `fetch`.
  *   `hubFetch` reaches the hub of `config.hubUrl` (default `fetch`: the operator chose that address, LAN included).
  */
-export function createStandaloneApp({ config, pool, objects, fetchImpl, hubFetch, resolve, loadDomain, now, log = console }) {
+export function createStandaloneApp({
+  config,
+  pool,
+  objects,
+  fetchImpl,
+  hubFetch,
+  resolve,
+  loadDomain,
+  now,
+  log = console
+}) {
   const host = createStandaloneHost({ config })
   // One folder serves both key families: content-addressed `media/…` keys and this install's `places/…` keys.
   const disk = objects === undefined ? createDiskObjects({ dir: config.dataDir }) : objects
@@ -161,7 +171,10 @@ export function createStandaloneApp({ config, pool, objects, fetchImpl, hubFetch
     })
   )
   // The operator page's doors; `hub` turns on its Hub tab where the hub admin doors are mounted too.
-  app.route('/', operatorRoutes({ config, pool, host, fetchImpl: apiFetch, hub: config.hubServe === true, log, ...timing }))
+  app.route(
+    '/',
+    operatorRoutes({ config, pool, host, fetchImpl: apiFetch, hub: config.hubServe === true, log, ...timing })
+  )
   if (config.hubServe === true) app.route('/', hubAdminRoutes({ pool, host, log, ...timing }))
   // Without a page (UI_DIR pointing nowhere), `/` points at the API.
   if (!serveUi(app, config.uiDir))

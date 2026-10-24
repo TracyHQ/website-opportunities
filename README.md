@@ -19,9 +19,44 @@ It is for people who sell websites to small businesses: freelancers, agencies, a
    into a score that says how much the place needs a new website.
 3. **Reach.** Draft an outreach message in the business's language, and list the contact channels
    found for it (phone, email, chat links).
-4. **Build (your choice).** Hand a structured brief of the business to a *builder*. The default
-   builder is `manual`: it exports the brief to a file so you can build the site with any tool you
-   like.
+4. **Build.** Turn the brief into a demo site with the AI you already use (Claude, ChatGPT Codex, GitHub
+   Copilot, Grok, Gemini, Kimi, GLM or Qwen in Tracy's chat; ChatGPT, Claude Code, Codex, Cursor or any MCP app through Tracy MCP) and a
+   template from [Tracy](https://tracy.ai)'s library, or export it with the `manual` builder for any other tool.
+
+## From research to a sold website
+
+The tool does the finding and the homework; the selling stays yours. A typical round for one business:
+
+1. **Pick.** Each place in *My opportunities* carries a score and its reasons. A place with no website, or a slow, insecure or years-old one,
+   and an active social page or recent reviews, is a business that is open and reachable.
+2. **Build a demo before you call, with your own AI.** Owners say yes to a site they can open on their phone, far
+   more than to a pitch. Press **Build demo** to get the business's brief: name and trade, what it offers, its
+   current site and social pages, contact channels, opening hours, photos and reviews with where each came from,
+   its colours, a suggested sitemap and what is still missing. Then:
+   - **With Tracy's templates (recommended).** In [Tracy](https://tracy.ai), add a site from a template in the
+     library (WordPress, Joomla or EmDash, ready-made designs and quickstarts). Give the brief to the AI you
+     already pay for, in either of two ways:
+     - **In Tracy's chat**, signed in with your own AI account: Claude, ChatGPT Codex, GitHub Copilot,
+       Grok, Gemini (Antigravity), Kimi, GLM or Qwen.
+     - **From your own AI app** through [Tracy MCP](https://docs.tracy.ai/mcp/), which connects it to that
+       one website: ChatGPT, Claude, Claude Code, Codex, Cursor, or any app that speaks MCP.
+
+     The AI fills the template with the business's real content; every change is listed and
+     can be undone, and the owner can keep editing the site after you sell it. Today you paste the brief into
+     the chat yourself; **Build it with Tracy**, which sends it in one step, is planned.
+   - **With anything else.** The `manual` builder gives the same brief as Markdown and JSON for the tool you
+     build with (an AI site builder, your own template, a developer). Put the demo's address in the outreach
+     preview (**Link to the demo you built**); the API also keeps it per business
+     (`PUT /api/website-opportunities/:id/manual/built`), and a button for it is planned.
+3. **Reach out with the demo.** The outreach draft is written in the business's language for the channel it
+   answers on (email, WhatsApp, phone) and carries the demo link. Nothing is sent
+   for you: you read it, change it and send it yourself.
+4. **Follow up and close.** Tracking who you contacted and what they answered is not in the app yet (planned);
+   keep it in your own CRM or sheet for now. Price, domain, hosting and handover are yours to agree with the
+   owner. Many sellers offer hosting and small monthly changes, which turns one sale into a recurring one.
+
+Contact businesses the way your local rules allow: some countries limit unsolicited email or messages to
+companies. Keep an easy way to opt out, and remove a business that asks you to.
 
 ## Quickstart
 
@@ -135,8 +170,8 @@ a cursor is too old for the hub (`410 cursor_expired`), every cached place is ch
 ### What is shared and what never leaves your server
 
 - **Sent, only with `HUB_CONTRIBUTE=1`:** after a research run, the facts Google's own record gave for that place, in
-  the closed field list of `wo-contribution/v1`: its identity, name, website, phone and address, each naming Google
-  as the source. Facts that came from the hub are never sent back.
+  the closed field list of `wo-contribution/v1`: its identity, name, website, phone, address and location, each naming
+  Google as the source. Facts that came from the hub are never sent back.
 - **Never sent:** your opportunities and pipeline (who you contacted, replies, notes, deal status), briefs, demos,
   outreach drafts, your keys, and anything a crawler read from a website. The hub refuses such fields anyway.
 - **Read from a hub:** place snapshots and the two feeds. Nothing you read is published anywhere by your server.
@@ -146,7 +181,22 @@ a cursor is too old for the hub (`410 cursor_expired`), every cached place is ch
 `HUB_SERVE=1` mounts the hub on the same server under `/hub/v1` and starts two background jobs: one verifies pending
 contributions by reading the named source itself (Google Place Details with your `GOOGLE_PLACES_API_KEY`, one read per
 source object, under a daily budget), the other links verified businesses to a place and publishes a snapshot for
-every place whose evidence changed. A contribution alone never creates a place. Operator commands:
+every place whose evidence changed. A contribution alone never creates a place.
+
+What the Google verifier checks, field by field, against the record it read:
+
+| Field | Accepted when |
+|---|---|
+| `identity`, `name`, `address` | the same place id; the same words, ignoring case and punctuation |
+| `website` | the same host (without `www.`) and path |
+| `phone` | the same digits, or the same last nine digits |
+| `location` | within 150 m of Google's point |
+| `rating` | within 0.1 stars and 5% of the review count (at least 5) |
+| `category` | Google's primary type (`italian_restaurant`; case, spaces and hyphens ignored) |
+| `opening_hours` | `periods` (`{open: {day, hour, minute}, close?}`, day 0 = Sunday): the same weekly periods in any order; `weekdayText` alone: the same lines word for word as Google's weekday descriptions |
+
+`email`, `social_profile` and `photo_ref` have no Google field to check against: they are rejected as
+`unsupported_source` until a verifier for their source exists. Operator commands:
 
 ```sh
 DATABASE_URL=... node src/hub/cli.js token issue --principal <principal id>     # prints the token once

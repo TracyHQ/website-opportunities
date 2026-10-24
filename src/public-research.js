@@ -46,7 +46,14 @@ export function publicResearchDoor(pool) {
     async againPreview({ providerId, now, keys, settings, domain, jobCapCents, onlyParts = null }) {
       const placeId = await knownPlace(providerId)
       const plan = placeId
-        ? await placeAgainPlan(pool, placeId, { now, keys, settings, domain, capCents: jobCapCents, onlyParts })
+        ? await placeAgainPlan(pool, placeId, {
+            now,
+            keys,
+            settings,
+            domain,
+            capCents: jobCapCents,
+            onlyParts
+          })
         : null
       return plan?.researched ? againShape(plan) : null
     },

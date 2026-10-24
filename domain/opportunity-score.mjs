@@ -35,10 +35,18 @@ const HALVINGS = [
 /** A checked, frozen rule; a TypeError names what is wrong. */
 export function defineScoringRule(rule) {
   if (!rule || typeof rule !== 'object') throw new TypeError('a scoring rule is an object')
-  if (typeof rule.id !== 'string' || !ID.test(rule.id)) throw new TypeError(`scoring rule id must be kebab-case: ${String(rule.id)}`)
-  if (!Number.isFinite(rule.weight) || rule.weight <= 0) throw new TypeError(`scoring rule ${rule.id}: weight must be a positive number`)
-  if (typeof rule.score !== 'function') throw new TypeError(`scoring rule ${rule.id}: score(evidence) is missing`)
-  return Object.freeze({ id: rule.id, weight: rule.weight, holdsScore: rule.holdsScore === true, score: rule.score })
+  if (typeof rule.id !== 'string' || !ID.test(rule.id))
+    throw new TypeError(`scoring rule id must be kebab-case: ${String(rule.id)}`)
+  if (!Number.isFinite(rule.weight) || rule.weight <= 0)
+    throw new TypeError(`scoring rule ${rule.id}: weight must be a positive number`)
+  if (typeof rule.score !== 'function')
+    throw new TypeError(`scoring rule ${rule.id}: score(evidence) is missing`)
+  return Object.freeze({
+    id: rule.id,
+    weight: rule.weight,
+    holdsScore: rule.holdsScore === true,
+    score: rule.score
+  })
 }
 
 /** The rules the score is made of, in the order their reasons are listed. */
@@ -63,7 +71,10 @@ const clamp = (points, weight) => (points === null ? null : Math.min(weight, Mat
  * {score, grade, pending, reasons [[key, points|null, params?]]} of one place under `rules` (already checked by
  * `scoringRules`). Same input shape as `scoreOpportunity`.
  */
-export function scoreWithRules(rules, { candidate = {}, siteCheck = null, social = null, slowSiteThreshold = 50, now = new Date() } = {}) {
+export function scoreWithRules(
+  rules,
+  { candidate = {}, siteCheck = null, social = null, slowSiteThreshold = 50, now = new Date() } = {}
+) {
   const evidence = {
     candidate,
     siteCheck,
@@ -77,7 +88,8 @@ export function scoreWithRules(rules, { candidate = {}, siteCheck = null, social
     const answer = rule.score(evidence)
     if (answer === null || answer === undefined) continue
     const points = answer.points === null ? null : Number(answer.points)
-    if (points !== null && !Number.isFinite(points)) throw new TypeError(`scoring rule ${rule.id} answered non-numeric points`)
+    if (points !== null && !Number.isFinite(points))
+      throw new TypeError(`scoring rule ${rule.id} answered non-numeric points`)
     if (points === null && rule.holdsScore) pending = true
     const kept = clamp(points, rule.weight)
     reasons.push(answer.params === undefined ? [answer.reason, kept] : [answer.reason, kept, answer.params])
@@ -97,7 +109,14 @@ export function scoreWithRules(rules, { candidate = {}, siteCheck = null, social
  * Pure: {score 0–100, grade A|B|C, pending (a part is still being checked), reasons [[key, points|null, params?]]}.
  * `status` (new|seen|researched|demo) is accepted for the caller's convenience and does not move the score.
  */
-export function scoreOpportunity({ candidate = {}, siteCheck = null, social = null, status = 'new', slowSiteThreshold = 50, now = new Date() } = {}) {
+export function scoreOpportunity({
+  candidate = {},
+  siteCheck = null,
+  social = null,
+  status = 'new',
+  slowSiteThreshold = 50,
+  now = new Date()
+} = {}) {
   void status
   return scoreWithRules(BUILT_IN_SCORING_RULES, { candidate, siteCheck, social, slowSiteThreshold, now })
 }

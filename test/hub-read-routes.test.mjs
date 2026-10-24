@@ -23,7 +23,9 @@ before(async () => {
   broke = await makeTokenHolder(pool)
   const real = createHubQuota({ pool })
   const empty = createHubQuota({ pool, limits: { read_places: { day: 0, month: 0 } } })
-  const quota = { charge: (accountId, ...rest) => (accountId === broke.accountId ? empty : real).charge(accountId, ...rest) }
+  const quota = {
+    charge: (accountId, ...rest) => (accountId === broke.accountId ? empty : real).charge(accountId, ...rest)
+  }
   app = hubReadRoutes({ pool, quota, objects })
 })
 after(async () => db?.close())
@@ -31,13 +33,23 @@ after(async () => db?.close())
 const call = (path, { token = reader.token, method = 'GET', body, headers = {} } = {}) =>
   app.request(path, {
     method,
-    headers: { authorization: `Bearer ${token}`, ...(body ? { 'content-type': 'application/json' } : {}), ...headers },
+    headers: {
+      authorization: `Bearer ${token}`,
+      ...(body ? { 'content-type': 'application/json' } : {}),
+      ...headers
+    },
     ...(body ? { body: JSON.stringify(body) } : {})
   })
-const publish = async (placeId) => materialize(pool, placeId, await evidenceRevisionOf(pool, placeId), POLICY_VERSION)
+const publish = async (placeId) =>
+  materialize(pool, placeId, await evidenceRevisionOf(pool, placeId), POLICY_VERSION)
 const usedReads = async (accountId) =>
   Number(
-    (await pool.query(`select coalesce(sum(used), 0) as n from wo_hub_quota_use where account_id = $1 and category = 'read_places' and period = 'day'`, [accountId])).rows[0].n
+    (
+      await pool.query(
+        `select coalesce(sum(used), 0) as n from wo_hub_quota_use where account_id = $1 and category = 'read_places' and period = 'day'`,
+        [accountId]
+      )
+    ).rows[0].n
   )
 
 async function publishedPlace(name, extra = []) {
@@ -64,10 +76,29 @@ test('a place answers its snapshot, revision, ETag, freshness and public provena
   const res = await call(`/hub/v1/places/${placeId}`)
   assert.equal(res.status, 200)
   const body = await res.json()
-  assert.deepEqual(Object.keys(body).sort(), ['contentHash', 'fields', 'freshness', 'id', 'policyVersion', 'revision', 'score', 'websiteVerdict'])
+  assert.deepEqual(Object.keys(body).sort(), [
+    'contentHash',
+    'fields',
+    'freshness',
+    'id',
+    'policyVersion',
+    'revision',
+    'score',
+    'websiteVerdict'
+  ])
   assert.deepEqual(Object.keys(body.fields).sort(), ['location', 'name'])
-  assert.deepEqual(Object.keys(body.fields.name).sort(), ['alternatives', 'blocksBrief', 'provenance', 'status', 'value'])
-  assert.deepEqual(Object.keys(body.fields.name.provenance).sort(), ['observedAt', 'sourceObjects', 'sources'])
+  assert.deepEqual(Object.keys(body.fields.name).sort(), [
+    'alternatives',
+    'blocksBrief',
+    'provenance',
+    'status',
+    'value'
+  ])
+  assert.deepEqual(Object.keys(body.fields.name.provenance).sort(), [
+    'observedAt',
+    'sourceObjects',
+    'sources'
+  ])
   assert.equal(body.websiteVerdict.state, 'not_found')
   assert.deepEqual(body.websiteVerdict.checkedSources, ['google_maps'])
   assert.ok(body.websiteVerdict.checkedAt)
@@ -83,7 +114,10 @@ test('a cache miss is not_found and never reaches a provider', opts, async () =>
   const res = await call('/hub/v1/places/00000000-0000-4000-8000-000000000000')
   assert.equal(res.status, 404)
   assert.equal((await res.json()).code, 'not_found')
-  const lookup = await call('/hub/v1/places/lookup', { method: 'POST', body: { items: [{ namespace: 'google', externalId: 'ChIJ-nowhere' }] } })
+  const lookup = await call('/hub/v1/places/lookup', {
+    method: 'POST',
+    body: { items: [{ namespace: 'google', externalId: 'ChIJ-nowhere' }] }
+  })
   assert.deepEqual((await lookup.json()).results, [{ status: 'not_found' }])
 })
 
@@ -92,7 +126,9 @@ test('lookup maps identities to the canonical id, or says ambiguous', opts, asyn
   const b = await publishedPlace('Lookup B')
   const res = await call('/hub/v1/places/lookup', {
     method: 'POST',
-    body: { items: [a.subject, { identities: [a.subject, b.subject] }, { namespace: 'osm', externalId: 'node/0' }] }
+    body: {
+      items: [a.subject, { identities: [a.subject, b.subject] }, { namespace: 'osm', externalId: 'node/0' }]
+    }
   })
   const { results } = await res.json()
   assert.deepEqual(results[0], { status: 'found', id: a.placeId, revision: 1 })
@@ -114,34 +150,47 @@ test('a cell lists its places in bounded pages', opts, async () => {
   assert.equal((await call('/hub/v1/places?cell=nonsense')).status, 400)
 })
 
-test('ACCEPTANCE: a client offline then back gets every revocation even with no quota left', opts, async () => {
-  const head = (await (await call('/hub/v1/revocations', { token: broke.token })).json()).cursor
-  const places = [await publishedPlace('Gone 1'), await publishedPlace('Gone 2'), await publishedPlace('Gone 3')]
-  await revokePlace(pool, { placeId: places[0].placeId, reason: 'review', actor: 'operator' })
-  await suppressBusiness(pool, { placeId: places[1].placeId, reason: 'owner request', actor: 'operator' })
-  await pool.query(`update wo_hub_observation set status = 'withdrawn', decided_at = now()
-                     where subject_external_id = $1 and field = 'name'`, [places[2].subject.externalId])
-  // Out of data quota: places are refused...
-  const live = await publishedPlace('Still here')
-  const denied = await call(`/hub/v1/places/${live.placeId}`, { token: broke.token })
-  assert.equal(denied.status, 429)
-  assert.equal((await denied.json()).code, 'quota_exceeded')
-  // ...but every revocation still comes through, page by page.
-  const got = []
-  let cursor = head
-  for (;;) {
-    const page = await (await call(`/hub/v1/revocations?cursor=${cursor}&limit=1`, { token: broke.token })).json()
-    got.push(...page.events.map((e) => [e.kind, e.placeId]))
-    cursor = page.cursor
-    if (!page.more) break
+test(
+  'ACCEPTANCE: a client offline then back gets every revocation even with no quota left',
+  opts,
+  async () => {
+    const head = (await (await call('/hub/v1/revocations', { token: broke.token })).json()).cursor
+    const places = [
+      await publishedPlace('Gone 1'),
+      await publishedPlace('Gone 2'),
+      await publishedPlace('Gone 3')
+    ]
+    await revokePlace(pool, { placeId: places[0].placeId, reason: 'review', actor: 'operator' })
+    await suppressBusiness(pool, { placeId: places[1].placeId, reason: 'owner request', actor: 'operator' })
+    await pool.query(
+      `update wo_hub_observation set status = 'withdrawn', decided_at = now()
+                     where subject_external_id = $1 and field = 'name'`,
+      [places[2].subject.externalId]
+    )
+    // Out of data quota: places are refused...
+    const live = await publishedPlace('Still here')
+    const denied = await call(`/hub/v1/places/${live.placeId}`, { token: broke.token })
+    assert.equal(denied.status, 429)
+    assert.equal((await denied.json()).code, 'quota_exceeded')
+    // ...but every revocation still comes through, page by page.
+    const got = []
+    let cursor = head
+    for (;;) {
+      const page = await (
+        await call(`/hub/v1/revocations?cursor=${cursor}&limit=1`, { token: broke.token })
+      ).json()
+      got.push(...page.events.map((e) => [e.kind, e.placeId]))
+      cursor = page.cursor
+      if (!page.more) break
+    }
+    assert.deepEqual(got, [
+      ['revoke', places[0].placeId],
+      ['delete', places[1].placeId],
+      ['revoke', places[2].placeId]
+    ])
+    assert.equal(await usedReads(broke.accountId), 0)
   }
-  assert.deepEqual(got, [
-    ['revoke', places[0].placeId],
-    ['delete', places[1].placeId],
-    ['revoke', places[2].placeId]
-  ])
-  assert.equal(await usedReads(broke.accountId), 0)
-})
+)
 
 test('an expired cursor answers 410 cursor_expired; a foreign one 400', opts, async () => {
   const bad = await call('/hub/v1/changes?cursor=c1.e30')
@@ -181,7 +230,12 @@ test('ACCEPTANCE: an old snapshot URL and an old image URL do not pass a revocat
   assert.equal((await call(`/hub/v1/media/${other}`)).status, 410)
   // The whole place revoked: every old URL is refused.
   await revokePlace(pool, { placeId: first.placeId, reason: 'review', actor: 'operator' })
-  for (const url of [oldUrl, `/hub/v1/places/${first.placeId}/snapshots/${second.snapshotId}`, `/hub/v1/places/${first.placeId}`, `/hub/v1/media/${media}`]) {
+  for (const url of [
+    oldUrl,
+    `/hub/v1/places/${first.placeId}/snapshots/${second.snapshotId}`,
+    `/hub/v1/places/${first.placeId}`,
+    `/hub/v1/media/${media}`
+  ]) {
     const res = await call(url)
     assert.equal(res.status, 410, url)
   }
@@ -189,8 +243,11 @@ test('ACCEPTANCE: an old snapshot URL and an old image URL do not pass a revocat
 
 test('a snapshot that showed a withdrawn observation is gone, even by its old URL', opts, async () => {
   const p = await publishedPlace('Withdrawn')
-  await pool.query(`update wo_hub_observation set status = 'withdrawn', decided_at = now()
-                     where subject_external_id = $1 and field = 'location'`, [p.subject.externalId])
+  await pool.query(
+    `update wo_hub_observation set status = 'withdrawn', decided_at = now()
+                     where subject_external_id = $1 and field = 'location'`,
+    [p.subject.externalId]
+  )
   const res = await call(`/hub/v1/places/${p.placeId}/snapshots/${p.snapshotId}`)
   assert.equal(res.status, 410)
   assert.equal((await res.json()).code, 'withdrawn')
@@ -215,6 +272,8 @@ test('a merged place sends readers to the surviving one; lookup follows it', opt
   const res = await call(`/hub/v1/places/${old.placeId}`)
   assert.equal(res.status, 301)
   assert.equal(res.headers.get('location'), `/hub/v1/places/${kept.placeId}`)
-  const { results } = await (await call('/hub/v1/places/lookup', { method: 'POST', body: { items: [old.subject] } })).json()
+  const { results } = await (
+    await call('/hub/v1/places/lookup', { method: 'POST', body: { items: [old.subject] } })
+  ).json()
   assert.deepEqual(results, [{ status: 'found', id: kept.placeId, revision: 1 }])
 })

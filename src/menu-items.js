@@ -35,7 +35,10 @@ const SERVES = [
  */
 export function menuApplicable({ google = null, profile = null, items = [], menuPhotos = 0 } = {}) {
   if ((items ?? []).length > 0) return true
-  if (google && tradeOfPlace({ primaryType: google.primaryType ?? null, types: google.types ?? null }) === 'food')
+  if (
+    google &&
+    tradeOfPlace({ primaryType: google.primaryType ?? null, types: google.types ?? null }) === 'food'
+  )
     return true
   if (profile?.businessType && tradeOfSchemaType(profile.businessType) === 'food') return true
   // Place Details facts keep these under `amenities` (`placeFactsFromDetails`).
@@ -254,7 +257,8 @@ export function menuSummary(items, { at = null, searched = new Set(), empty = nu
  * @param {any} profile the place's snapshot profile
  */
 export function menuEmptyNote(profile) {
-  const tail = ' Dishes and prices are unknown: any dish written is a sample for the owner, never presented as read.'
+  const tail =
+    ' Dishes and prices are unknown: any dish written is a sample for the owner, never presented as read.'
   const status = profile?.menuPhotoStatus
   if (status === 'switched_off' || status === 'not_configured' || status === 'unavailable')
     return `No dishes were read: menu photo reading is off on this site, so the place's menu photos were not read.${tail}`

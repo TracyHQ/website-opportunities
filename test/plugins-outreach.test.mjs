@@ -23,11 +23,18 @@ const EN = {
 test('outreach/en: the English demo template comes from its folder and drafts the same message as before', () => {
   assert.deepEqual({ ...DEMO_TEMPLATES.en }, EN)
   assert.deepEqual(
-    outreachMessage({ place: 'Corner Cafe', url: 'https://demo.example/c', expiresAt: '2026-11-30T00:00:00Z', signature: 'Sam', language: 'en' }),
+    outreachMessage({
+      place: 'Corner Cafe',
+      url: 'https://demo.example/c',
+      expiresAt: '2026-11-30T00:00:00Z',
+      signature: 'Sam',
+      language: 'en'
+    }),
     {
       auto: 'Hello Corner Cafe team,\n\nI made a free demo website for Corner Cafe: https://demo.example/c\n\nHave a look. The demo is available until November 30, 2026.\n\nSam',
       local: null,
-      english: 'Hello Corner Cafe team,\n\nI made a free demo website for Corner Cafe: https://demo.example/c\n\nHave a look. The demo is available until November 30, 2026.\n\nSam',
+      english:
+        'Hello Corner Cafe team,\n\nI made a free demo website for Corner Cafe: https://demo.example/c\n\nHave a look. The demo is available until November 30, 2026.\n\nSam',
       subject: 'A demo website for Corner Cafe'
     }
   )
@@ -60,8 +67,14 @@ test('a language defined twice, or no English, is refused', async () => {
 })
 
 test('checkOutreachTemplate: every key, the placeholders a line needs, a known kind and a language code', () => {
-  assert.throws(() => checkOutreachTemplate('en', 'demo', { ...EN, body: 'No link here' }), /body must contain \{url\}/)
-  assert.throws(() => checkOutreachTemplate('en', 'demo', { ...EN, expiry: 'Soon.' }), /expiry must contain \{expires\}/)
+  assert.throws(
+    () => checkOutreachTemplate('en', 'demo', { ...EN, body: 'No link here' }),
+    /body must contain \{url\}/
+  )
+  assert.throws(
+    () => checkOutreachTemplate('en', 'demo', { ...EN, expiry: 'Soon.' }),
+    /expiry must contain \{expires\}/
+  )
   assert.throws(() => checkOutreachTemplate('en', 'demo', { ...EN, kept: '' }), /kept is missing/)
   assert.throws(() => checkOutreachTemplate('en', 'demo', { ...EN, footer: 'x' }), /unknown keys footer/)
   assert.throws(() => checkOutreachTemplate('en', 'reminder', EN), /kinds are demo/)

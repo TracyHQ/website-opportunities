@@ -292,6 +292,10 @@ legend {
   flex: 0 0 120px;
 }
 
+.field.kind {
+  flex: 0 1 240px;
+}
+
 .filter {
   max-width: 360px;
 }
@@ -701,7 +705,8 @@ dialog ul {
     font-size: 1.35rem;
   }
 
-  .field.small {
+  .field.small,
+  .field.kind {
     flex: 1 1 100%;
   }
 

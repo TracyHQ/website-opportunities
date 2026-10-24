@@ -54,7 +54,9 @@ test('every module the page loads is a relative file inside the served folder', 
 
 test('the page loads scripts and styles from its own folder only', () => {
   const html = readFileSync(join(uiDir, 'index.html'), 'utf8')
-  const refs = [...html.matchAll(/\b(?:src|href)="([^"]+)"/g)].map((m) => m[1]).filter((r) => !r.startsWith('#'))
+  const refs = [...html.matchAll(/\b(?:src|href)="([^"]+)"/g)]
+    .map((m) => m[1])
+    .filter((r) => !r.startsWith('#'))
   assert.deepEqual(
     refs.filter((r) => !r.startsWith('./') || !existsSync(join(uiDir, r))),
     []
@@ -65,8 +67,14 @@ test('no non-English letters or internal names anywhere under ui/', () => {
   // Letters only Vietnamese uses (written as escapes so this file passes the same leak scan).
   const VIETNAMESE = /[\u0103\u0102\u0111\u0110\u01a1\u01a0\u01b0\u01af\u1ea0-\u1ef9]/
   const INTERNAL = new RegExp(
-    ['joom' + 'lart', 'tracy\\.test', 'tracy\\.site', 'cowork\\.tracy', '\\b\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\b',
-     '\\b(lee|brian|lucas|akemi|vincent)\\b'].join('|'),
+    [
+      'joom' + 'lart',
+      'tracy\\.test',
+      'tracy\\.site',
+      'cowork\\.tracy',
+      '\\b\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\b',
+      '\\b(lee|brian|lucas|akemi|vincent)\\b'
+    ].join('|'),
     'i'
   )
   const bad = []
@@ -74,7 +82,8 @@ test('no non-English letters or internal names anywhere under ui/', () => {
     readFileSync(file, 'utf8')
       .split('\n')
       .forEach((line, i) => {
-        if (VIETNAMESE.test(line) || INTERNAL.test(line)) bad.push(`${relative(ROOT, file)}:${i + 1}: ${line.trim()}`)
+        if (VIETNAMESE.test(line) || INTERNAL.test(line))
+          bad.push(`${relative(ROOT, file)}:${i + 1}: ${line.trim()}`)
       })
   }
   assert.deepEqual(bad, [])
@@ -83,8 +92,12 @@ test('no non-English letters or internal names anywhere under ui/', () => {
 test('the only outside address the UI links to is tracy.ai', () => {
   const hosts = new Set()
   for (const file of files(uiDir))
-    for (const m of readFileSync(file, 'utf8').matchAll(/https?:\/\/([a-z0-9.-]+)/gi)) hosts.add(m[1].toLowerCase())
+    for (const m of readFileSync(file, 'utf8').matchAll(/https?:\/\/([a-z0-9.-]+)/gi))
+      hosts.add(m[1].toLowerCase())
   // Chat hosts are where a draft opens, not addresses the UI calls; www.w3.org is the SVG namespace, never fetched.
   const allowed = new Set(['tracy.ai', 'wa.me', 'zalo.me', 'www.w3.org'])
-  assert.deepEqual([...hosts].filter((h) => !allowed.has(h)), [])
+  assert.deepEqual(
+    [...hosts].filter((h) => !allowed.has(h)),
+    []
+  )
 })

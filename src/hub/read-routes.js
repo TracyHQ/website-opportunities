@@ -58,22 +58,34 @@ export function placeDto(row, fieldRows) {
     revision: Number(row.snap_revision),
     contentHash: row.content_hash,
     policyVersion: row.policy_version,
-    fields: Object.fromEntries(fieldRows.filter((f) => allowed.has(f.field)).map((f) => [f.field, publicField(f)])),
+    fields: Object.fromEntries(
+      fieldRows.filter((f) => allowed.has(f.field)).map((f) => [f.field, publicField(f)])
+    ),
     websiteVerdict: {
       state: verdict.state,
       ...(verdict.url !== undefined ? { url: verdict.url } : {}),
       ...(verdict.sources ? { sources: verdict.sources } : {}),
-      ...(verdict.checkedSources ? { checkedSources: verdict.checkedSources, checkedAt: iso(row.observed_at) } : {})
+      ...(verdict.checkedSources
+        ? { checkedSources: verdict.checkedSources, checkedAt: iso(row.observed_at) }
+        : {})
     },
     score: hub.score
-      ? { score: hub.score.score, grade: hub.score.grade, pending: hub.score.pending, reasons: hub.score.reasons }
+      ? {
+          score: hub.score.score,
+          grade: hub.score.grade,
+          pending: hub.score.pending,
+          reasons: hub.score.reasons
+        }
       : null,
     freshness: { observedAt: iso(row.observed_at), materializedAt: iso(row.created_at) }
   }
 }
 
 const iso = (d) => (d ? new Date(d).toISOString() : null)
-const etagOf = (row) => `"r${row.snap_revision}-${String(row.content_hash).replace(/^sha256:/, '').slice(0, 16)}"`
+const etagOf = (row) =>
+  `"r${row.snap_revision}-${String(row.content_hash)
+    .replace(/^sha256:/, '')
+    .slice(0, 16)}"`
 
 const SNAPSHOT_ROW = `
   select p.place_id, p.state, p.merged_into, s.snapshot_id, s.revision as snap_revision, s.content_hash,
@@ -134,7 +146,10 @@ export function hubReadRoutes({
       c.header('WWW-Authenticate', 'Bearer realm="hub"')
       return refusal(c, 401, 'invalid_token')
     }
-    if (host.overLimitOrClosed && (await host.overLimitOrClosed(pool, `${bucket}:${who.accountId}`, RATE[bucket], now(), 60_000))) {
+    if (
+      host.overLimitOrClosed &&
+      (await host.overLimitOrClosed(pool, `${bucket}:${who.accountId}`, RATE[bucket], now(), 60_000))
+    ) {
       return refusal(c, 429, 'rate_limited')
     }
     return who
@@ -149,7 +164,8 @@ export function hubReadRoutes({
   async function servePlace(c, placeId, snapshotId) {
     const account = await caller(c, 'hub_read')
     if (account instanceof Response) return account
-    if (!UUID.test(placeId) || (snapshotId !== null && !UUID.test(snapshotId))) return refusal(c, 404, 'not_found')
+    if (!UUID.test(placeId) || (snapshotId !== null && !UUID.test(snapshotId)))
+      return refusal(c, 404, 'not_found')
     const row = (await pool.query(`${SNAPSHOT_ROW} where p.place_id = $1`, [placeId, snapshotId])).rows[0]
     const blocked = blockOf(row)
     if (blocked) {
@@ -168,7 +184,9 @@ export function hubReadRoutes({
   }
 
   app.get(`${BASE}/places/:id`, (c) => servePlace(c, c.req.param('id'), null))
-  app.get(`${BASE}/places/:id/snapshots/:snapshotId`, (c) => servePlace(c, c.req.param('id'), c.req.param('snapshotId')))
+  app.get(`${BASE}/places/:id/snapshots/:snapshotId`, (c) =>
+    servePlace(c, c.req.param('id'), c.req.param('snapshotId'))
+  )
 
   app.post(`${BASE}/places/lookup`, async (c) => {
     const account = await caller(c, 'hub_read')
@@ -179,9 +197,12 @@ export function hubReadRoutes({
       return refusal(c, 400, 'bad_request', { message: `items: 1 to ${LOOKUP_MAX} lookups` })
     }
     const lists = items.map((item) => (Array.isArray(item?.identities) ? item.identities : [item]))
-    const valid = (i) => i && typeof i.namespace === 'string' && typeof i.externalId === 'string' && i.externalId.length <= 500
+    const valid = (i) =>
+      i && typeof i.namespace === 'string' && typeof i.externalId === 'string' && i.externalId.length <= 500
     if (lists.some((l) => l.length === 0 || l.length > LOOKUP_IDENTITIES_MAX || !l.every(valid))) {
-      return refusal(c, 400, 'bad_request', { message: `each lookup: 1 to ${LOOKUP_IDENTITIES_MAX} {namespace, externalId}` })
+      return refusal(c, 400, 'bad_request', {
+        message: `each lookup: 1 to ${LOOKUP_IDENTITIES_MAX} {namespace, externalId}`
+      })
     }
     const all = lists.flat()
     const { rows } = await pool.query(
@@ -192,10 +213,16 @@ export function hubReadRoutes({
         where (i.namespace, i.external_id) in (select * from unnest($1::text[], $2::text[]))`,
       [all.map((i) => i.namespace), all.map((i) => i.externalId)]
     )
-    const placeOf = new Map(rows.filter((r) => !r.suppressed).map((r) => [`${r.namespace}\u0000${r.external_id}`, r.place_id]))
+    const placeOf = new Map(
+      rows.filter((r) => !r.suppressed).map((r) => [`${r.namespace}\u0000${r.external_id}`, r.place_id])
+    )
     const canonical = await canonicalPlaces(pool, [...new Set(placeOf.values())])
     const results = lists.map((list) => {
-      const ids = [...new Set(list.map((i) => canonical.get(placeOf.get(`${i.namespace}\u0000${i.externalId}`))).filter(Boolean))]
+      const ids = [
+        ...new Set(
+          list.map((i) => canonical.get(placeOf.get(`${i.namespace}\u0000${i.externalId}`))).filter(Boolean)
+        )
+      ]
       if (ids.length === 0) return { status: 'not_found' }
       if (ids.length > 1) return { status: 'ambiguous', candidates: ids.map((id) => id.id).sort() }
       return { status: 'found', id: ids[0].id, revision: ids[0].revision }
@@ -226,7 +253,10 @@ export function hubReadRoutes({
     const servable = page.filter((r) => !blockOf(r))
     const denied = await charge(c, account, 'read_places', servable.length)
     if (denied) return denied
-    const fields = await fieldsOf(pool, servable.map((r) => r.snapshot_id))
+    const fields = await fieldsOf(
+      pool,
+      servable.map((r) => r.snapshot_id)
+    )
     return c.json({
       places: servable.map((r) => placeDto(r, fields.get(r.snapshot_id) ?? [])),
       cursor: rows.length > CELL_PAGE ? encodeCellCursor(cell, page.at(-1).place_id) : null
@@ -239,9 +269,12 @@ export function hubReadRoutes({
       const account = await caller(c, `hub_${feed}`)
       if (account instanceof Response) return account
       try {
-        return c.json(await readFeed(pool, feed, { cursor: c.req.query('cursor'), limit: c.req.query('limit') }))
+        return c.json(
+          await readFeed(pool, feed, { cursor: c.req.query('cursor'), limit: c.req.query('limit') })
+        )
       } catch (error) {
-        if (error instanceof CursorError) return refusal(c, error.code === 'cursor_expired' ? 410 : 400, error.code)
+        if (error instanceof CursorError)
+          return refusal(c, error.code === 'cursor_expired' ? 410 : 400, error.code)
         throw error
       }
     })
@@ -261,7 +294,8 @@ export function hubReadRoutes({
     )
     const row = rows[0]
     const blocked = blockOf(row)
-    if (blocked) return refusal(c, blocked[0] === 301 ? 404 : blocked[0], blocked[0] === 301 ? 'not_found' : blocked[1])
+    if (blocked)
+      return refusal(c, blocked[0] === 301 ? 404 : blocked[0], blocked[0] === 301 ? 'not_found' : blocked[1])
     if (row.media_revoked) return refusal(c, 410, 'revoked')
     if (row.status !== 'stored' || !row.object_key) return refusal(c, 404, 'not_found')
     const denied = await charge(c, account, 'image_bytes', Math.max(1, Number(row.bytes) || 1))
@@ -270,7 +304,10 @@ export function hubReadRoutes({
     if (!object) return refusal(c, 404, 'not_found')
     // Short-lived and private: a copied URL must come back through these checks, never bypass a revocation.
     return new Response(object.body, {
-      headers: { 'Content-Type': row.mime ?? 'application/octet-stream', 'Cache-Control': 'private, max-age=300' }
+      headers: {
+        'Content-Type': row.mime ?? 'application/octet-stream',
+        'Cache-Control': 'private, max-age=300'
+      }
     })
   })
 

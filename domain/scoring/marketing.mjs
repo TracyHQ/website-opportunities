@@ -13,6 +13,10 @@ export default {
     if (!Number.isFinite(at)) return { points: null, reason: 'marketing.unknown' }
     const days = Math.max(0, Math.round((now.getTime() - at) / 60_000) / 1440) // to the minute
     const whole = Math.floor(days)
-    return { points: whole <= 30 ? ACTIVE : whole <= 90 ? RECENT : 0, reason: 'marketing.lastPost', params: { days } }
+    return {
+      points: whole <= 30 ? ACTIVE : whole <= 90 ? RECENT : 0,
+      reason: 'marketing.lastPost',
+      params: { days }
+    }
   }
 }
