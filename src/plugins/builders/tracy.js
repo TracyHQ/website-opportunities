@@ -5,10 +5,11 @@
  *
  * Tracy's doors it calls (base `TRACY_API_URL`, default `TRACY_URL`):
  *   POST /v1/demos              body `website-opportunities/demo-request/v1` (`./tracy-request.js`), `Idempotency-Key`
- *                               → 202 {id, status, statusUrl, demos: {live, limit}}; 409 DEMO_LIMIT_REACHED {live, limit};
- *                               503 SPONSOR_BUDGET_EXHAUSTED
- *   GET  /v1/demos/:id          → {status, site?: {key, url, editUrl}, expiresAt, frozenAt, deletedAt, error?}
- *   POST /v1/demos/:id/cancel
+ *                               → 202 {demo, demos: {live, limit}}; 409 DEMO_LIMIT_REACHED; 503 SPONSOR_BUDGET_EXHAUSTED
+ *   GET  /v1/demos/:id          → {demo, demos}
+ *   POST /v1/demos/:id/cancel   → {demo, demos}
+ * `demo` is {id, status, site: {key, url, editUrl} | null, error: {code} | null, retention: {expiresAt, frozenAt,
+ * deletedAt}}; a refusal is {error: {code, message}, ...}, DEMO_LIMIT_REACHED adding `demos: {live, limit}`.
  *
  * Each request is a row of `wo_tracy_demo` (`../../schema/0006-tracy-demo.sql`) written BEFORE it is sent, with its
  * exact body and idempotency key: a reply lost to a timeout leaves the row `submitting`, and the tick sends the same
@@ -69,6 +70,7 @@ function demoOf(row) {
     frozenAt: iso(row.frozen_at),
     deletedAt: iso(row.deleted_at),
     error: row.error ?? null,
+    demos: row.demos ?? null,
     requestedAt: iso(row.created_at),
     updatedAt: iso(row.updated_at)
   }
@@ -119,19 +121,25 @@ export default function createTracyBuilder({
     return rows[0] ?? row
   }
 
-  /** Tracy's answer about a demo, onto its row. */
+  /** Tracy's answer about a demo (`{demo, demos}`), onto its row. */
   function apply(row, body, waitMs = 0) {
-    const status = STATUSES.has(body?.status) ? body.status : row.status
-    const deletedAt = body?.deletedAt ?? null
+    const demo = body?.demo && typeof body.demo === 'object' ? body.demo : {}
+    const kept = demo.retention ?? {}
+    const status = STATUSES.has(demo.status) ? demo.status : row.status
+    const deletedAt = kept.deletedAt ?? null
     const base = deletedAt ? null : NEXT_POLL_MS[status]
     return update(row, {
       status,
-      demo_id: typeof body?.id === 'string' ? body.id : row.demo_id,
-      site: body?.site && typeof body.site === 'object' ? body.site : row.site,
-      expires_at: body?.expiresAt ?? row.expires_at,
-      frozen_at: body?.frozenAt ?? null,
+      demo_id: typeof demo.id === 'string' ? demo.id : row.demo_id,
+      site: demo.site && typeof demo.site === 'object' ? demo.site : row.site,
+      expires_at: kept.expiresAt ?? row.expires_at,
+      frozen_at: kept.frozenAt ?? null,
       deleted_at: deletedAt,
-      error: body?.error ?? (status === 'failed' ? { code: 'BUILD_FAILED' } : null),
+      error: demo.error ?? (status === 'failed' ? { code: 'BUILD_FAILED' } : null),
+      demos:
+        Number.isFinite(body?.demos?.live) && Number.isFinite(body?.demos?.limit)
+          ? { live: body.demos.live, limit: body.demos.limit }
+          : (row.demos ?? null),
       next_poll_at: base === undefined || base === null ? null : at(Math.max(base, waitMs))
     })
   }
@@ -158,11 +166,15 @@ export default function createTracyBuilder({
     if (res.status >= 500 && res.status !== 503) {
       return { row: await update(row, { attempts: row.attempts + 1, next_poll_at: at(backoff(row)) }) }
     }
-    const code = typeof body?.code === 'string' ? body.code : `HTTP_${res.status}`
-    const error = { code, ...(code === 'DEMO_LIMIT_REACHED' ? { live: body.live, limit: body.limit } : {}) }
+    const code = typeof body?.error?.code === 'string' ? body.error.code : `HTTP_${res.status}`
+    const counts =
+      code === 'DEMO_LIMIT_REACHED'
+        ? { live: body?.demos?.live ?? null, limit: body?.demos?.limit ?? null }
+        : {}
+    const error = { code, ...counts }
     return {
       row: await update(row, { status: 'refused', error, next_poll_at: null }),
-      refusal: { status: res.status, body: { ...body, code } }
+      refusal: { status: res.status, body: { code, message: body?.error?.message ?? null, ...counts } }
     }
   }
 
@@ -316,7 +328,7 @@ export default function createTracyBuilder({
             status: res.status
           })
         const answer = await res.json().catch(() => null)
-        row = await apply(row, { status: 'cancelled', ...answer })
+        row = await apply(row, { demo: { status: 'cancelled', ...answer?.demo } })
         return c.json({ demo: demoOf(row) })
       } catch (error) {
         const refused = connectionRefusal(c, error)

@@ -137,3 +137,29 @@ test('Build: a demo recorded as built elsewhere is not Tracy’s and leaves the 
   assert.deepEqual(v.primary, { kind: 'submit', label: 'Build it with Tracy' })
   assert.equal(v.status, null)
 })
+
+test('Build: a failed demo says why, with Tracy’s code', () => {
+  const coded = tracyBuildView({
+    connection: { state: 'connected' },
+    demo: { builder: 'tracy', status: 'failed', error: { code: 'SITE_FILL_FAILED' } }
+  })
+  assert.equal(coded.notice, 'Tracy stopped the build (SITE_FILL_FAILED).')
+  const told = tracyBuildView({
+    connection: { state: 'connected' },
+    demo: { builder: 'tracy', status: 'failed', error: { code: 'INVALID_LABEL', message: 'Bad site name.' } }
+  })
+  assert.equal(told.notice, 'Bad site name. (INVALID_LABEL)')
+})
+
+test('Build: a sent demo shows how many live demos the account has of its limit', () => {
+  const v = tracyBuildView({
+    connection: { state: 'connected' },
+    demo: { builder: 'tracy', status: 'queued', demos: { live: 3, limit: 20 } }
+  })
+  assert.equal(v.count, 'Live demos in Tracy: 3 of 20')
+  const none = tracyBuildView({
+    connection: { state: 'connected' },
+    demo: { builder: 'tracy', status: 'queued' }
+  })
+  assert.equal(none.count, null)
+})

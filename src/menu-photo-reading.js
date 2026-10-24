@@ -17,6 +17,7 @@ import sharp from 'sharp'
 import { modelTokensOf } from './wo-model-tokens.js'
 import { BudgetExceededError } from './cost-ledger.js'
 import { visionCostCents } from './cost-prices.js'
+import { currencyMinorDigits, plainPrice } from './menu-items.js'
 import { controlError } from './google-maps-research.js'
 import { requireHost } from './host.js'
 import { SOURCE_RETRY_MS, snapshotMediaOf } from './places.js'
@@ -109,6 +110,12 @@ const COUNTRY_CURRENCY = Object.freeze({
   CY: 'EUR',
   MT: 'EUR'
 })
+
+/** A printed currency that is an ISO code ("VND", "aed"), else null: a symbol ("$", "€") names no one currency. */
+const isoCurrencyOf = (printed) => {
+  const code = String(printed ?? '').toUpperCase()
+  return /^[A-Z]{3}$/.test(code) ? code : null
+}
 
 /** The place's country code from Google's address components, or null. */
 export function countryOf(profile) {
@@ -567,28 +574,38 @@ export async function readMenuPhotos({
       fresh.set(photo, { ...base, read: 'failed', reason: 'bad_answer', items: [], costCents })
       continue
     }
-    const items = parsed.items.map((r) => ({
-      name: r.name,
-      price: r.price,
-      // The printed currency, else the place's country's; only beside a price.
-      currency: r.price ? (r.currency ?? currency) : null,
-      ...(r.price && !r.currency && currency ? { currencyAssumed: true } : {}),
-      // The printed number, never multiplied; the scale the menu states (a suffix on it, else the menu's), null = unknown.
-      ...(r.price ? { priceScale: r.priceScale ?? parsed.priceScale } : {}),
-      ...(r.size ? { size: r.size } : {}),
-      section: r.section,
-      source: {
-        url: photo.source_url,
-        sha256: photo.sha256 ?? null,
-        kind: 'photo',
-        region: photo.id,
-        mediaId: photo.id,
-        ...(photo.posted_at ? { postedAt: new Date(photo.posted_at).toISOString() } : {})
-      },
-      collectedAt,
-      verified: false,
-      provenance: 'read from photo'
-    }))
+    const printedOnMenu = parsed.items.map((r) => r.price).filter(Boolean)
+    const items = parsed.items.map((r) => {
+      // The printed number as a plain decimal (`plainPrice`); separators nothing settles keep it as printed, scale unknown.
+      const plain = r.price
+        ? plainPrice(r.price, {
+            minorDigits: currencyMinorDigits(isoCurrencyOf(r.currency) ?? currency),
+            menu: printedOnMenu
+          })
+        : null
+      return {
+        name: r.name,
+        price: plain ?? r.price,
+        // The printed currency, else the place's country's; only beside a price.
+        currency: r.price ? (r.currency ?? currency) : null,
+        ...(r.price && !r.currency && currency ? { currencyAssumed: true } : {}),
+        // The printed number, never multiplied; the scale the menu states (a suffix on it, else the menu's), null = unknown.
+        ...(r.price ? { priceScale: plain === null ? null : (r.priceScale ?? parsed.priceScale) } : {}),
+        ...(r.size ? { size: r.size } : {}),
+        section: r.section,
+        source: {
+          url: photo.source_url,
+          sha256: photo.sha256 ?? null,
+          kind: 'photo',
+          region: photo.id,
+          mediaId: photo.id,
+          ...(photo.posted_at ? { postedAt: new Date(photo.posted_at).toISOString() } : {})
+        },
+        collectedAt,
+        verified: false,
+        provenance: 'read from photo'
+      }
+    })
     const read = !parsed.isMenu ? 'not-menu' : items.length ? 'menu' : 'unreadable'
     fresh.set(photo, { ...base, read, items, costCents, model: model.model })
     if (!labeled) streak = nextStreak(streak, read)

@@ -402,6 +402,8 @@ export const STRINGS = Object.freeze({
   'tracy.budget':
     'Tracy cannot build more demos on its own model right now. Connect an AI account in Tracy, or try later.',
   'tracy.refused': 'Tracy did not take this request ({code}).',
+  'tracy.failedCode': 'Tracy stopped the build ({code}).',
+  'tracy.count': 'Live demos in Tracy: {live} of {limit}',
   'tracy.openTracy': 'Open Tracy',
   'tracy.notConnectedHint': 'Connecting is done once, by the operator, on the Operator page.',
 

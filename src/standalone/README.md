@@ -64,6 +64,7 @@ machine and name it (`localhost`, `127.0.0.1` or `[::1]` in the `Host` header).
 | `HUB_CONTRIBUTE` | `0` | `1`: offer what your own research read from Google to that hub |
 | `WO_SHARED_RESEARCH` | `1` | `0`: research runs per request instead of per place |
 | `GOOGLE_PLACES_API_KEY` (or `GOOGLE_API_KEY`) | none | Google Places search, details and photos |
+| `OVERPASS_URL` | public instances | Your own Overpass (https, reachable on the internet) for OpenStreetMap search; the public ones rate-limit busy addresses |
 | `APIFY_TOKEN` | none | Google Maps through Apify, and the social connectors |
 | `SERPAPI_API_KEY`, `FIRECRAWL_API_KEY`, `JINA_API_KEY`, `LITESCRAPE_API_KEY` | none | Optional research providers |
 | `RAPIDAPI_KEY`, `SCRAPECREATORS_API_KEY` | none | Social page statistics |

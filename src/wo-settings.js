@@ -737,9 +737,10 @@ let runtimeReadWarned = false
  * deepseek, rapidapi}, settings}`. The only door `opportunities/*` reads keys and settings through. Read on
  * every call (one row, no cache) so a change on `/ops/wo` applies to the next search or job; a
  * database error falls back to env keys and defaults and is logged once, never thrown. `openSecret` is
- * `host.openSecret` (Tracy code calls `lib/wo-ops.js` `woRuntime`, which passes its own).
+ * `host.openSecret` (Tracy code calls `lib/wo-ops.js` `woRuntime`, which passes its own). `menuVisionDoor`
+ * (`menu-photo-reading.js menuVisionDoorFor`) becomes `keys.menuVision`, resolved only when a Research again plan asks.
  */
-export async function readWoRuntime(pool, config, { log = console, openSecret } = {}) {
+export async function readWoRuntime(pool, config, { log = console, openSecret, menuVisionDoor } = {}) {
   let row = null
   let readable = true
   if (pool) {
@@ -755,6 +756,7 @@ export async function readWoRuntime(pool, config, { log = console, openSecret } 
     }
   }
   const keys = await openProviderKeys(row, config, openSecret)
+  if (typeof menuVisionDoor === 'function') keys.menuVision = menuVisionDoor
   return {
     keys,
     settings: normalizeWoOpsSettings(row?.settings),

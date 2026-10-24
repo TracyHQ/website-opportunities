@@ -36,6 +36,10 @@ export function readStandaloneConfig(env) {
   const operatorToken = opt(env, 'OPERATOR_TOKEN')
   // Secure by default: without a token nobody but this machine may reach the server.
   const bind = opt(env, 'BIND_ADDRESS') ?? (operatorToken ? '0.0.0.0' : '127.0.0.1')
+  // Your own Overpass for OpenStreetMap search; the public instances rate-limit busy addresses.
+  const overpassUrl = opt(env, 'OVERPASS_URL')
+  if (overpassUrl && !/^https?:\/\//i.test(overpassUrl))
+    throw new Error('OVERPASS_URL must be an http(s) address')
   const hubUrl = opt(env, 'HUB_URL')
   const hubToken = opt(env, 'HUB_TOKEN')
   if (hubUrl && !/^https?:\/\//i.test(hubUrl)) throw new Error('HUB_URL must be an http(s) address')
@@ -69,6 +73,7 @@ export function readStandaloneConfig(env) {
     // Opens keys sealed in `wo_ops_setting`; this server seals none, so keys come from the environment.
     sessionSecret: opt(env, 'SECRET_KEY'),
     googleApiKey: opt(env, 'GOOGLE_PLACES_API_KEY') ?? opt(env, 'GOOGLE_API_KEY'),
+    overpassUrl: overpassUrl ?? null,
     apifyToken: opt(env, 'APIFY_TOKEN'),
     serpapiApiKey: opt(env, 'SERPAPI_API_KEY'),
     litescrapeApiKey: opt(env, 'LITESCRAPE_API_KEY'),

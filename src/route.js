@@ -19,7 +19,6 @@ import { createHash } from 'node:crypto'
 import { Hono } from 'hono'
 import { providerRefusalOf, resolveFrom, suggestFrom, suggestInput, suggestSession } from './place-suggest.js'
 import { placesCacheFetch, snapToCell } from './places-cache.js'
-import { readWoRuntime } from './wo-settings.js'
 import { apifySearchDaySpent, newPlacesDaySpent, refundApifySearch } from './apify-budget.js'
 import { requireHost } from './host.js'
 import { decorateFindCandidates } from './find-ranking.js'
@@ -134,11 +133,14 @@ export function websiteOpportunitiesRoutes(deps) {
     'overLimitOrClosed',
     'refundOne',
     'uiSwitchOn',
-    'openSecret',
     'principalOf',
     'displayNameOf'
   ])
-  const { json, requireViewer, clientIp, overLimitOrClosed, uiSwitchOn, openSecret, principalOf } = host
+  const { json, requireViewer, clientIp, overLimitOrClosed, uiSwitchOn, principalOf } = host
+  // The host's runtime (`readWoRuntime` with its vision door), the one its executor and /ops read: keys and settings
+  // from `/ops/wo` (env fallback), read per request so a change applies at once.
+  const runtime = deps.runtime
+  if (typeof runtime !== 'function') throw new TypeError('websiteOpportunitiesRoutes needs deps.runtime')
   const siteChecks = deps.siteChecks ?? null
   const socialStats = deps.socialStats ?? null
   const now = deps.now ?? Date.now
@@ -148,16 +150,15 @@ export function websiteOpportunitiesRoutes(deps) {
     fetchImpl: deps.fetchImpl ?? fetch,
     pool,
     now,
-    days: async () => (await readWoRuntime(pool, config, { openSecret })).settings.placesCacheDays
+    days: async () => (await runtime()).settings.placesCacheDays
   })
   const domainDeps = () => ({
     fetch: placesFetch,
     ...(deps.resolve ? { resolve: deps.resolve } : {}),
+    ...(config.overpassUrl ? { overpassEndpoints: [config.overpassUrl] } : {}),
     now
   })
   const origin = String(config.origin ?? '').replace(/\/+$/, '')
-  // Keys and settings from `/ops/wo` (env fallback), read per request so a change applies at once.
-  const runtime = () => readWoRuntime(pool, config, { openSecret })
   // `WO_SHARED_RESEARCH` (config.js): a new research request is served by its place's job.
   const shared = config.woSharedResearch !== false
   const app = new Hono()

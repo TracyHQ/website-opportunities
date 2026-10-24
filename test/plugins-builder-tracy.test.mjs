@@ -135,6 +135,7 @@ test('Build it with Tracy sends the place, then the tick follows the demo to rea
   const sent = await call('POST', `${BASE}/${built}/tracy/demo`, {})
   assert.equal(sent.status, 202, JSON.stringify(sent.body))
   assert.equal(sent.body.demo.status, 'queued')
+  assert.deepEqual(sent.body.demo.demos, { live: 1, limit: 20 }, 'Tracy’s count of live demos is kept')
   const [demo] = [...tracy.state.demos.values()]
   assert.equal(demo.body.schema, 'website-opportunities/demo-request/v1')
   assert.equal(demo.body.business.name, 'Corner Cafe')

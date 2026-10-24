@@ -1,5 +1,7 @@
 // A fake Tracy on a random local port: the OAuth device flow (RFC 8628), refresh rotation, revoke, `/v1/me` and
 // `/v1/demos*`, with knobs a test turns to reach each answer. Holds everything in memory.
+// `/v1/demos*` answers in Tracy's own shapes (`apps/tracy-web/src/opportunities-build/public-demos*.js`):
+// `{demo, demos}`, and a refusal `{error: {code, message}, ...extra}`.
 import { randomBytes } from 'node:crypto'
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
@@ -130,36 +132,28 @@ export async function startFakeTracy({ interval = 0, expiresIn = 600, accessSeco
   const shape = (d) => ({
     id: d.id,
     status: d.status,
-    ...(d.status === 'ready' ? { site: d.site } : {}),
-    expiresAt: d.expiresAt,
-    frozenAt: null,
-    deletedAt: d.deletedAt,
-    ...(d.error ? { error: d.error } : {})
+    statusUrl: `/v1/demos/${d.id}`,
+    site: d.status === 'ready' ? d.site : null,
+    error: d.error ?? null,
+    retention: { expiresAt: d.expiresAt, frozenAt: null, deletedAt: d.deletedAt }
   })
+  const answer = (d) => ({ demo: shape(d), demos: { live: live(), limit: state.limit } })
+  const refuse = (c, status, code, extra = {}) => c.json({ error: { code, message: code }, ...extra }, status)
 
   app.post('/v1/demos', async (c) => {
     const g = bearer(c)
     if (typeof g !== 'string') return g
     const key = c.req.header('idempotency-key')
-    if (!key) return c.json({ code: 'IDEMPOTENCY_KEY_REQUIRED' }, 400)
+    if (!key) return refuse(c, 400, 'IDEMPOTENCY_KEY_REQUIRED')
     const text = await c.req.text()
     const seen = state.keys.get(key)
     if (seen) {
-      if (seen.body !== text) return c.json({ code: 'IDEMPOTENCY_KEY_REUSED' }, 409)
-      const d = state.demos.get(seen.id)
-      return c.json(
-        {
-          id: d.id,
-          status: d.status,
-          statusUrl: `/v1/demos/${d.id}`,
-          demos: { live: live(), limit: state.limit }
-        },
-        202
-      )
+      if (seen.body !== text) return refuse(c, 409, 'IDEMPOTENCY_KEY_REUSED')
+      return c.json(answer(state.demos.get(seen.id)), 202)
     }
-    if (state.budgetExhausted) return c.json({ code: 'SPONSOR_BUDGET_EXHAUSTED' }, 503)
+    if (state.budgetExhausted) return refuse(c, 503, 'SPONSOR_BUDGET_EXHAUSTED')
     if (live() >= state.limit)
-      return c.json({ code: 'DEMO_LIMIT_REACHED', live: live(), limit: state.limit }, 409)
+      return refuse(c, 409, 'DEMO_LIMIT_REACHED', { demos: { live: live(), limit: state.limit } })
     const body = JSON.parse(text)
     const demoId = id('dm_')
     const d = {
@@ -179,34 +173,26 @@ export async function startFakeTracy({ interval = 0, expiresIn = 600, accessSeco
       state.stallNextCreateMs = 0
       await new Promise((r) => setTimeout(r, ms))
     }
-    return c.json(
-      {
-        id: demoId,
-        status: 'queued',
-        statusUrl: `/v1/demos/${demoId}`,
-        demos: { live: live(), limit: state.limit }
-      },
-      202
-    )
+    return c.json(answer(d), 202)
   })
 
   app.get('/v1/demos/:id', (c) => {
     const g = bearer(c)
     if (typeof g !== 'string') return g
     const d = state.demos.get(c.req.param('id'))
-    if (!d) return c.json({ code: 'NOT_FOUND' }, 404)
+    if (!d) return refuse(c, 404, 'NOT_FOUND')
     d.polls += 1
     if (state.retryAfter !== null) c.header('retry-after', String(state.retryAfter))
-    return c.json(shape(d))
+    return c.json(answer(d))
   })
 
   app.post('/v1/demos/:id/cancel', (c) => {
     const g = bearer(c)
     if (typeof g !== 'string') return g
     const d = state.demos.get(c.req.param('id'))
-    if (!d) return c.json({ code: 'NOT_FOUND' }, 404)
+    if (!d) return refuse(c, 404, 'NOT_FOUND')
     if (!FINAL.has(d.status)) d.status = 'cancelled'
-    return c.json(shape(d))
+    return c.json(answer(d))
   })
 
   const server = await new Promise((done) => {

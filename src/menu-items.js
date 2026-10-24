@@ -100,6 +100,74 @@ export function priceNumber(price) {
   return digits && Number.isFinite(n) ? n : null
 }
 
+/** The digits a currency's amounts carry after the decimal (ISO 4217 through `Intl`: VND 0, EUR 2, KWD 3); null when not a code. */
+export function currencyMinorDigits(code) {
+  if (typeof code !== 'string' || !/^[A-Z]{3}$/.test(code)) return null
+  try {
+    return new Intl.NumberFormat('en', { style: 'currency', currency: code }).resolvedOptions()
+      .maximumFractionDigits
+  } catch {
+    return null
+  }
+}
+
+/** A printed number's digit groups and the separators (`.` or `,`) between them, in order. */
+const separatorsOf = (s) => ({ groups: s.split(/[.,]/), seps: s.replace(/\d/g, '') })
+
+/**
+ * What the menu's other printed prices say of `sep`: `thousands` where it repeats ("1.250.000") or comes before the other
+ * separator ("1.234,50"); `decimal` where it is the last one and cannot group thousands ("0.750", "12.5").
+ */
+function separatorEvidence(sep, menu) {
+  const found = { thousands: false, decimal: false }
+  for (const printed of menu) {
+    const { groups, seps } = separatorsOf(printed)
+    if (!seps.includes(sep)) continue
+    if (seps.split(sep).length > 2 || seps.at(-1) !== sep) found.thousands = true
+    else if (groups.at(-1).length !== 3 || groups.at(-2) === '0' || groups.at(-2).length > 3)
+      found.decimal = true
+  }
+  return found
+}
+
+/** `whole.fraction`; three decimals lose their trailing zeros so the value never reads as a thousands group ("0.750" → "0.75"). */
+const decimal = (whole, fraction) =>
+  fraction.length === 3
+    ? `${whole}.${fraction.replace(/0+$/, '') || '0'}`.replace(/\.0$/, '')
+    : `${whole}.${fraction}`
+
+/**
+ * A printed price (digits with `.`/`,`, no suffix: `printedPrice`) as a plain decimal string: no thousands separator, `.`
+ * for the decimal ("1.700" → "1700" where the dot groups thousands, "1.234,50" → "1234.50", "17.00" stays). One separator
+ * before exactly three digits is the ambiguous case, resolved by the menu's other prices (`menu`), else by the currency's
+ * minor units (`minorDigits` 2 or fewer: three digits after it cannot be decimals). Null when nothing settles it.
+ */
+export function plainPrice(printed, { minorDigits = null, menu = [] } = {}) {
+  const s = String(printed ?? '')
+  if (/^\d+$/.test(s)) return s
+  if (!/^\d[\d.,]*\d$/.test(s)) return null
+  const { groups, seps } = separatorsOf(s)
+  const grouped = (parts) => /^\d{1,3}$/.test(parts[0]) && parts.slice(1).every((g) => g.length === 3)
+  const last = seps.at(-1)
+  if (seps.includes('.') && seps.includes(',')) {
+    // The last separator is the decimal, once; the other groups thousands before it.
+    if (seps.indexOf(last) !== seps.length - 1 || !grouped(groups.slice(0, -1))) return null
+    return decimal(groups.slice(0, -1).join(''), groups.at(-1))
+  }
+  if (seps.length > 1) return grouped(groups) ? groups.join('') : null
+  const [whole, fraction] = groups
+  if (fraction.length !== 3 || whole === '0' || whole.length > 3) return decimal(whole, fraction)
+  const evidence = separatorEvidence(
+    last,
+    menu.filter((p) => p !== s)
+  )
+  const noThreeDecimals = minorDigits !== null && minorDigits <= 2
+  if (evidence.thousands && !evidence.decimal) return `${whole}${fraction}`
+  if (evidence.decimal && !evidence.thousands && !noThreeDecimals) return decimal(whole, fraction)
+  if (!evidence.decimal && !evidence.thousands && noThreeDecimals) return `${whole}${fraction}`
+  return null
+}
+
 /** What an item's price is worth: the printed number times its `priceScale` (a menu printing thousands); null without one. */
 const amountOf = (item) => {
   const n = priceNumber(item?.price)

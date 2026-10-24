@@ -88,7 +88,8 @@ export function createStandaloneApp({
     fetchImpl ?? createPinnedFetch({ isBlockedAddress: async () => (await domain()).isBlockedAddress })
   const apiFetch = fetchImpl ?? fetch
   // No sealed keys here (`host.openSecret` opens none): provider keys come from the environment.
-  const runtime = () => readWoRuntime(pool, config, { log, openSecret: host.openSecret })
+  const menuVisionDoor = () => menuVisionDoorFor(pool, config.sessionSecret, host)
+  const runtime = () => readWoRuntime(pool, config, { log, openSecret: host.openSecret, menuVisionDoor })
   const switchOn = async () => true
   const timing = now ? { now } : {}
 
@@ -152,7 +153,7 @@ export function createStandaloneApp({
     chargeable: createChargeable(ledger),
     researchLedger: ledger,
     hub: hubLink,
-    menuVisionDoor: () => menuVisionDoorFor(pool, config.sessionSecret, host),
+    menuVisionDoor,
     log,
     ...timing
   })
@@ -196,6 +197,7 @@ export function createStandaloneApp({
       builder,
       loadDomain: domain,
       objects: store,
+      runtime,
       siteChecks,
       socialStats,
       resolve: lookup,

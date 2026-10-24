@@ -996,6 +996,7 @@ function tracyBuildNodes({ id, token, connection, view }) {
         )
       : null,
     h('div', { class: 'row' }, primary, cancel),
+    view.count ? h('p', { class: 'hint' }, view.count) : null,
     connection.state === 'connected' ? null : h('p', { class: 'hint' }, t('tracy.notConnectedHint'))
   )
 }

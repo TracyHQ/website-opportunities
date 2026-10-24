@@ -80,9 +80,10 @@ taken? Set `HOST_PORT` in `.env`. The same token calls the JSON API. Settings an
 
 Connect once, then one button per place:
 
-1. Open **Operator**, tab **Tracy**, and press **Connect Tracy**. The page shows a code and a link.
+1. Open **Operator** at the top of the page, then its **Tracy** tab, and press **Connect Tracy**. The tab shows
+   **Your code** and a link, **Open Tracy to allow it**.
 2. Open the link in any browser, sign in to [Tracy](https://tracy.ai) (or sign up), check that Tracy shows the
-   same code, and allow it. The tab then reads **Connected as** your email.
+   same code, and press **Allow**. The tab then reads **Connected as** your email.
 3. On a place, press **Build it with Tracy**. The card follows the build and shows the demo's link, a link to
    edit it in Tracy, and the date the demo is kept until.
 
@@ -94,7 +95,7 @@ user** (mode 0600), not encrypted. Protect that folder like the database. A demo
 or content can be reported to Tracy, which takes the site down through its own process.
 
 `TRACY_URL` (default `https://cowork.tracy.ai`) names the Tracy to connect to, so you can point the server at a
-test deployment; `TRACY_API_URL` (default `https://api.tracy.ai` when `TRACY_URL` is not set) names its API when
+test deployment (both lines are commented out in `.env.example`: uncomment them to use them); `TRACY_API_URL` (default `https://api.tracy.ai` when `TRACY_URL` is not set) names its API when
 that answers on another address.
 
 ### Bring your own keys
@@ -113,6 +114,10 @@ key at all.
 | Reading a website | Direct crawl (no key), Apify browser, Jina Reader, Firecrawl |
 | Web search (finding a place's pages when it has no website) | ScrapeCreators (Google search), SerpApi, Jina, Firecrawl |
 | Site speed and mobile checks | Google PageSpeed Insights |
+
+OpenStreetMap search goes through public Overpass instances, which are shared and rate-limit busy addresses: a
+search can then answer "The map provider did not answer". Set `OVERPASS_URL` in `.env` to an Overpass of your own
+(an https address the server reaches on the internet), or add a Google Places key.
 
 For each research step you choose which providers answer and in which order, or turn the step off.
 A measurement that could not be taken is shown as unknown, never guessed.

@@ -66,6 +66,7 @@ export function tracyBuildView({ connection, demo }) {
     expiry: null,
     notice: null,
     noticeLink: null,
+    count: null,
     polling: false,
     cancellable: false
   }
@@ -80,7 +81,19 @@ export function tracyBuildView({ connection, demo }) {
       const until = dateText(mine.expiresAt)
       out.expiry = until ? t('tracy.demo.until', { date: until }) : null
     }
-    if (status === 'failed' && mine.error?.message) out.notice = String(mine.error.message)
+    if (status === 'failed') {
+      const { code, message } = mine.error ?? {}
+      out.notice = message
+        ? code
+          ? `${message} (${code})`
+          : String(message)
+        : code
+          ? t('tracy.failedCode', { code })
+          : null
+    }
+    const counts = mine.demos
+    if (Number.isFinite(counts?.live) && Number.isFinite(counts?.limit))
+      out.count = t('tracy.count', { live: counts.live, limit: counts.limit })
   }
   if (status === 'refused') {
     const e = mine.error ?? {}
