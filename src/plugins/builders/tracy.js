@@ -18,6 +18,7 @@
  *
  * Doors (under /api/website-opportunities), beside the manual builder's, which stay for any other tool:
  *   GET  /tracy/connection       → {state, tracyUrl}: whether Build can send (no account details, no token)
+ *   GET  /tracy/options          → {cms: [{cms, pinned, templates}]}: Tracy's list, for the CMS and template selects
  *   POST /:id/tracy/demo         {cms?, template?: {quickstart?, design?}} → 202 {demo} sent, 200 {demo} already one
  *   POST /:id/tracy/demo/cancel  → {demo}
  */
@@ -27,18 +28,30 @@ import { defineBuilder } from '../builders.js'
 import { demoRequestFingerprint, toDemoRequest } from './tracy-request.js'
 
 const BASE = '/api/website-opportunities'
-const STATUSES = new Set(['queued', 'building', 'needs-review', 'ready', 'failed', 'cancelled'])
-const ACTIVE = ['submitting', 'queued', 'building', 'needs-review']
+const STATUSES = new Set([
+  'queued',
+  'waiting-for-you',
+  'building',
+  'needs-review',
+  'ready',
+  'failed',
+  'cancelled'
+])
+const ACTIVE = ['submitting', 'queued', 'waiting-for-you', 'building', 'needs-review']
 // How soon the tick asks again, by status; a Retry-After longer than this wins.
 const NEXT_POLL_MS = {
   submitting: 30_000,
   queued: 10_000,
+  // The site waits for the operator to open its chat in Tracy, where their AI builds it.
+  'waiting-for-you': 60_000,
   building: 10_000,
   'needs-review': 300_000,
   // A live demo is checked now and then for its expiry and removal.
   ready: 6 * 3_600_000
 }
 const TICK_BATCH = 20
+// The demo request holds 24 photos at most; one Places media call each.
+const PLACE_PHOTOS_PER_DEMO = 24
 const CONNECTION_REFUSALS = {
   TRACY_NOT_CONNECTED: 'Connect Tracy first: Operator, Tracy, Connect.',
   TRACY_RECONNECT: 'Tracy no longer accepts this server: reconnect it on the Operator page, Tracy tab.'
@@ -85,11 +98,35 @@ export default function createTracyBuilder({
   pool,
   connection,
   manual = null,
+  placePhotoUri = null,
   now = Date.now,
   log = console
 }) {
   if (!pool || !connection) throw new TypeError('the tracy builder needs pool and connection')
   const at = (ms = 0) => new Date(now() + ms)
+
+  /**
+   * A Places photo is kept as `google-places:<name>`: resolved once, at the press, to its public photoUri, which
+   * Tracy downloads when it accepts the demo (a retry re-sends the same bytes). No resolver (no key): left out.
+   */
+  async function withPlacePhotoUris(media) {
+    if (!placePhotoUri) return media
+    let asked = 0
+    return Promise.all(
+      media.map(async (m) => {
+        const name = /^google-places:(places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+)$/.exec(
+          m?.sourceUrl ?? ''
+        )?.[1]
+        if (!name || m.kind !== 'image' || asked++ >= PLACE_PHOTOS_PER_DEMO) return m
+        try {
+          return { ...m, sourceUrl: await placePhotoUri(name) }
+        } catch (error) {
+          log.warn?.('[wo] a Places photo has no public address now; left out of the demo', error?.code)
+          return m
+        }
+      })
+    )
+  }
 
   async function latestOf(accountId, ids) {
     if (!accountId || !ids.length) return new Map()
@@ -256,6 +293,30 @@ export default function createTracyBuilder({
       return c.json({ state, tracyUrl })
     })
 
+    // What a demo may be built with (Tracy's `/v1/demos/options`), for the Build card's CMS and template selects.
+    app.get(`${BASE}/tracy/options`, async (c) => {
+      const who = await caller(c)
+      if (who instanceof Response) return who
+      const { state } = await connection.status()
+      if (state !== 'connected')
+        return connectionRefusal(c, {
+          code: state === 'reconnect' ? 'TRACY_RECONNECT' : 'TRACY_NOT_CONNECTED'
+        })
+      try {
+        const res = await connection.call('/v1/demos/options')
+        const body = await res.json().catch(() => null)
+        if (!res.ok || !Array.isArray(body?.cms))
+          return refuse(c, 502, 'TRACY_OPTIONS_UNREADABLE', 'Tracy did not list its templates; try again.')
+        return c.json({ cms: body.cms })
+      } catch (error) {
+        const refused = connectionRefusal(c, error)
+        if (refused) return refused
+        if (error?.code === 'TRACY_UNAVAILABLE')
+          return refuse(c, 503, 'TRACY_UNAVAILABLE', 'Tracy did not answer; try again in a moment.')
+        throw error
+      }
+    })
+
     app.post(`${BASE}/:id/tracy/demo`, async (c) => {
       const notJson = jsonOnly(c)
       if (notJson) return notJson
@@ -272,8 +333,10 @@ export default function createTracyBuilder({
       if (domain instanceof Response) return domain
       const sent = (await body(c)) ?? {}
       let brief = null
+      let media = []
       try {
         const { read } = await briefResearchOf(pool, mine.opp)
+        media = await withPlacePhotoUris(read.media ?? [])
         brief = makeSiteBrief(domain, read, {
           opportunity: briefOpportunityOf(mine.opp),
           madeAt: new Date(now()).toISOString()
@@ -282,10 +345,12 @@ export default function createTracyBuilder({
         // An unresearched place still has its name and address: send what there is.
         log.warn?.('[wo] no brief for a Tracy demo; sending the saved place only', error?.message)
       }
-      const request = toDemoRequest(briefOpportunityOf(mine.opp), brief, {
-        cms: sent.cms,
-        template: sent.template
-      })
+      const request = toDemoRequest(
+        briefOpportunityOf(mine.opp),
+        brief,
+        { cms: sent.cms, template: sent.template },
+        media
+      )
       if (!request) return refuse(c, 422, 'PLACE_INCOMPLETE', 'This place has no name to build a demo for.')
       const row = await newRow(mine.who.accountId, mine.opp, request)
       // Lost the race to a second press: answer the demo that won.

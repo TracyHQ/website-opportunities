@@ -18,7 +18,7 @@ import {
   sourceRow,
   websitesToCheck
 } from './view-models.js'
-import { tracyBuildView } from './tracy-view-models.js'
+import { tracyBuildView, tracyTemplateView } from './tracy-view-models.js'
 
 const POLL_MS = 4000
 const RADII_KM = [1, 2, 5, 10, 25]
@@ -568,6 +568,8 @@ async function placeView(id, token) {
     api('/tracy/connection').catch(() => null)
   ])
   const tracy = connection ? tracyBuildView({ connection, demo: detail.demo ?? null }) : null
+  // Tracy's own template list, only while a press can send: the selects beside the button.
+  const options = tracy?.primary?.kind === 'submit' ? await api('/tracy/options').catch(() => null) : null
   const row = listed?.opportunities?.[0] ?? null
   const opp = detail.opportunity ?? {}
   const c = opp.candidate ?? {}
@@ -600,7 +602,7 @@ async function placeView(id, token) {
     photosSection(detail.media ?? [], opp.name ?? c.name ?? ''),
     socialSection(profile?.socialStats ?? row?.social ?? null),
     outreachSection(opp, row, profile),
-    buildSection(opp, profile, detail, tracy && { id, token, connection, view: tracy })
+    buildSection(opp, profile, detail, tracy && { id, token, connection, view: tracy, options })
   ]
   if (!show(token, ...sections)) return
   if (!placeView.lastId || placeView.lastId !== id) focusHeading()
@@ -932,15 +934,19 @@ function buildSection(opp, profile, detail, tracy) {
   )
 }
 
+/** The CMS and template a person picked on a place, kept while the page redraws. */
+const templatePicks = new Map()
+
 /** "Build it with Tracy": one button, then the demo's state, link and expiry (`tracyBuildView`). */
-function tracyBuildNodes({ id, token, connection, view }) {
+function tracyBuildNodes({ id, token, connection, view, options }) {
   const base = `/${encodeURIComponent(id)}/tracy/demo`
   const again = () => current(token) && placeView(id, token).catch((e) => showError(e, token))
-  const send = async (button, path, busy) => {
+  const pick = () => templatePicks.get(id) ?? {}
+  const send = async (button, path, busy, body = {}) => {
     button.disabled = true
     button.textContent = busy
     try {
-      await api(path, { method: 'POST', body: {} })
+      await api(path, { method: 'POST', body })
     } catch (error) {
       // A refusal Tracy gave (limit, budget) is kept on the demo and shown on the redraw.
       if (!(error instanceof ApiError && error.body?.demo))
@@ -956,7 +962,15 @@ function tracyBuildNodes({ id, token, connection, view }) {
           {
             type: 'button',
             class: 'primary',
-            on: { click: (e) => send(e.currentTarget, base, t('tracy.build.sending')) }
+            on: {
+              click: (e) =>
+                send(
+                  e.currentTarget,
+                  base,
+                  t('tracy.build.sending'),
+                  tracyTemplateView(options, pick())?.body ?? {}
+                )
+            }
           },
           view.primary.label
         )
@@ -995,6 +1009,7 @@ function tracyBuildNodes({ id, token, connection, view }) {
           view.noticeLink ? externalLink(view.noticeLink, t('tracy.openTracy')) : null
         )
       : null,
+    view.primary?.kind === 'submit' ? templateChoiceNodes(id, options) : null,
     h('div', { class: 'row' }, primary, cancel),
     view.count ? h('p', { class: 'hint' }, view.count) : null,
     connection.state === 'connected' ? null : h('p', { class: 'hint' }, t('tracy.notConnectedHint'))
@@ -1003,3 +1018,51 @@ function tracyBuildNodes({ id, token, connection, view }) {
 
 window.addEventListener('hashchange', route)
 route()
+
+/** The CMS and template selects beside "Build it with Tracy" (`tracyTemplateView`); none when Tracy listed nothing. */
+function templateChoiceNodes(id, options) {
+  const holder = h('div', { class: 'row tracy-choice' })
+  const draw = () => {
+    const v = tracyTemplateView(options, templatePicks.get(id) ?? {})
+    if (!v) return holder.replaceChildren()
+    const cms = h(
+      'select',
+      {
+        id: 'tracy-cms',
+        on: {
+          change: () => {
+            templatePicks.set(id, { cms: cms.value })
+            draw()
+          }
+        }
+      },
+      v.cms.map((o) => h('option', { value: o.value, selected: o.value === v.cmsValue }, o.label))
+    )
+    const fields = [
+      h('div', { class: 'field small' }, h('label', { for: 'tracy-cms' }, t('tracy.choice.cms')), cms)
+    ]
+    if (v.templates) {
+      const template = h(
+        'select',
+        {
+          id: 'tracy-template',
+          on: { change: () => templatePicks.set(id, { cms: v.cmsValue, quickstart: template.value }) }
+        },
+        v.templates.map((o) =>
+          h('option', { value: o.value, selected: o.value === v.templateValue }, o.label)
+        )
+      )
+      fields.push(
+        h(
+          'div',
+          { class: 'field' },
+          h('label', { for: 'tracy-template' }, t('tracy.choice.template')),
+          template
+        )
+      )
+    }
+    holder.replaceChildren(...fields)
+  }
+  draw()
+  return holder
+}

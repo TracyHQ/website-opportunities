@@ -178,6 +178,14 @@ export function createStandaloneApp({
   const builder = createTracyBuilder({
     pool,
     connection: tracyConnection,
+    placePhotoUri: config.googleApiKey
+      ? async (name) =>
+          (await domain()).placePhotoUri(name, {
+            googleKey: config.googleApiKey,
+            fetch: apiFetch,
+            resolve: lookup
+          })
+      : null,
     manual: createManualBuilder({ pool, objects: store }),
     ...timing,
     log

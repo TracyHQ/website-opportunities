@@ -1,7 +1,7 @@
 // What the Tracy tab and the place profile's Build card show, from the server's answers (ui/public/tracy-view-models.js).
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { tracyBuildView, tracyConnectView } from '../ui/public/tracy-view-models.js'
+import { tracyBuildView, tracyConnectView, tracyTemplateView } from '../ui/public/tracy-view-models.js'
 
 const TRACY = 'https://tracy.example'
 
@@ -162,4 +162,83 @@ test('Build: a sent demo shows how many live demos the account has of its limit'
     demo: { builder: 'tracy', status: 'queued' }
   })
   assert.equal(none.count, null)
+})
+
+const OPTIONS = {
+  cms: [
+    {
+      cms: 'wordpress',
+      pinned: { design: 'tracy', quickstart: 'tracy-base/wp7' },
+      templates: [
+        { design: 'ja-fresco', quickstart: 'quickstart/ja-fresco/wp7', label: 'JA Fresco' },
+        { design: 'tracy', quickstart: 'tracy-base/wp7', label: 'Tracy Base' }
+      ]
+    },
+    {
+      cms: 'joomla',
+      pinned: { design: 'tracy', quickstart: 'tracy-base/j6' },
+      templates: [{ design: 'ja-diner', quickstart: 'quickstart/ja-diner/j6', label: 'JA Diner' }]
+    }
+  ]
+}
+
+test('Template choice: kept as Tracy’s default, the request names nothing', () => {
+  const v = tracyTemplateView(OPTIONS, {})
+  assert.deepEqual(
+    v.cms.map((o) => [o.value, o.label]),
+    [
+      ['', 'Tracy’s choice'],
+      ['wordpress', 'WordPress'],
+      ['joomla', 'Joomla']
+    ]
+  )
+  assert.equal(v.templates, null, 'no template list before a CMS is picked')
+  assert.deepEqual(v.body, {})
+})
+
+test('Template choice: a CMS alone takes that CMS’s default; a template names itself', () => {
+  const cmsOnly = tracyTemplateView(OPTIONS, { cms: 'wordpress' })
+  assert.deepEqual(
+    cmsOnly.templates.map((o) => [o.value, o.label]),
+    [
+      ['', 'Tracy’s default (Tracy Base)'],
+      ['quickstart/ja-fresco/wp7', 'JA Fresco'],
+      ['tracy-base/wp7', 'Tracy Base']
+    ]
+  )
+  assert.deepEqual(cmsOnly.body, { cms: 'wordpress' })
+  const named = tracyTemplateView(OPTIONS, { cms: 'wordpress', quickstart: 'quickstart/ja-fresco/wp7' })
+  assert.deepEqual(named.body, {
+    cms: 'wordpress',
+    template: { quickstart: 'quickstart/ja-fresco/wp7', design: 'ja-fresco' }
+  })
+  // A pick that is not offered (any more) is not sent.
+  assert.deepEqual(tracyTemplateView(OPTIONS, { cms: 'emdash', quickstart: 'x' }).body, {})
+  assert.deepEqual(
+    tracyTemplateView(OPTIONS, { cms: 'joomla', quickstart: 'quickstart/ja-fresco/wp7' }).body,
+    {
+      cms: 'joomla'
+    }
+  )
+})
+
+test('Template choice: no options (Tracy did not answer) shows no chooser', () => {
+  assert.equal(tracyTemplateView(null, {}), null)
+  assert.equal(tracyTemplateView({ cms: [] }, {}), null)
+})
+
+test('Build: a demo waiting for the operator links the chat in Tracy that finishes it', () => {
+  const v = tracyBuildView({
+    connection: { state: 'connected' },
+    demo: {
+      builder: 'tracy',
+      status: 'waiting-for-you',
+      editUrl: 'https://tracy.example/corner-cafe/s/wo-demo-1?wo-demo-chat=1'
+    }
+  })
+  assert.equal(v.status, 'Open in Tracy to finish the demo')
+  assert.equal(v.editLink, 'https://tracy.example/corner-cafe/s/wo-demo-1?wo-demo-chat=1')
+  assert.equal(v.link, null)
+  assert.equal(v.polling, true)
+  assert.equal(v.primary, null, 'no second build while this one waits')
 })

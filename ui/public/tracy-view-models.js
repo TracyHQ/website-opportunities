@@ -2,7 +2,7 @@
 // Server answers in, what the screen shows out. No DOM, no fetch, no clock.
 import { t } from './strings.js'
 
-const MOVING = new Set(['submitting', 'queued', 'building'])
+const MOVING = new Set(['submitting', 'queued', 'waiting-for-you', 'building'])
 
 /** The Tracy tab, from GET /operator/tracy. */
 export function tracyConnectView(status) {
@@ -81,6 +81,8 @@ export function tracyBuildView({ connection, demo }) {
       const until = dateText(mine.expiresAt)
       out.expiry = until ? t('tracy.demo.until', { date: until }) : null
     }
+    // The site exists; the operator's AI builds it in Tracy's chat, which this link opens.
+    if (status === 'waiting-for-you' && !deleted) out.editLink = mine.editUrl ?? null
     if (status === 'failed') {
       const { code, message } = mine.error ?? {}
       out.notice = message
@@ -115,4 +117,44 @@ export function tracyBuildView({ connection, demo }) {
           href: '#/operator/tracy'
         }
   return out
+}
+
+const CMS_LABEL = { wordpress: 'WordPress', joomla: 'Joomla', emdash: 'EmDash' }
+
+/**
+ * The CMS and template selects beside "Build it with Tracy", from GET /tracy/options (Tracy's /v1/demos/options).
+ * `picked` is {cms?, quickstart?}; `body` is what the press sends: nothing while Tracy's default is kept.
+ * @param {{ cms?: {cms: string, pinned?: {quickstart?: string}, templates?: {quickstart: string, design: string, label?: string}[]}[] } | null} options
+ * @param {{ cms?: string, quickstart?: string }} picked
+ */
+export function tracyTemplateView(options, picked = {}) {
+  const list = Array.isArray(options?.cms) ? options.cms.filter((c) => typeof c?.cms === 'string') : []
+  if (!list.length) return null
+  const cms = [
+    { value: '', label: t('tracy.choice.cmsDefault') },
+    ...list.map((c) => ({ value: c.cms, label: CMS_LABEL[c.cms] ?? c.cms }))
+  ]
+  const chosen = list.find((c) => c.cms === picked.cms) ?? null
+  if (!chosen) return { cms, cmsValue: '', templates: null, templateValue: '', body: {} }
+  const offered = (chosen.templates ?? []).filter((x) => typeof x?.quickstart === 'string')
+  const pinned = offered.find((x) => x.quickstart === chosen.pinned?.quickstart)
+  const templates = [
+    {
+      value: '',
+      label: pinned?.label
+        ? t('tracy.choice.templateDefaultNamed', { label: pinned.label })
+        : t('tracy.choice.templateDefault')
+    },
+    ...offered.map((x) => ({ value: x.quickstart, label: x.label ?? x.design }))
+  ]
+  const template = offered.find((x) => x.quickstart === picked.quickstart) ?? null
+  return {
+    cms,
+    cmsValue: chosen.cms,
+    templates,
+    templateValue: template?.quickstart ?? '',
+    body: template
+      ? { cms: chosen.cms, template: { quickstart: template.quickstart, design: template.design } }
+      : { cms: chosen.cms }
+  }
 }

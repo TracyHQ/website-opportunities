@@ -71,14 +71,17 @@ function itemsOf(content) {
   return items.length ? items : undefined
 }
 
-function photosOf(assets) {
+/** The brief's images, in its order, at the public address their research row was read from. */
+function photosOf(assets, media) {
+  const rowOf = new Map((media ?? []).map((m) => [m?.id, m]))
   const seen = new Set()
   const photos = []
   for (const a of assets ?? []) {
-    const url = a?.kind === 'image' ? publicHttpsUrl(a.sourceUrl) : undefined
+    const row = rowOf.get(a?.id)
+    const url = a?.kind === 'image' ? publicHttpsUrl(row?.sourceUrl) : undefined
     if (!url || seen.has(url)) continue
     seen.add(url)
-    photos.push(prune({ url, caption: text(a.category, 500), alt: text(a.alt, 500) }))
+    photos.push(prune({ url, caption: text(a.category, 500), alt: text(a.alt ?? row?.alt, 500) }))
     if (photos.length === MAX_PHOTOS) break
   }
   return photos
@@ -91,8 +94,9 @@ const prune = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !=
  * @param {{ name?: string, candidate?: object }} place
  * @param {object | null} research  the site brief, or null when none could be made
  * @param {{ cms?: string, template?: { quickstart?: string, design?: string } }} [choice]
+ * @param {{ id: string, sourceUrl?: string }[]} [media]  the research rows behind the brief's assets (the brief keeps no address)
  */
-export function toDemoRequest(place, research, choice = {}) {
+export function toDemoRequest(place, research, choice = {}, media = []) {
   const b = research?.business ?? {}
   const c = place?.candidate ?? {}
   const name = text(b.name) ?? text(place?.name) ?? text(c.name)
@@ -117,7 +121,7 @@ export function toDemoRequest(place, research, choice = {}) {
       description: descriptionOf(research?.googlePlace),
       items: itemsOf(research?.content)
     }),
-    photos: photosOf(research?.assets),
+    photos: photosOf(research?.assets, media),
     cms: CMS.has(choice.cms) ? choice.cms : undefined,
     template: Object.keys(template).length ? template : undefined
   })

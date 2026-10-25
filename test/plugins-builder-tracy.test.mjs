@@ -26,6 +26,9 @@ let app
 let ticks
 let principal
 const clock = { t: Date.now() }
+const GOOGLE_KEY = 'google-key-for-the-tracy-builder-tests'
+const PHOTO_URI = 'https://lh3.googleusercontent.com/place-photos/AbC=s1600-w1600'
+const googleAsked = []
 
 before(async () => {
   if (!process.env.TEST_DATABASE_URL) return
@@ -38,13 +41,23 @@ before(async () => {
     DATABASE_URL: scratch.url,
     DATA_DIR: dataDir,
     OPERATOR_TOKEN: TOKEN,
-    TRACY_URL: tracy.url
+    TRACY_URL: tracy.url,
+    GOOGLE_PLACES_API_KEY: GOOGLE_KEY
   })
   const made = createStandaloneApp({
     config,
     pool: scratch.pool,
     // Research and crawls stay offline; only the Tracy calls go out (to the fake).
-    fetchImpl: async () => new Response('offline', { status: 404 }),
+    fetchImpl: async (input, init) => {
+      const href = String(input instanceof Request ? input.url : input)
+      // Places photo media (skipHttpRedirect): answers the public photoUri, key in a header only.
+      if (href.startsWith('https://places.googleapis.com/v1/places/ChIJx/photos/AbC/media')) {
+        googleAsked.push({ href, key: new Headers(init?.headers).get('x-goog-api-key') })
+        return Response.json({ name: 'places/ChIJx/photos/AbC/media', photoUri: PHOTO_URI })
+      }
+      return new Response('offline', { status: 404 })
+    },
+    resolve: async () => [{ address: '2606:4700:4700::1111', family: 6 }],
     tracyFetch: fetch,
     tracyTimeoutMs: 300,
     now: () => clock.t,
@@ -145,8 +158,20 @@ test('Build it with Tracy sends the place, then the tick follows the demo to rea
   assert.equal(again.status, 200, 'a second press answers the same demo')
   assert.equal(tracy.state.demos.size, 1)
 
-  tracy.advance(demo.id, 'building')
+  // The site exists and waits for the operator's AI in Tracy's chat: the card links that chat.
+  tracy.advance(demo.id, 'waiting-for-you')
   clock.t += 15_000
+  await tick()
+  const waiting = (await call('GET', `${BASE}/${built}`)).body.demo
+  assert.equal(waiting.status, 'waiting-for-you')
+  assert.equal(
+    waiting.editUrl,
+    `https://tracy.example/corner-cafe/s/wo-demo-${demo.id}?wo-demo-chat=${demo.id}`
+  )
+  assert.equal((await call('POST', `${BASE}/${built}/tracy/demo`, {})).status, 200, 'still the same demo')
+
+  tracy.advance(demo.id, 'building')
+  clock.t += 60_000
   await tick()
   assert.equal((await call('GET', `${BASE}/${built}`)).body.demo.status, 'building')
 
@@ -238,6 +263,46 @@ test('the sponsor budget refusal is surfaced as it is', opts, async () => {
   } finally {
     tracy.state.budgetExhausted = false
   }
+})
+
+test(
+  'a researched place sends its own public photos, a Places photo as its public photoUri, never the key',
+  opts,
+  async () => {
+    // The brief's assets carry no address, so every demo went out with no photos and Tracy's fill
+    // refused it QUICKSTART_PHOTOGRAPHS_REQUIRED (stranger run, 25/10/2026).
+    const id = await newOpportunity('Photo Tavern')
+    const media = [
+      ['website', 'https://photo-tavern.example/img/terrace.jpg', 'space'],
+      ['google-places', 'google-places:places/ChIJx/photos/AbC', 'food']
+    ]
+    for (const [i, [source, url, category]] of media.entries())
+      await scratch.pool.query(
+        `insert into wo_media (account_id, opportunity_id, sha256, kind, category, source, source_url, mime, width, height, bytes)
+       values ($1, $2, $3, 'image', $4, $5, $6, 'image/jpeg', 1200, 800, 90000)`,
+        [principal, id, `${'ab'.repeat(31)}${i}0`, category, source, url]
+      )
+    const sent = await call('POST', `${BASE}/${id}/tracy/demo`, {})
+    assert.equal(sent.status, 202, JSON.stringify(sent.body))
+    const demo = [...tracy.state.demos.values()].find((d) => d.body.business.name === 'Photo Tavern')
+    assert.deepEqual(
+      (demo.body.photos ?? []).map((p) => p.url),
+      ['https://photo-tavern.example/img/terrace.jpg', PHOTO_URI]
+    )
+    assert.equal(googleAsked.at(-1)?.key, GOOGLE_KEY, 'the key goes to Google in a header')
+    assert.match(googleAsked.at(-1).href, /skipHttpRedirect=true/)
+    assert.equal(JSON.stringify(demo.body).includes(GOOGLE_KEY), false, 'the key never reaches Tracy')
+    assert.equal(JSON.stringify(demo.body).includes('google-places:'), false)
+  }
+)
+
+test('the template choice is Tracy’s own list of what a demo may be built with', opts, async () => {
+  const out = await call('GET', `${BASE}/tracy/options`)
+  assert.equal(out.status, 200, JSON.stringify(out.body))
+  assert.deepEqual(
+    out.body.cms.map((c) => [c.cms, c.pinned.quickstart, c.templates.map((x) => x.quickstart)]),
+    [['wordpress', 'tracy-base/wp7', ['quickstart/ja-fresco/wp7', 'tracy-base/wp7']]]
+  )
 })
 
 test('revoked in Tracy: the page shows Reconnect, Build says so', opts, async () => {

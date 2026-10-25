@@ -83,6 +83,7 @@ export {
   fetchPlaceWebsite,
   placeFactsFromDetails,
   placePhotoUrl,
+  placePhotoUri,
   fetchPlacePhoto
 } from './gplaces-details.mjs'
 export {

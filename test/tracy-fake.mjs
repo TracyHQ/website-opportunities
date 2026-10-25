@@ -133,7 +133,7 @@ export async function startFakeTracy({ interval = 0, expiresIn = 600, accessSeco
     id: d.id,
     status: d.status,
     statusUrl: `/v1/demos/${d.id}`,
-    site: d.status === 'ready' ? d.site : null,
+    site: d.site ?? null,
     error: d.error ?? null,
     retention: { expiresAt: d.expiresAt, frozenAt: null, deletedAt: d.deletedAt }
   })
@@ -174,6 +174,23 @@ export async function startFakeTracy({ interval = 0, expiresIn = 600, accessSeco
       await new Promise((r) => setTimeout(r, ms))
     }
     return c.json(answer(d), 202)
+  })
+
+  app.get('/v1/demos/options', (c) => {
+    const g = bearer(c)
+    if (typeof g !== 'string') return g
+    return c.json({
+      cms: [
+        {
+          cms: 'wordpress',
+          pinned: { design: 'tracy', quickstart: 'tracy-base/wp7' },
+          templates: [
+            { design: 'ja-fresco', quickstart: 'quickstart/ja-fresco/wp7', label: 'JA Fresco' },
+            { design: 'tracy', quickstart: 'tracy-base/wp7', label: 'Tracy Base' }
+          ]
+        }
+      ]
+    })
   })
 
   app.get('/v1/demos/:id', (c) => {
@@ -221,6 +238,12 @@ export async function startFakeTracy({ interval = 0, expiresIn = 600, accessSeco
     advance(demoId, status, extra = {}) {
       const d = state.demos.get(demoId)
       d.status = status
+      if (status === 'waiting-for-you')
+        d.site = {
+          key: 'corner-cafe',
+          url: 'https://corner-cafe.example',
+          editUrl: `https://tracy.example/corner-cafe/s/wo-demo-${d.id}?wo-demo-chat=${d.id}`
+        }
       if (status === 'ready')
         d.site = {
           key: 'corner-cafe',

@@ -84,8 +84,14 @@ Connect once, then one button per place:
    **Your code** and a link, **Open Tracy to allow it**.
 2. Open the link in any browser, sign in to [Tracy](https://tracy.ai) (or sign up), check that Tracy shows the
    same code, and press **Allow**. The tab then reads **Connected as** your email.
-3. On a place, press **Build it with Tracy**. The card follows the build and shows the demo's link, a link to
-   edit it in Tracy, and the date the demo is kept until.
+3. On a place, press **Build it with Tracy** (pick a **Website builder** and **Template** beside it, or keep
+   Tracy's default). Tracy makes the site from the template and the place's facts and photos.
+4. The card then reads **Open in Tracy to finish the demo**. Open that link, signed in to the same Tracy account:
+   it opens the site's chat, and the AI you use in Tracy builds the demo there from what this server found. That
+   AI is one of the eight AI accounts you can connect in Tracy (Claude, ChatGPT Codex, GitHub Copilot, Grok,
+   Gemini, Kimi, GLM or Qwen), or Tracy's own model when none is connected.
+5. The card follows the build and shows the demo's link, a link to edit it in Tracy, and the date the demo is
+   kept until.
 
 Tracy limits how many demo sites an account keeps live at once; at the limit the card says how many you have and
 asks you to delete one in Tracy. **Disconnect** on the same tab revokes the connection in Tracy; demos already

@@ -38,20 +38,30 @@ const BRIEF = {
       kind: 'image',
       category: 'food',
       sha256: 'a',
-      sourceUrl: 'https://cdn.example/a.jpg',
       alt: 'Coffee'
     },
-    { id: '2', kind: 'image', category: 'space', sha256: 'b', sourceUrl: 'https://cdn.example/a.jpg' },
-    { id: '3', kind: 'image', category: 'space', sha256: 'c', sourceUrl: 'http://cdn.example/plain.jpg' },
-    { id: '4', kind: 'image', category: 'space', sha256: 'd', sourceUrl: 'https://10.0.0.0/x.jpg' },
-    { id: '5', kind: 'image', category: 'space', sha256: 'e', sourceUrl: 'https://printer.local/x.jpg' },
+    { id: '2', kind: 'image', category: 'space', sha256: 'b' },
+    { id: '3', kind: 'image', category: 'space', sha256: 'c' },
+    { id: '4', kind: 'image', category: 'space', sha256: 'd' },
+    { id: '5', kind: 'image', category: 'space', sha256: 'e' },
     { id: '6', kind: 'image', category: 'space', sha256: 'f', objectKey: 'places/abc' },
-    { id: '7', kind: 'video', category: 'space', sha256: 'g', sourceUrl: 'https://cdn.example/v.mp4' }
+    { id: '7', kind: 'video', category: 'space', sha256: 'g' }
   ]
 }
 
+/** The research rows behind BRIEF's assets: their public addresses, which the brief itself does not keep. */
+const MEDIA = [
+  { id: '1', sourceUrl: 'https://cdn.example/a.jpg' },
+  { id: '2', sourceUrl: 'https://cdn.example/a.jpg' },
+  { id: '3', sourceUrl: 'http://cdn.example/plain.jpg' },
+  { id: '4', sourceUrl: 'https://10.0.0.0/x.jpg' },
+  { id: '5', sourceUrl: 'https://printer.local/x.jpg' },
+  { id: '6' },
+  { id: '7', sourceUrl: 'https://cdn.example/v.mp4' }
+]
+
 test('a researched place: business facts, items and only public https photos', () => {
-  assert.deepEqual(toDemoRequest(PLACE, BRIEF, { cms: 'wordpress' }), {
+  assert.deepEqual(toDemoRequest(PLACE, BRIEF, { cms: 'wordpress' }, MEDIA), {
     schema: DEMO_REQUEST_SCHEMA,
     business: {
       name: 'Corner Cafe',

@@ -311,6 +311,23 @@ export function placePhotoUrl(photoName, { maxWidthPx = 1600 } = {}) {
 }
 
 /**
+ * The public, short-lived `photoUri` of one Places photo (googleusercontent), for a party that downloads it at once.
+ * The key goes to Google in a header and never appears in the answer.
+ */
+export async function placePhotoUri(photoName, deps = {}) {
+  let url
+  try {
+    url = placePhotoUrl(photoName, { maxWidthPx: deps.maxWidthPx })
+  } catch (err) {
+    throw fail('PROVIDER_ERROR', err.message)
+  }
+  const meta = await placesCall(url, {}, deps)
+  const uri = text(meta?.photoUri)
+  if (!uri || !/^https:\/\//i.test(uri)) throw fail('PROVIDER_ERROR', 'no photoUri from provider')
+  return uri
+}
+
+/**
  * Downloads one Places photo: the media call (key in header) names a `photoUri`, then the bytes come
  * through the URL guard with a byte cap. Returns {bytes, mime, sourceUrl, attributions}.
  */
